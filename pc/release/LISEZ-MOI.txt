@@ -1,0 +1,34 @@
+﻿LA GARDIENNE — Chapitre 1 : Le sous-sol
+=======================================
+
+JOUER
+  Double-clique sur LaGardienne.exe
+
+  Si Windows affiche « Windows a protégé votre ordinateur » :
+  clique sur « Informations complémentaires » puis « Exécuter quand même ».
+  (Le jeu n'est pas signé numériquement, c'est normal pour un jeu indépendant.)
+
+COMMANDES (clavier + souris, ou manette)
+  W A S D / flèches ....... marcher   (Z Q S D sur un clavier AZERTY)
+  Souris .................. regarder
+  Maj ..................... courir
+  C ou Ctrl ............... s'accroupir
+  E ou clic gauche ........ interagir / ramasser
+  F ....................... lampe de poche
+  Tab ..................... objectif
+  Échap ou P .............. pause / options
+
+  Joue avec un casque pour le son 3D.
+
+PROBLÈMES ?
+  - Écran noir ou plantage au démarrage : lance « LaGardienne - DirectX 12.bat »
+  - Vieux PC / portable lent : lance « LaGardienne - mode compatibilite.bat »
+    (graphismes simplifiés, OpenGL)
+  - Tu peux aussi baisser la qualité dans le menu Options.
+
+CONFIGURATION CONSEILLÉE
+  Windows 10 ou 11 (64 bits)
+  Carte graphique compatible Vulkan ou DirectX 12
+  (NVIDIA GTX 900 ou plus récente, AMD RX 400 ou plus récente, Intel UHD 600 ou plus récente)
+
+Moteur : Godot 4.5 (Forward+). Textures et modèles 3D : Poly Haven et ambientCG (CC0).
