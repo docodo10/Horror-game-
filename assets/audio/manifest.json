@@ -1,0 +1,526 @@
+{
+ "footstep_carpet": {
+  "files": [
+   "assets/audio/footsteps/footstep_carpet_1.mp3",
+   "assets/audio/footsteps/footstep_carpet_2.mp3",
+   "assets/audio/footsteps/footstep_carpet_3.mp3",
+   "assets/audio/footsteps/footstep_carpet_4.mp3",
+   "assets/audio/footsteps/footstep_carpet_5.mp3",
+   "assets/audio/footsteps/footstep_carpet_6.mp3",
+   "assets/audio/footsteps/footstep_carpet_7.mp3",
+   "assets/audio/footsteps/footstep_carpet_8.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "footstep_wood": {
+  "files": [
+   "assets/audio/footsteps/footstep_wood_1.mp3",
+   "assets/audio/footsteps/footstep_wood_2.mp3",
+   "assets/audio/footsteps/footstep_wood_3.mp3",
+   "assets/audio/footsteps/footstep_wood_4.mp3",
+   "assets/audio/footsteps/footstep_wood_5.mp3",
+   "assets/audio/footsteps/footstep_wood_6.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "footstep_concrete": {
+  "files": [
+   "assets/audio/footsteps/footstep_concrete_1.mp3",
+   "assets/audio/footsteps/footstep_concrete_2.mp3",
+   "assets/audio/footsteps/footstep_concrete_3.mp3",
+   "assets/audio/footsteps/footstep_concrete_4.mp3",
+   "assets/audio/footsteps/footstep_concrete_5.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "entity_step": {
+  "files": [
+   "assets/audio/footsteps/entity_step_1.mp3",
+   "assets/audio/footsteps/entity_step_2.mp3",
+   "assets/audio/footsteps/entity_step_3.mp3",
+   "assets/audio/footsteps/entity_step_4.mp3",
+   "assets/audio/footsteps/entity_step_5.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "entity_step_stairs": {
+  "files": [
+   "assets/audio/footsteps/entity_step_stairs_1.mp3",
+   "assets/audio/footsteps/entity_step_stairs_2.mp3",
+   "assets/audio/footsteps/entity_step_stairs_3.mp3",
+   "assets/audio/footsteps/entity_step_stairs_4.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "ceiling_steps": {
+  "files": [
+   "assets/audio/footsteps/ceiling_steps_1.mp3",
+   "assets/audio/footsteps/ceiling_steps_2.mp3",
+   "assets/audio/footsteps/ceiling_steps_3.mp3",
+   "assets/audio/footsteps/ceiling_steps_4.mp3",
+   "assets/audio/footsteps/ceiling_steps_5.mp3",
+   "assets/audio/footsteps/ceiling_steps_6.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "ceiling_walk": {
+  "files": [
+   "assets/audio/footsteps/ceiling_walk.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "stair_creak": {
+  "files": [
+   "assets/audio/footsteps/stair_creak_1.mp3",
+   "assets/audio/footsteps/stair_creak_2.mp3",
+   "assets/audio/footsteps/stair_creak_3.mp3",
+   "assets/audio/footsteps/stair_creak_4.mp3",
+   "assets/audio/footsteps/stair_creak_5.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "cloth_move": {
+  "files": [
+   "assets/audio/footsteps/cloth_move_1.mp3",
+   "assets/audio/footsteps/cloth_move_2.mp3",
+   "assets/audio/footsteps/cloth_move_3.mp3",
+   "assets/audio/footsteps/cloth_move_4.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "land_thump": {
+  "files": [
+   "assets/audio/footsteps/land_thump_1.mp3",
+   "assets/audio/footsteps/land_thump_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "door_creak_open": {
+  "files": [
+   "assets/audio/furniture/door_creak_open_1.mp3",
+   "assets/audio/furniture/door_creak_open_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "door_close": {
+  "files": [
+   "assets/audio/furniture/door_close_1.mp3",
+   "assets/audio/furniture/door_close_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "door_locked": {
+  "files": [
+   "assets/audio/furniture/door_locked_1.mp3",
+   "assets/audio/furniture/door_locked_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "unlock": {
+  "files": [
+   "assets/audio/furniture/unlock_1.mp3",
+   "assets/audio/furniture/unlock_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "drawer_open": {
+  "files": [
+   "assets/audio/furniture/drawer_open_1.mp3",
+   "assets/audio/furniture/drawer_open_2.mp3",
+   "assets/audio/furniture/drawer_open_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "drawer_close": {
+  "files": [
+   "assets/audio/furniture/drawer_close_1.mp3",
+   "assets/audio/furniture/drawer_close_2.mp3",
+   "assets/audio/furniture/drawer_close_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "cabinet_open": {
+  "files": [
+   "assets/audio/furniture/cabinet_open_1.mp3",
+   "assets/audio/furniture/cabinet_open_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "cabinet_close": {
+  "files": [
+   "assets/audio/furniture/cabinet_close_1.mp3",
+   "assets/audio/furniture/cabinet_close_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "box_open": {
+  "files": [
+   "assets/audio/furniture/box_open.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "lock_wheel": {
+  "files": [
+   "assets/audio/furniture/lock_wheel_1.mp3",
+   "assets/audio/furniture/lock_wheel_2.mp3",
+   "assets/audio/furniture/lock_wheel_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -8
+ },
+ "lock_fail": {
+  "files": [
+   "assets/audio/furniture/lock_fail.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "lock_success": {
+  "files": [
+   "assets/audio/furniture/lock_success.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "key_pickup": {
+  "files": [
+   "assets/audio/furniture/key_pickup.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "pickup": {
+  "files": [
+   "assets/audio/furniture/pickup_1.mp3",
+   "assets/audio/furniture/pickup_2.mp3",
+   "assets/audio/furniture/pickup_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "paper": {
+  "files": [
+   "assets/audio/furniture/paper_1.mp3",
+   "assets/audio/furniture/paper_2.mp3",
+   "assets/audio/furniture/paper_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -5
+ },
+ "rocking_chair": {
+  "files": [
+   "assets/audio/furniture/rocking_chair_1.mp3",
+   "assets/audio/furniture/rocking_chair_2.mp3",
+   "assets/audio/furniture/rocking_chair_3.mp3",
+   "assets/audio/furniture/rocking_chair_4.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "closet_enter": {
+  "files": [
+   "assets/audio/furniture/closet_enter.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "closet_exit": {
+  "files": [
+   "assets/audio/furniture/closet_exit.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "house_creak": {
+  "files": [
+   "assets/audio/furniture/house_creak_1.mp3",
+   "assets/audio/furniture/house_creak_2.mp3",
+   "assets/audio/furniture/house_creak_3.mp3",
+   "assets/audio/furniture/house_creak_4.mp3",
+   "assets/audio/furniture/house_creak_5.mp3",
+   "assets/audio/furniture/house_creak_6.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "bump": {
+  "files": [
+   "assets/audio/furniture/bump_1.mp3",
+   "assets/audio/furniture/bump_2.mp3",
+   "assets/audio/furniture/bump_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "window_tap": {
+  "files": [
+   "assets/audio/furniture/window_tap.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "breaker_flip": {
+  "files": [
+   "assets/audio/electrical/breaker_flip_1.mp3",
+   "assets/audio/electrical/breaker_flip_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "power_up": {
+  "files": [
+   "assets/audio/electrical/power_up.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "light_buzz": {
+  "files": [
+   "assets/audio/electrical/light_buzz.mp3"
+  ],
+  "loop": true,
+  "gainDb": -6
+ },
+ "light_pop": {
+  "files": [
+   "assets/audio/electrical/light_pop_1.mp3",
+   "assets/audio/electrical/light_pop_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "flashlight_click": {
+  "files": [
+   "assets/audio/electrical/flashlight_click_1.mp3",
+   "assets/audio/electrical/flashlight_click_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "battery_change": {
+  "files": [
+   "assets/audio/electrical/battery_change.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "tv_static": {
+  "files": [
+   "assets/audio/electrical/tv_static.mp3"
+  ],
+  "loop": true,
+  "gainDb": 2
+ },
+ "tv_on": {
+  "files": [
+   "assets/audio/electrical/tv_on.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "tv_off": {
+  "files": [
+   "assets/audio/electrical/tv_off.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "clock_tick": {
+  "files": [
+   "assets/audio/electrical/clock_tick.mp3"
+  ],
+  "loop": true,
+  "gainDb": -4
+ },
+ "clock_chime": {
+  "files": [
+   "assets/audio/electrical/clock_chime.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "fan_hum": {
+  "files": [
+   "assets/audio/electrical/fan_hum.mp3"
+  ],
+  "loop": true,
+  "gainDb": -8
+ },
+ "furnace": {
+  "files": [
+   "assets/audio/electrical/furnace.mp3"
+  ],
+  "loop": true,
+  "gainDb": -6
+ },
+ "room_tone": {
+  "files": [
+   "assets/audio/electrical/room_tone.mp3"
+  ],
+  "loop": true,
+  "gainDb": -12
+ },
+ "lullaby_hum": {
+  "files": [
+   "assets/audio/creature/lullaby_hum_1.mp3",
+   "assets/audio/creature/lullaby_hum_2.mp3",
+   "assets/audio/creature/lullaby_hum_3.mp3",
+   "assets/audio/creature/lullaby_hum_4.mp3"
+  ],
+  "loop": true,
+  "gainDb": 0
+ },
+ "whisper": {
+  "files": [
+   "assets/audio/creature/whisper_1.mp3",
+   "assets/audio/creature/whisper_2.mp3",
+   "assets/audio/creature/whisper_3.mp3",
+   "assets/audio/creature/whisper_4.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "entity_breath": {
+  "files": [
+   "assets/audio/creature/entity_breath_1.mp3",
+   "assets/audio/creature/entity_breath_2.mp3",
+   "assets/audio/creature/entity_breath_3.mp3",
+   "assets/audio/creature/entity_breath_4.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "entity_croak": {
+  "files": [
+   "assets/audio/creature/entity_croak_1.mp3",
+   "assets/audio/creature/entity_croak_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "jumpscare": {
+  "files": [
+   "assets/audio/creature/jumpscare_1.mp3",
+   "assets/audio/creature/jumpscare_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "giggle": {
+  "files": [
+   "assets/audio/creature/giggle_1.mp3",
+   "assets/audio/creature/giggle_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "knock_wall": {
+  "files": [
+   "assets/audio/creature/knock_wall_1.mp3",
+   "assets/audio/creature/knock_wall_2.mp3",
+   "assets/audio/creature/knock_wall_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "player_breath_run": {
+  "files": [
+   "assets/audio/player_music/player_breath_run.mp3"
+  ],
+  "loop": true,
+  "gainDb": 0
+ },
+ "player_breath_scared": {
+  "files": [
+   "assets/audio/player_music/player_breath_scared.mp3"
+  ],
+  "loop": true,
+  "gainDb": -2
+ },
+ "player_gasp": {
+  "files": [
+   "assets/audio/player_music/player_gasp_1.mp3",
+   "assets/audio/player_music/player_gasp_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "heartbeat": {
+  "files": [
+   "assets/audio/player_music/heartbeat.mp3"
+  ],
+  "loop": true,
+  "gainDb": -4
+ },
+ "heartbeat_fast": {
+  "files": [
+   "assets/audio/player_music/heartbeat_fast.mp3"
+  ],
+  "loop": true,
+  "gainDb": -4
+ },
+ "heartbeat_single": {
+  "files": [
+   "assets/audio/player_music/heartbeat_single_1.mp3",
+   "assets/audio/player_music/heartbeat_single_2.mp3",
+   "assets/audio/player_music/heartbeat_single_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "stinger": {
+  "files": [
+   "assets/audio/player_music/stinger_1.mp3",
+   "assets/audio/player_music/stinger_2.mp3"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "chase_music": {
+  "files": [
+   "assets/audio/player_music/chase_music.mp3"
+  ],
+  "loop": true,
+  "gainDb": -4
+ },
+ "ambience_drone": {
+  "files": [
+   "assets/audio/player_music/ambience_drone.mp3"
+  ],
+  "loop": true,
+  "gainDb": -8
+ },
+ "wind_outside": {
+  "files": [
+   "assets/audio/player_music/wind_outside.mp3"
+  ],
+  "loop": true,
+  "gainDb": -10
+ },
+ "win_door": {
+  "files": [
+   "assets/audio/player_music/win_door.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ }
+}

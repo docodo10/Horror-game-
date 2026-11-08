@@ -12,3 +12,20 @@ Tous les modèles 3D et textures sont sous licence **CC0** (domaine public).
   stained_pine, dirty_carpet) et [ambientCG](https://ambientcg.com) (Carpet016).
 
 Les modèles ont été optimisés (GLB, textures WebP 512–1024 px, simplification des maillages lourds).
+
+## Ajouts — lot 2 (voir `assets/NEW_ASSETS.md`)
+
+Toujours sous licence **CC0** (domaine public).
+
+- Modèles 3D photoscannés : [Poly Haven](https://polyhaven.com/models) — boombox (Thomas Paul Mouilleron), gamepad (Josh Dean),
+  baseball_bat (Enrique Martín), football (Amal Kumar), ornate_mirror_01, hanging_picture_frame_02 et bleach_bottle
+  (James Ray Cock), garden_gnome (Bhargav Kubal), Television_01 (Gabriel Radić), pull_chain_light_socket (Josh Dean),
+  metal_toolbox (Mateusz Sadek), plastic_crate_02 (Fabi_G), plastic_bottle_gallon et can_rusted (Rahul Chaudhary),
+  mousetrap (GreenPixel), painted_wooden_stool (Kirill Sannikov), wooden_broom (Balen), vintage_suitcase (Maximilian Schuster).
+  Le verre de hanging_picture_frame_02 a été rendu transparent (le glTF d'origine réutilisait la texture opaque du cadre).
+- Textures PBR : [ambientCG](https://ambientcg.com) — PaintedWood009C, PaintedBricks004, Metal048C, Metal049B, Metal039,
+  Metal043B, Metal055B, Wallpaper001A, Snow011, SurfaceImperfections003, Fabric032, Cardboard004, Paper003, Plastic013B ;
+  [Poly Haven](https://polyhaven.com/textures) — painted_concrete_02, rusty_metal_02, plywood.
+
+Textures converties en JPEG 1024 px (q84, normales OpenGL) ; modèles optimisés comme le lot 1 (GLB, WebP 512–1024 px,
+simplification des maillages lourds).
