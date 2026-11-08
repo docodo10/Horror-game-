@@ -44,9 +44,9 @@ func _ready() -> void:
 		if a.begins_with("--shot"):
 			auto = true
 		elif a.begins_with("--player-cams="):
-			cams = a.get_slice("=", 1)
+			cams = a.substr(a.find("=") + 1)
 		elif a.begins_with("--player-shots="):
-			prefix = a.get_slice("=", 1)
+			prefix = a.substr(a.find("=") + 1)
 	if cams != "" and prefix != "":
 		Game.start()
 		await _capture_views(prefix, cams, args)
@@ -62,7 +62,7 @@ func _capture_views(prefix: String, cams: String, args: PackedStringArray) -> vo
 	var frames := 40
 	for a in args:
 		if a.begins_with("--shot-frames="):
-			frames = a.get_slice("=", 1).to_int()
+			frames = a.substr(a.find("=") + 1).to_int()
 	await get_tree().process_frame
 	Game.player.give_flashlight()
 	Game.player.set_flashlight_on(true)

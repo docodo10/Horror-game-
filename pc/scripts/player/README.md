@@ -33,5 +33,8 @@ godot --headless --fixed-fps 60 --path pc -s res://scripts/player/tests/main_flo
 godot --path pc res://scripts/player/tests/sandbox.tscn -- --autostart --player-log
 xvfb-run ... godot --path pc --rendering-driver vulkan res://scripts/player/tests/sandbox.tscn -- --shots=/abs/prefix \
   --views=spawn,kids,stairs,nook,landing --flashlight --power=off --quality=high
+# several custom views in one renderer run (torch on; per view: power on|off, battery):
+#   ... sandbox.tscn -- --no-fog --player-shots=/abs/prefix --shot-frames=36 \
+#       --player-cams="dresser:-0.55,0,-0.45,0,-12:off|lowbat:-0.55,0,-0.45,8,-12:off:bat=7|lit:2,0,1.45,49,-4:on"
 ```
 Debug args (game or sandbox): `--battery=N`, `--player-stress=0..1`, `--crouch`, `--player-log`.

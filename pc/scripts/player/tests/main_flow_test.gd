@@ -29,7 +29,7 @@ func _run() -> void:
 	var main_script := ""
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--main-script="):
-			main_script = a.get_slice("=", 1)
+			main_script = a.substr(a.find("=") + 1)
 	if main_script != "":
 		var m := Node3D.new()
 		m.name = "Main"

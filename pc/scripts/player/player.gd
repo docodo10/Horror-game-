@@ -381,9 +381,9 @@ func set_flashlight_shadows(on: bool) -> void:
 func _parse_debug_args() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--battery="):
-			flashlight.battery = clampf(a.get_slice("=", 1).to_float(), 0.0, 100.0)
+			flashlight.battery = clampf(a.substr(a.find("=") + 1).to_float(), 0.0, 100.0)
 		elif a.begins_with("--player-stress="):
-			_dbg_stress = clampf(a.get_slice("=", 1).to_float(), 0.0, 1.0)
+			_dbg_stress = clampf(a.substr(a.find("=") + 1).to_float(), 0.0, 1.0)
 		elif a == "--player-log":
 			_dbg_log = true
 
