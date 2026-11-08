@@ -299,6 +299,21 @@ strings/noise while chasing), `jumpscare` (loud harsh layered scream), `whisper`
 `setFear(v)`: heartbeat rate/volume + sub drone. Listen to `entity:state` for chase music, `power` for buzz/fan.
 Respect `settings.volume`. Must not crash before `unlock()` (queue or ignore). iOS: resume context on first touch.
 
+#### Recorded sample library (priority over procedural synthesis)
+`assets/audio/manifest.json` maps every engine sound name → `{ files: [repo-relative mp3 paths], loop, gainDb }`
+(63 sounds, 146 files, real CC0 foley recordings — mostly the Red Library collection; see assets/audio/CREDITS.md).
+The engine must fetch the manifest (path relative to the page: `./assets/audio/manifest.json`), lazily `fetch` +
+`decodeAudioData` the buffers (decode the small/critical ones right after `unlock()`, the rest in the background),
+pick a random variation per play (never the same twice in a row), apply `gainDb`, small random pitch (±3 %) and volume
+(±2 dB) jitter for one-shots, and loop seamlessly for `loop: true`. Procedural synthesis stays as the FALLBACK when a
+sample is missing or not decoded yet. Extra names available in the library beyond the list above: `footstep_concrete`
+(laundry nook floor), `stair_creak`, `cloth_move`, `land_thump`, `ceiling_walk`, `window_tap`, `tv_on`, `clock_chime`,
+`furnace`, `room_tone`, `entity_croak`, `giggle`, `knock_wall`, `player_breath_run` (loop, sprint exhaustion),
+`player_breath_scared` (loop, hiding / entity near), `player_gasp`, `heartbeat_fast`, `heartbeat_single`,
+`ambience_drone`, `wind_outside`. Ceiling/upstairs sounds must be muffled (lowpass ~600 Hz) and positioned above the
+ceiling; sounds behind the closed upstairs door are lowpassed until it opens (occlusion), and sounds in the laundry nook
+get a slightly different reverb. Mix for headphones: ducking of ambience under stingers/jumpscare, a limiter on the master.
+
 ### UI (`ui`)
 Distinctive, restrained horror UI (not generic): title "La Gardienne" scrawled in Rock Salt like a child's crayon on aged
 paper, subtitle "Chapitre 1 — Le sous-sol" in Special Elite. Main menu over the live 3D scene (darkened): Jouer, Options

@@ -175,3 +175,28 @@ export function groundHeightAt(x, z, prevY) {
   if (s !== null) return s;
   return 0;
 }
+
+// Batch-2 set dressing (Poly Haven), placed by the detail pass. See assets/NEW_ASSETS.md §3 for the checks behind
+// these positions. `keepNodes` / `hideNodes` select one variant inside multi-variant models; rotX/rotZ tilt leaning props.
+export const EXTRA_PROPS = {
+  boombox:      { model: 'boombox', pos: [-2.35, 0, -0.50], rotY: PI / 2 },
+  gamepad:      { model: 'gamepad', pos: [-0.30, 0, -1.95], rotY: 0.5, noCollider: true },
+  bat:          { model: 'baseball_bat', pos: [-3.40, 0.254, 2.63], rotY: 0, rotX: 0.10, rotZ: 0.10 },
+  football:     { model: 'football', pos: [-2.35, 0, 1.15], rotY: 0.7, hideNodes: ['football_inflated'], zeroNodeX: 'football_deflated' },
+  mirror:       { model: 'ornate_mirror_01', pos: [0.47, 1.62, -2.749], rotY: 0, noCollider: true },
+  stairPhotoA:  { model: 'hanging_picture_frame_02', pos: [-3.498, 2.55, 0.30], rotY: PI / 2, noCollider: true },
+  stairPhotoB:  { model: 'hanging_picture_frame_02', pos: [-3.498, 3.50, -0.75], rotY: PI / 2, noCollider: true },
+  oldTv:        { model: 'Television_01', pos: [2.55, 0, -4.33], rotY: 0 },
+  socket:       { model: 'pull_chain_light_socket', pos: [1.80, 2.50, -3.60], rotY: 0, noCollider: true },
+  toolbox:      { model: 'metal_toolbox', pos: [3.20, 0, -4.38], rotY: -PI / 2 },
+  laundry:      { model: 'plastic_crate_02', pos: [0.58, 0, -3.22], rotY: 0.15 },
+  stool:        { model: 'painted_wooden_stool', pos: [0.62, 0, -3.72], rotY: 0 },
+  broom:        { model: 'wooden_broom', pos: [0.29, 0.122, -3.72], rotY: PI / 2, rotZ: 0.12, noCollider: true },
+  bleach:       { model: 'bleach_bottle', pos: [0.85, 1.182, -4.30], rotY: -0.3, noCollider: true },
+  jug:          { model: 'plastic_bottle_gallon', pos: [0.60, 1.182, -4.36], rotY: 0.5, noCollider: true },
+  paintCan:     { model: 'can_rusted', pos: [3.36, 0.66, -3.95], rotY: 1.0, noCollider: true },
+  gnome:        { model: 'garden_gnome', pos: [3.25, 0, -3.10], rotY: -1.47 },
+  mousetrap:    { model: 'mousetrap', pos: [1.68, 0, -4.50], rotY: 0.3, noCollider: true },
+  suitcase:     { model: 'vintage_suitcase', pos: [-3.31, 0, -1.20], rotY: PI / 2, hidePrefix: 'vintage_suitcase_02' },
+  suitcaseHall: { model: 'vintage_suitcase', pos: [-3.47, 2.75, -4.356], rotY: PI / 2, hidePrefix: 'vintage_suitcase_01', noCollider: true },
+};

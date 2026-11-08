@@ -35,7 +35,27 @@ export const MODELS = {
   portable_cassette_player:    { size: [0.172, 0.13, 0.04], min: [-0.064, -0.056, -0.017] },
   pastic_torch_6v:             { size: [0.137, 0.142, 0.224], min: [-0.068, -0.07, -0.095] }, // yellow 6V lantern flashlight, lens toward +Z
   CoffeeTable_01:              { size: [1.54, 0.523, 0.973], min: [-0.77, 0.002, -0.486] },
+  // ---- batch 2 (see assets/NEW_ASSETS.md for placement notes) ----
+  boombox:                  { size: [0.724, 0.47, 0.186], min: [-0.362, 0, -0.073] },
+  gamepad:                  { size: [0.404, 0.019, 0.435], min: [-0.211, -0.001, -0.214] },
+  baseball_bat:             { size: [0.064, 0.913, 0.064], min: [-0.032, -0.254, -0.032] },
+  football:                 { size: [0.509, 0.222, 0.222], min: [-0.249, 0, -0.112], nodes: ['football_deflated', 'football_inflated'] }, // two variants side by side: keep one
+  ornate_mirror_01:         { size: [0.486, 0.744, 0.026], min: [-0.243, -0.411, 0] }, // origin = hang point, back z=0; glass z~0.007 x±0.219 y[-0.386,0.299]
+  hanging_picture_frame_02: { size: [0.752, 0.5, 0.033], min: [-0.376, -0.279, 0.002] }, // child meshes: _artwork (canvas, v 0.223-0.801, flipY=false), _glass
+  garden_gnome:             { size: [0.257, 0.599, 0.21], min: [-0.144, 0, -0.098] },
+  Television_01:            { size: [0.6, 0.457, 0.471], min: [-0.3, 0, -0.258] }, // old CRT; screen x[-0.257,0.126] y[0.114,0.404] z~0.19
+  pull_chain_light_socket:  { size: [0.11, 0.165, 0.11], min: [-0.055, -0.165, -0.055], nodes: ['pull_chain_light_socket', 'pull_chain_light_socket_chain'] }, // origin = ceiling mount
+  metal_toolbox:            { size: [0.4, 0.305, 0.271], min: [-0.2, 0, -0.157], nodes: ['metal_toolbox', 'metal_toolbox_tray', 'metal_toolbox_lid'] }, // lid authored OPEN -> identity = closed
+  plastic_crate_02:         { size: [0.506, 0.254, 0.406], min: [-0.253, 0, -0.203] }, // laundry basket; use alphaTest 0.5 + DoubleSide
+  bleach_bottle:            { size: [0.088, 0.294, 0.061], min: [-0.044, 0, -0.031] },
+  plastic_bottle_gallon:    { size: [0.166, 0.274, 0.126], min: [-0.088, 0, -0.065] },
+  can_rusted:               { size: [0.125, 0.151, 0.125], min: [-0.062, -0.001, -0.061] },
+  mousetrap:                { size: [0.055, 0.018, 0.1], min: [-0.027, 0, -0.05] },
+  painted_wooden_stool:     { size: [0.385, 0.579, 0.406], min: [-0.187, -0.001, -0.19] },
+  wooden_broom:             { size: [0.49, 1.453, 0.113], min: [-0.245, -0.122, -0.056], nodes: ['wooden_broom_handle', 'wooden_broom_bristles', 'wooden_broom'] }, // stand at y=0.122
+  vintage_suitcase:         { size: [1.608, 0.568, 0.239], min: [-0.803, 0, -0.129] }, // two cases side by side: hide one case's 4 nodes (vintage_suitcase_0N_*)
 };
+
 
 // Tileable PBR texture sets (assets/textures/<id>/{color,normal,rough,ao}.jpg), 1024px.
 export const TEXTURE_SETS = {
@@ -46,6 +66,24 @@ export const TEXTURE_SETS = {
   ceiling_interior: 'popcorn ceiling (brownish, tint lighter)',
   wood_floor_worn:  'worn wood planks (stair treads, alcove floor)',
   stained_pine:     'stained pine wood (handrail, trims, door)',
+  // ---- batch 2 (assets/NEW_ASSETS.md §1: tile sizes and tint advice) ----
+  paintedwood009c:         'worn white painted wood (door, trims, baseboards, balusters, risers) — tint up for fresh paint',
+  painted_concrete_02:     'grey painted concrete floor (laundry nook)',
+  paintedbricks004:        'painted concrete block wall (nook walls, tint the colour)',
+  metal048c:               'aged brass (metal.jpg): key, padlock, knob, hinges',
+  metal049b:               'smeared chrome/nickel (metal.jpg): flashlight bezel, faucet, latch',
+  metal039:                'galvanized steel (metal.jpg): ducts, water heater',
+  metal043b:               'dirty copper (metal.jpg): water pipes',
+  metal055b:               'rusty dark iron (metal.jpg): window bars, gas pipe',
+  rusty_metal_02:          'rusty white-painted metal: drain stack, old appliances',
+  wallpaper001a:           'woodchip wallpaper (upstairs hallway, tint warm)',
+  plywood:                 'plywood (closet under stairs, shelves, studs)',
+  snow011:                 'dirty snow + soil patches (outside the window)',
+  surfaceimperfections003: 'window grime (alpha.jpg opacity mask)',
+  fabric032:               'off-white woven cotton (nightgown, curtains, laundry)',
+  cardboard004:            'cardboard (boxes)',
+  paper003:                'creased paper (use normal+rough under canvas text)',
+  plastic013b:             'scratched white plastic (tint: toys, switch plates, detector)',
 };
 
 export class Assets {
@@ -125,6 +163,11 @@ export class Assets {
    */
   pbr(setId, repeat = [1, 1], opts = {}) {
     const p = `textures/${setId}/`;
+    const { metal = false, ...rest } = opts; // metal: true -> load metal.jpg as metalnessMap (metal sets only)
+    if (metal) {
+      rest.metalness = rest.metalness ?? 1;
+      rest.metalnessMap = this.texture(p + 'metal.jpg', { repeat });
+    }
     const mat = new THREE.MeshStandardMaterial({
       map: this.texture(p + 'color.jpg', { srgb: true, repeat }),
       normalMap: this.texture(p + 'normal.jpg', { repeat }),
@@ -133,7 +176,7 @@ export class Assets {
       aoMapIntensity: 0.8,
       roughness: 1,
       metalness: 0,
-      ...opts,
+      ...rest,
     });
     mat.name = setId;
     return mat;
