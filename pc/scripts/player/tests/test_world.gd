@@ -43,9 +43,11 @@ func build(progress: Callable) -> void:
 	_box(Vector3((-2.55 + float(dw.minX)) * 0.5, 1.25, R.minZ - 0.1), Vector3(float(dw.minX) + 2.55, 2.5, 0.2), wall)
 	_box(Vector3((float(dw.maxX) + R.maxX) * 0.5, 1.25, R.minZ - 0.1), Vector3(R.maxX - float(dw.maxX), 2.5, 0.2), wall)
 	_box(Vector3((float(dw.minX) + float(dw.maxX)) * 0.5, 2.275, R.minZ - 0.1), Vector3(float(dw.maxX) - float(dw.minX), 0.45, 0.2), wall)
-	# nook walls
-	_box(Vector3(A.minX - 0.1, 1.25, (A.minZ + R.minZ) * 0.5), Vector3(0.2, 2.5, R.minZ - A.minZ), concrete)
-	_box(Vector3(A.maxX + 0.1, 1.25, (A.minZ + R.minZ) * 0.5), Vector3(0.2, 2.5, R.minZ - A.minZ), concrete)
+	# nook walls: stop at the back face of the north wall (z = minZ - 0.2), never coplanar with a room wall face
+	# (coplanar faces z-fight in the shadow maps: dotted stripes)
+	var nz1: float = R.minZ - 0.2
+	_box(Vector3(A.minX - 0.1, 1.25, (A.minZ + nz1) * 0.5), Vector3(0.2, 2.5, nz1 - A.minZ), concrete)
+	_box(Vector3(A.maxX + 0.1, 1.25, (A.minZ + nz1) * 0.5), Vector3(0.2, 2.5, nz1 - A.minZ), concrete)
 	_box(Vector3((A.minX + A.maxX) * 0.5, 1.25, A.minZ - 0.1), Vector3(A.maxX - A.minX + 0.4, 2.5, 0.2), concrete)
 	# ceilings (main room minus the stairwell opening, nook)
 	_box(Vector3(0.48, 2.6, 0), Vector3(6.06, 0.2, 5.5), ceil_m)
