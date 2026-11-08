@@ -9,7 +9,7 @@
 //   THREE_DIR  path to a local `three` package (node_modules/three) used instead of the CDN (offline-safe).
 //   PORT       static server port (default random)
 //
-// --steps: JSON array of { "wait": ms } | { "eval": "code" } | { "shot": "file.png" } | { "key": "KeyW", "ms": 800 }
+// --steps: JSON array of { "wait": ms } | { "eval": "code" } | { "shot": "file.png" } | { "canvas": "file.png" } (WebGL only, robust under load) | { "key": "KeyW", "ms": 800 }
 // Prints console errors / page errors; exits 1 if any uncaught page error happened.
 const http = require('http');
 const fs = require('fs');
@@ -72,6 +72,12 @@ const server = http.createServer((req, res) => {
     if (s.key) { await page.keyboard.down(s.key); await page.waitForTimeout(s.ms || 500); await page.keyboard.up(s.key); }
     if (s.click) await page.mouse.click(s.click[0], s.click[1]);
     if (s.shot) { await page.screenshot({ path: s.shot, timeout: 180000 }); console.log('[shot]', s.shot); }
+    if (s.canvas) {
+      // Render one frame and read the canvas in the same task (no compositor wait; WebGL scene only, no DOM UI).
+      const dataUrl = await page.evaluate(() => { const g = window.__game; g.renderer.render(0.016); return g.canvas.toDataURL('image/png'); });
+      fs.writeFileSync(s.canvas, Buffer.from(dataUrl.split(',')[1], 'base64'));
+      console.log('[canvas]', s.canvas);
+    }
   }
   const fps = await page.evaluate(() => window.__game?.renderer?.fps).catch(() => null);
   console.log('[harness] fps(software GL)=', fps && fps.toFixed ? fps.toFixed(1) : fps, ' pageErrors=', pageErrors);
