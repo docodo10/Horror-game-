@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import * as L from '../config/layout.js';
 
 // Architecture — the static shell of the level (architecture module, see ARCHITECTURE.md §6).
@@ -24,6 +25,10 @@ import * as L from '../config/layout.js';
 //   extra: .root (Group), .hall (Group, hallway behind the upstairs door), .upstairsDoorOpen (0..1, read by
 //   Lighting), .zoneMaterials ([{mat, zone}] materials that get an explicit, attenuated env map from Lighting),
 //   .doors (internal door controllers)
+// Perf (phones): one mesh per material key (+ cobwebs / window panes merged), no double-sided transparents, map-less
+//   materials share their textured siblings' shader program (1x1 white map), textures loaded once per image (UV_SCALE),
+//   small hardware and the nook ceiling services cast no shadows, caster boxes cost ~no fragments in colour passes.
+//   Objects that join .hall (e.g. ExtraProps' hallway suitcase) are hidden with it while the upstairs door is shut.
 
 const R = L.ROOM, S = L.STAIRS, UP = L.UPPER, UD = L.UPSTAIRS_DOOR, HALL = L.UPPER_HALL;
 const CL = L.CLOSET, AL = L.ALCOVE, WIN = L.WINDOW;
@@ -601,13 +606,29 @@ function trimColor(dirt = 0.1, seed = 3) {
 // ------------------------------------------------------------------------------------------------ Architecture
 
 // Mesh flags per material key. Large surfaces only receive (thick invisible boxes cast for them).
+// Perf: small hardware (brass: brackets, valves, threshold strip) and the nook ceiling services (copper pipes, galvanized
+// duct / conduits / straps, above the reach of the ceiling light) don't cast into the shadow maps.
 const HALLK = { cast: false, receive: false, hall: true };
 const KEY_OPTS = {
-  trim: { cast: true }, trimStair: { cast: true }, wood: { cast: true }, brass: { cast: true }, iron: { cast: true },
-  closetWood: { cast: true }, nookWood: { cast: true }, copper: { cast: true }, galv: { cast: true }, pvc: { cast: true }, foil: { cast: true },
+  trim: { cast: true }, trimStair: { cast: true }, wood: { cast: true }, brass: { cast: false }, iron: { cast: true },
+  closetWood: { cast: true }, nookWood: { cast: true }, copper: { cast: false }, galv: { cast: false }, pvc: { cast: true }, foil: { cast: true },
   sky: { cast: false, receive: false },
   hallWall: HALLK, hallFloor: HALLK, hallCeil: HALLK, hallTrim: HALLK, hallWood: HALLK, hallFabric: HALLK, hallBrass: HALLK,
 };
+// Perf (texture memory / load): some keys reuse a texture loaded for another tile size; their world-metre UVs are
+// scaled so the on-screen tiling is unchanged. ratio = (wanted repeat) / (repeat of the shared texture).
+const UV_SCALE = {
+  nookDrywall: 1.5 / 1.8, closetWall: 1.5 / 1.8,   // white_stucco set: 1.8 m tile, shared with the ceiling (1.5 m)
+  trim: 3, trimStair: 3, hallTrim: 3,               // white_stucco normal: 0.5 m tile (repeat 2) from the 1.5 m set
+  hallWall: 2.2 / 1.5,                              // beige_wall_001 normal: 1.5 m tile, shared with the walls (2.2 m)
+};
+function scaleUV(g, k) {
+  if (!k || k === 1) return g;
+  const uv = g.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * k, uv.getY(i) * k);
+  uv.needsUpdate = true;
+  return g;
+}
 
 export class Architecture {
   constructor(game, world) {
@@ -627,7 +648,11 @@ export class Architecture {
     const scene = this.game.scene;
     this._materials();
     this._occMat = new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide });
-    this._casterMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+    // The caster boxes only matter in the shadow passes. In the colour passes they are drawn after the opaque scene
+    // (renderOrder 10) with a strict depth test: their faces lie on or behind the visible surfaces, so early-z rejects
+    // nearly every fragment (they used to be drawn first, i.e. one invisible full-screen layer of fragments per frame).
+    // Same program as before (depthFunc is GL state, not a shader feature); the shadow passes are unchanged.
+    this._casterMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, depthFunc: THREE.LessDepth });
     this._casterMat.name = 'shadowCaster';
     this._unitBox = new THREE.BoxGeometry(1, 1, 1);
     this.occGroup = new THREE.Group(); this.occGroup.name = 'occluders';
@@ -665,6 +690,12 @@ export class Architecture {
     const zone = (mat, z) => { mat.userData.envZone = z; this.zoneMaterials.push({ mat, zone: z }); return mat; };
     const tex = (path, m, srgb = false) => A.texture(path, { srgb, repeat: rep(m) });
     const mats = {};
+    // Shader programs: a material without a colour map compiles its own program variant. Giving the few map-less ones a
+    // 1x1 white map (colour x 1 = unchanged) lets them share the program of their textured siblings (trim -> nook block,
+    // foil -> ground, hall curtains -> picture artwork): fewer programs to compile on phones, identical pixels.
+    const white = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+    white.colorSpace = THREE.SRGBColorSpace; white.needsUpdate = true; white.name = 'white1x1';
+    this._white = white;
 
     // Painted drywall: the greige scan lifted to a warm cream eggshell paint.
     mats.wall = A.pbr('beige_wall_001', rep(2.2), { vertexColors: true });
@@ -683,16 +714,21 @@ export class Architecture {
     mats.carpet.color.setRGB(0.9, 0.87, 0.82); mats.carpet.normalScale.set(1.1, 1.1);
     mats.carpetStair = zone(mats.carpet.clone(), 0.85);
 
-    // White semi-gloss trim paint (slightly yellowed), subtle brush texture.
+    // White semi-gloss trim paint (slightly yellowed), subtle brush texture (white_stucco normal, 0.5 m tile: the 1.5 m
+    // texture of the ceiling set with x3 UVs, see UV_SCALE).
     mats.trim = new THREE.MeshStandardMaterial({
-      color: 0xe6dfd0, roughness: 0.36, metalness: 0, vertexColors: true,
-      normalMap: tex('textures/white_stucco/normal.jpg', 0.5), normalScale: new THREE.Vector2(0.18, 0.18),
+      color: 0xe6dfd0, roughness: 0.36, metalness: 0, vertexColors: true, map: white,
+      normalMap: tex('textures/white_stucco/normal.jpg', 1.5), normalScale: new THREE.Vector2(0.18, 0.18),
     });
     mats.trimStair = zone(mats.trim.clone(), 0.85);
     mats.doorPaint = zone(mats.trim.clone(), 0.8);
 
-    mats.wood = A.pbr('stained_pine', rep(1.2), { vertexColors: true });
-    mats.wood.roughnessMap = null; mats.wood.aoMap = null; mats.wood.roughness = 0.4; mats.wood.color.setRGB(0.82, 0.78, 0.74);
+    // stained pine: colour + normal only (built by hand so the unused rough / ao images are never loaded)
+    mats.wood = new THREE.MeshStandardMaterial({
+      map: tex('textures/stained_pine/color.jpg', 1.2, true), normalMap: tex('textures/stained_pine/normal.jpg', 1.2),
+      aoMapIntensity: 0.8, roughness: 0.4, metalness: 0, vertexColors: true,
+    });
+    mats.wood.name = 'stained_pine'; mats.wood.color.setRGB(0.82, 0.78, 0.74);
 
     mats.brass = new THREE.MeshStandardMaterial({ color: 0xb08a45, metalness: 1, roughness: 0.32 });
     mats.iron = new THREE.MeshStandardMaterial({ color: 0x3a2f27, metalness: 0.55, roughness: 0.72, vertexColors: true });
@@ -705,7 +741,8 @@ export class Architecture {
     mats.closetBlock = zone(mats.nookBlock.clone(), 0.12);
     mats.nookFloor = zone(new THREE.MeshStandardMaterial({ map: concMap, normalMap: concN, roughness: 0.7, vertexColors: true }), 0.45);
     mats.closetFloor = zone(mats.nookFloor.clone(), 0.12);
-    mats.nookDrywall = zone(A.pbr('white_stucco', rep(1.8), { vertexColors: true }), 0.45);
+    // 1.8 m tile from the ceiling's 1.5 m white_stucco textures (shared, UV_SCALE): no second copy of the set
+    mats.nookDrywall = zone(A.pbr('white_stucco', rep(1.5), { vertexColors: true }), 0.45);
     mats.nookDrywall.color.setRGB(0.78, 0.77, 0.74); mats.nookDrywall.normalScale.set(0.4, 0.4);
     mats.closetWall = zone(mats.nookDrywall.clone(), 0.12); mats.closetWall.color.setRGB(0.62, 0.57, 0.5); // drywall back paper
     const lum = ProcTex.lumber(TSZ);
@@ -719,7 +756,7 @@ export class Architecture {
     mats.pvc = zone(new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.55 }), 0.45);
     const ribs = canvasTex(ProcTex.ribs(), { srgb: false, repeat: [1, 1], aniso });
     ribs.wrapS = ribs.wrapT = THREE.RepeatWrapping;
-    mats.foil = zone(new THREE.MeshStandardMaterial({ color: 0xc4c6c8, metalness: 1, roughness: 0.33, normalMap: ribs, normalScale: new THREE.Vector2(1.2, 1.2) }), 0.45);
+    mats.foil = zone(new THREE.MeshStandardMaterial({ color: 0xc4c6c8, metalness: 1, roughness: 0.33, map: white, normalMap: ribs, normalScale: new THREE.Vector2(1.2, 1.2) }), 0.45);
 
     // Window + outside.
     const dirt = ProcTex.glassDirt(256);
@@ -733,27 +770,35 @@ export class Architecture {
       roughness: 0.95, emissive: 0x070a10, envMapIntensity: 0,
     });
     zone(mats.ground, 0.0);
-    mats.grass = zone(new THREE.MeshStandardMaterial({ color: 0x7c6c4a, roughness: 0.9, side: THREE.DoubleSide, vertexColors: true }), 0.0);
+    // grass blades: single-sided material, the blades carry explicit back faces (_outside) — same pixels as DoubleSide,
+    // and the program is shared with the other vertex-coloured materials (iron, galvanized)
+    mats.grass = zone(new THREE.MeshStandardMaterial({ color: 0x7c6c4a, roughness: 0.9, vertexColors: true }), 0.0);
     mats.snow = zone(new THREE.MeshStandardMaterial({ color: 0xdfe5ee, roughness: 0.85, emissive: 0x0c1220 }), 0.0);
-    // sky: unlit, dim. moon direction from the window, see Lighting MOON_POS.
-    mats.sky = new THREE.MeshBasicMaterial({ map: canvasTex(ProcTex.sky(0.36, 0.77)), fog: false });
+    // sky: unlit, dim. moon direction from the window, see Lighting MOON_POS. (`fog` left at its default: the scene has
+    // no fog, and the flag shares the program with the other unlit textured materials.)
+    mats.sky = new THREE.MeshBasicMaterial({ map: canvasTex(ProcTex.sky(0.36, 0.77)) });
     mats.sky.color.setRGB(0.55, 0.55, 0.6);
 
     mats.stain = new THREE.MeshStandardMaterial({
       map: canvasTex(ProcTex.stain()), transparent: true, depthWrite: false, roughness: 0.95,
       polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, opacity: 0.55,
     });
+    // cobwebs: one merged mesh with explicit back faces (see _flushWebs) instead of 3 double-sided transparent quads
+    // (three.js draws those twice each, with 2 extra programs); same program as the window glass
     mats.web = new THREE.MeshStandardMaterial({
       color: 0xd8d8d0, alphaMap: canvasTex(ProcTex.web(), { srgb: false }), transparent: true, depthWrite: false,
-      side: THREE.DoubleSide, roughness: 0.8, opacity: 0.55,
+      roughness: 0.8, opacity: 0.55,
     });
     mats.domeOff = new THREE.MeshStandardMaterial({ color: 0xd9d3c4, roughness: 0.35, metalness: 0 });
 
     // Upstairs hallway (warm, lived-in; only visible when the door opens).
     const wp = ProcTex.wallpaper(512);
+    // normal map: the walls' beige_wall_001 normal (2.2 m tile) reused for a 1.5 m tile via x(2.2/1.5) UVs (UV_SCALE);
+    // the wallpaper repeat is divided by the same factor so its 0.53 m pattern is unchanged
+    const kHall = UV_SCALE.hallWall;
     mats.hallWall = zone(new THREE.MeshStandardMaterial({
-      map: canvasTex(wp.map, { repeat: rep(0.53), aniso }), roughness: 0.8, vertexColors: true,
-      normalMap: tex('textures/beige_wall_001/normal.jpg', 1.5), normalScale: new THREE.Vector2(0.5, 0.5),
+      map: canvasTex(wp.map, { repeat: [1 / 0.53 / kHall, 1 / 0.53 / kHall], aniso }), roughness: 0.8, vertexColors: true,
+      normalMap: tex('textures/beige_wall_001/normal.jpg', 2.2), normalScale: new THREE.Vector2(0.5, 0.5),
     }), 0.3);
     mats.hallFloor = zone(A.pbr('wood_floor_worn', rep(1.4), { vertexColors: true }), 0.3);
     mats.hallFloor.roughness = 0.55; mats.hallFloor.color.setRGB(0.8, 0.7, 0.6);
@@ -762,7 +807,7 @@ export class Architecture {
     mats.hallWood = zone(mats.wood.clone(), 0.3);
     mats.hallGlow = new THREE.MeshStandardMaterial({ color: 0xf3e6cc, emissive: 0xffc98a, emissiveIntensity: 9, roughness: 0.4 });
     mats.hallNight = new THREE.MeshBasicMaterial({ color: 0x0f1a2c });
-    mats.hallFabric = zone(new THREE.MeshStandardMaterial({ color: 0x8e665c, roughness: 0.92, side: THREE.DoubleSide }), 0.3);
+    mats.hallFabric = zone(new THREE.MeshStandardMaterial({ color: 0x8e665c, roughness: 0.92, side: THREE.DoubleSide, map: white }), 0.3);
     mats.hallRug = zone(new THREE.MeshStandardMaterial({ map: canvasTex(ProcTex.rug(), { aniso }), roughness: 0.95 }), 0.3);
     mats.hallArt = zone(new THREE.MeshStandardMaterial({ map: canvasTex(ProcTex.painting(), { aniso }), roughness: 0.6 }), 0.3);
     mats.hallBrass = zone(mats.brass.clone(), 0.3);
@@ -782,15 +827,16 @@ export class Architecture {
     for (const [key, b] of this._B) {
       if (!b.idx.length) continue;
       const o = KEY_OPTS[key] || {};
-      const mesh = new THREE.Mesh(b.build(), this.mats[key]);
+      const mesh = new THREE.Mesh(scaleUV(b.build(), UV_SCALE[key]), this.mats[key]);
       mesh.name = `arch_${key}`;
       mesh.castShadow = !!o.cast;
       mesh.receiveShadow = o.receive !== false;
       (o.hall ? this.hall : this.root).add(mesh);
     }
+    this._flushWebs();
     // invisible thick shadow casters (rendered only into shadow maps)
     const cm = new THREE.Mesh(this.caster.build(), this._casterMat);
-    cm.name = 'arch_shadowCasters'; cm.castShadow = true; cm.receiveShadow = false; cm.renderOrder = -10;
+    cm.name = 'arch_shadowCasters'; cm.castShadow = true; cm.receiveShadow = false; cm.renderOrder = 10;
     this.root.add(cm);
     this._B.clear();
   }
@@ -1192,13 +1238,15 @@ export class Architecture {
     // sash rails
     fr([wx0 + 0.035, wy0 + 0.035, fz0 + 0.012], [mx - 0.022, wy0 + 0.055, fz0 + 0.03]);
     fr([mx + 0.022, wy0 + 0.035, fz0 + 0.022], [wx1 - 0.035, wy0 + 0.055, fz0 + 0.04]);
-    // glass panes (dirty)
+    // glass panes (dirty): both sashes in one mesh (one draw call); each pane keeps its 0..1 UVs (dirt alpha map)
     const gl = new THREE.PlaneGeometry(1, 1);
-    const g1 = new THREE.Mesh(gl, this.mats.glass); g1.scale.set(mx - wx0 - 0.06, wy1 - wy0 - 0.07, 1);
-    g1.position.set((wx0 + mx) / 2, (wy0 + wy1) / 2, fz0 + 0.02); g1.rotation.y = Math.PI;
-    const g2 = g1.clone(); g2.position.set((mx + wx1) / 2, (wy0 + wy1) / 2, fz0 + 0.03);
-    g1.renderOrder = g2.renderOrder = 2;
-    this.root.add(g1, g2);
+    const wc = [mx, (wy0 + wy1) / 2, fz0 + 0.025]; // mesh origin at the window (transparent sorting position)
+    const pane = (x, z) => gl.clone().applyMatrix4(M(x - wc[0], 0, z - wc[2], 0, Math.PI, 0, mx - wx0 - 0.06, wy1 - wy0 - 0.07, 1));
+    const panes = new THREE.Mesh(mergeGeometries([pane((wx0 + mx) / 2, fz0 + 0.02), pane((mx + wx1) / 2, fz0 + 0.03)], false), this.mats.glass);
+    panes.position.set(wc[0], wc[1], wc[2]);
+    panes.name = 'arch_windowGlass';
+    panes.renderOrder = 2;
+    this.root.add(panes);
     // iron security bars (cast the moonlight bar shadows)
     const I = this.B('iron');
     const rust = (x, y, z) => { const n = fbm(x * 14, y * 14, z * 14, 2); return [0.75 + 0.5 * n, 0.68 + 0.3 * n, 0.6 + 0.2 * n]; };
@@ -1211,12 +1259,32 @@ export class Architecture {
 
   /** Cobweb quad anchored at its top-left corner (the web hub), yawed then tilted about its own X axis. */
   _web(pos, yaw, size, tilt = 0) {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), this.mats.web);
-    m.geometry.translate(size / 2, -size / 2, 0);
-    m.position.set(pos[0], pos[1], pos[2]);
-    m.rotation.set(tilt, yaw, 0, 'YXZ');
+    const g = new THREE.PlaneGeometry(size, size);
+    g.translate(size / 2, -size / 2, 0);
+    _e.set(tilt, yaw, 0, 'YXZ'); _q.setFromEuler(_e);
+    g.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(pos[0], pos[1], pos[2]), _q, new THREE.Vector3(1, 1, 1)));
+    (this._webs ||= []).push(g);
+  }
+
+  /** All cobwebs in one mesh, each quad with an explicit back face (flipped winding + normal): looks like the former
+   *  double-sided material, drawn in one call with a single-sided program. */
+  _flushWebs() {
+    if (!this._webs?.length) return;
+    const parts = [];
+    for (const g of this._webs) {
+      parts.push(g);
+      const b = g.clone();
+      const n = b.attributes.normal;
+      for (let i = 0; i < n.count; i++) n.setXYZ(i, -n.getX(i), -n.getY(i), -n.getZ(i));
+      const ix = b.index.array;
+      for (let i = 0; i < ix.length; i += 3) { const t = ix[i + 1]; ix[i + 1] = ix[i + 2]; ix[i + 2] = t; }
+      parts.push(b);
+    }
+    const m = new THREE.Mesh(mergeGeometries(parts, false), this.mats.web);
+    m.name = 'arch_webs';
     m.renderOrder = 3;
     this.root.add(m);
+    this._webs = null;
   }
 
   // ---------------------------------------------------------------------------------------------- outside (seen through the window)
@@ -1240,12 +1308,16 @@ export class Architecture {
       const x = WIN.minX - 0.6 + r() * (WIN.maxX - WIN.minX + 1.2), z = Z1 + TS + 0.03 + r() * r() * 1.2;
       const h = 0.05 + r() * 0.16, a = r() * Math.PI, lean = (r() - 0.5) * 0.08, w = 0.004 + r() * 0.004;
       const ca = Math.cos(a) * w, sa = Math.sin(a) * w, c = bladeCol();
-      const base = gr.count;
-      gr._push(x - ca, gy, z - sa, 0, 0, -1, 0, 0, c);
-      gr._push(x + ca, gy, z + sa, 0, 0, -1, 1, 0, c);
-      gr._push(x + lean * 0.5, gy + h * 0.6, z + lean * 0.3, 0, 0, -1, 0.5, 0.6, c);
-      gr._push(x + lean, gy + h, z + lean * 0.5, 0, 0, -1, 0.5, 1, c);
-      gr.idx.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
+      // front + back face (the material is single-sided; the back copy has the flipped normal DoubleSide would use)
+      for (const s of [1, -1]) {
+        const base = gr.count;
+        gr._push(x - ca, gy, z - sa, 0, 0, -s, 0, 0, c);
+        gr._push(x + ca, gy, z + sa, 0, 0, -s, 1, 0, c);
+        gr._push(x + lean * 0.5, gy + h * 0.6, z + lean * 0.3, 0, 0, -s, 0.5, 0.6, c);
+        gr._push(x + lean, gy + h, z + lean * 0.5, 0, 0, -s, 0.5, 1, c);
+        if (s > 0) gr.idx.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
+        else gr.idx.push(base, base + 2, base + 1, base + 2, base + 3, base + 1);
+      }
     }
     // night sky backdrop
     const sky = new THREE.Mesh(new THREE.PlaneGeometry(40, 30), this.mats.sky);
@@ -1438,8 +1510,9 @@ export class Architecture {
       const kc = new THREE.CylinderGeometry(0.0065, 0.0065, 0.09, 10);
       for (const y of [0.2, h / 2, h - 0.25]) m.geo(kc, M(-0.001, y, 0.004));
     }
-    const slab = new THREE.Mesh(b.build(), paint); slab.castShadow = true; slab.receiveShadow = true; slab.name = 'doorSlab';
-    const hw = new THREE.Mesh(m.build(), metal); hw.castShadow = true; hw.receiveShadow = true; hw.name = 'doorHardware';
+    // slab UVs x3: the paint's white_stucco normal is the shared 1.5 m texture (UV_SCALE.trim); small hardware: no shadow pass
+    const slab = new THREE.Mesh(scaleUV(b.build(), UV_SCALE.trim), paint); slab.castShadow = true; slab.receiveShadow = true; slab.name = 'doorSlab';
+    const hw = new THREE.Mesh(m.build(), metal); hw.castShadow = false; hw.receiveShadow = true; hw.name = 'doorHardware';
     g.add(slab, hw);
     return g;
   }
@@ -1489,14 +1562,14 @@ export class Architecture {
         b.geo(slat, M(-t / 2, y, (zs + ze) / 2, 0, 0, -0.68), { uvScale: 0.4, color: col });
       }
     }
-    const leaf = new THREE.Mesh(b.build(), this.mats.trim); leaf.castShadow = true; leaf.receiveShadow = true; leaf.name = 'closetLeaf';
+    const leaf = new THREE.Mesh(scaleUV(b.build(), UV_SCALE.trim), this.mats.trim); leaf.castShadow = true; leaf.receiveShadow = true; leaf.name = 'closetLeaf';
     pivot.add(leaf);
     const m = new MB(), kn = knobGeo(0.75);
     m.geo(kn, M(0, 0.95, ze - 0.06, 0, 0, -Math.PI / 2));
     m.geo(kn, M(-t, 0.95, ze - 0.06, 0, 0, Math.PI / 2));
     const kc = new THREE.CylinderGeometry(0.006, 0.006, 0.08, 10);
     for (const y of [0.25, 1.62]) m.geo(kc, M(0.004, y, 0.0));
-    const hw = new THREE.Mesh(m.build(), this.mats.brass); hw.castShadow = true; hw.name = 'closetHardware';
+    const hw = new THREE.Mesh(m.build(), this.mats.brass); hw.castShadow = false; hw.name = 'closetHardware'; // knobs / hinges: too small to cast
     pivot.add(hw);
     const proxy = new THREE.Mesh(this._unitBox, this._occMat);
     proxy.scale.set(0.05, D.height, D.width); proxy.position.set(-t / 2, D.height / 2, D.width / 2);

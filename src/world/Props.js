@@ -20,6 +20,11 @@ import * as PT from './ProcTextures.js';
 // The TV light is driven only through lighting.setTVLight(on, intensity). Batch-2 models (layout.EXTRA_PROPS: laundry
 // crate, stool, pull-chain socket, mirror, big stairwell frames…) are placed by ExtraProps.js, not here — the
 // procedural dressing below is laid out around them.
+// Perf (phones): no transmission (the nook bulb glass used to trigger a full extra scene pass per frame), one-pass glass,
+// static same-material pieces merged (decals, outlets, plug+cable, padlock wheels, horse / pillows), the contents of
+// closed drawers / cabinet / box, the breaker lever behind its shut door and the digit decals under resting clues are
+// not drawn (see _updateHidden), small / wall / ceiling props cast no shadows, procedural canvases capped at 512 px on
+// low/medium (PT.setMaxSize). Exported helpers for other modules: mergeByMaterial(root), cheapTransparency(root).
 
 const UP = new THREE.Vector3(0, 1, 0);
 const DOWN = new THREE.Vector3(0, -1, 0);
@@ -108,6 +113,123 @@ function shadows(obj, cast, receive = true) {
   return obj;
 }
 
+// ------------------------------------------------------------------------------------------------ perf helpers
+// (draw calls / shader programs: see the perf notes in build())
+
+/** Clone `mesh.geometry` transformed by matrix `m` (keeps every attribute; fixes the winding of mirrored transforms). */
+function bakedGeometry(mesh, m) {
+  const g = mesh.geometry.clone().applyMatrix4(m);
+  if (m.determinant() < 0) {
+    if (!g.index) g.setIndex([...Array(g.attributes.position.count).keys()]);
+    const a = g.index.array;
+    for (let i = 0; i < a.length; i += 3) { const t = a[i + 1]; a[i + 1] = a[i + 2]; a[i + 2] = t; }
+    g.index.needsUpdate = true;
+  }
+  return g;
+}
+
+/**
+ * Merge the static meshes of a placed model into one mesh per material, in the root's local space (the root, its name and
+ * its other children stay: interaction / name lookups keep working). Meshes rejected by `filter`, skinned / morphed /
+ * multi-material meshes and meshes whose attribute layout differs are left alone. Returns the number of meshes removed.
+ */
+export function mergeByMaterial(root, filter = () => true) {
+  if (!root) return 0;
+  root.updateWorldMatrix(true, true);
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const groups = new Map();
+  root.traverse((o) => {
+    if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh || Array.isArray(o.material) || o.morphTargetInfluences?.length || !filter(o)) return;
+    if (!groups.has(o.material)) groups.set(o.material, []);
+    groups.get(o.material).push(o);
+  });
+  let removed = 0;
+  const m4 = new THREE.Matrix4();
+  for (const [mat, list] of groups) {
+    if (list.length < 2) continue;
+    const sig = (g) => Object.keys(g.attributes).sort().map((k) => k + g.attributes[k].itemSize).join() + (g.index ? '|i' : '|n');
+    const s0 = sig(list[0].geometry);
+    if (list.some((m) => sig(m.geometry) !== s0 || Object.keys(m.geometry.morphAttributes).length)) continue;
+    const merged = mergeGeometries(list.map((m) => bakedGeometry(m, m4.multiplyMatrices(inv, m.matrixWorld))), false);
+    if (!merged) continue;
+    const mesh = new THREE.Mesh(merged, mat);
+    mesh.name = list[0].name;
+    mesh.castShadow = list.some((m) => m.castShadow);
+    mesh.receiveShadow = list.some((m) => m.receiveShadow);
+    mesh.renderOrder = list[0].renderOrder;
+    for (const m of list) m.parent?.remove(m);
+    root.add(mesh);
+    removed += list.length - 1;
+  }
+  return removed;
+}
+
+/** Bake the current morph target influences into the base geometry (the shape is unchanged, the shader loses its morph code). */
+function bakeMorphs(mesh) {
+  const g0 = mesh.geometry, mp = g0.morphAttributes?.position, w = mesh.morphTargetInfluences;
+  if (!mp || !mp.length || !w) return false;
+  const g = g0.clone();
+  const rel = g0.morphTargetsRelative;
+  for (const [name, targets] of [['position', mp], ['normal', g0.morphAttributes.normal]]) {
+    const src = g0.attributes[name];
+    if (!src || !targets) continue;
+    // plain float copy (the source may be interleaved), then write it back as a regular attribute
+    const out = new Float32Array(src.count * 3);
+    for (let i = 0; i < src.count; i++) { out[i * 3] = src.getX(i); out[i * 3 + 1] = src.getY(i); out[i * 3 + 2] = src.getZ(i); }
+    const base = out.slice();
+    for (let t = 0; t < targets.length; t++) {
+      const k = w[t] || 0, ta = targets[t];
+      if (!k) continue;
+      for (let i = 0; i < src.count; i++) {
+        const dx = ta.getX(i), dy = ta.getY(i), dz = ta.getZ(i), j = i * 3;
+        if (rel) { out[j] += k * dx; out[j + 1] += k * dy; out[j + 2] += k * dz; }
+        else { out[j] += k * (dx - base[j]); out[j + 1] += k * (dy - base[j + 1]); out[j + 2] += k * (dz - base[j + 2]); }
+      }
+    }
+    if (name === 'normal') for (let i = 0; i < src.count; i++) { const j = i * 3, l = Math.hypot(out[j], out[j + 1], out[j + 2]) || 1; out[j] /= l; out[j + 1] /= l; out[j + 2] /= l; }
+    g.setAttribute(name, new THREE.BufferAttribute(out, 3));
+  }
+  g.morphAttributes = {};
+  g.morphTargetsRelative = false;
+  g.boundingBox = null; g.boundingSphere = null;
+  mesh.geometry = g;
+  mesh.morphTargetInfluences = undefined;
+  mesh.morphTargetDictionary = undefined;
+  return true;
+}
+
+/**
+ * Transparent double-sided materials are drawn in two passes by three.js (back faces, then front faces): two draw calls
+ * and two shader programs per material. For thin panes / cards (frame and clock glass, lens, sofa fringe) one pass looks
+ * the same. Transmission (KHR_materials_transmission, the nook bulb glass) makes three.js re-render every opaque object
+ * in view into a transmission buffer, every frame the object is inside the frustum (+130..180 draw calls in the room
+ * views), and it also darkened the north face of the baked environment cube (the transmission pre-pass runs inside the
+ * CubeCamera capture). The glass keeps its authored alpha blending, which matches the old dark-glass look best.
+ * Kept two-pass: the sofa fringe (overlapping blended strands: the back-then-front order is visible) and the scanned glass
+ * that shares its shader programs (cassette window, torch lens) — a one-pass variant of them would add programs.
+ */
+const KEEP_TWO_PASS = /fringe|cassette_player_glass|torch_6v_glass/;
+export function cheapTransparency(root) {
+  root?.traverse((o) => {
+    if (!o.isMesh) return;
+    for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
+      if (!m) continue;
+      if (m.transmission > 0) { m.transmission = 0; m.needsUpdate = true; }
+      if (m.transparent && m.side === THREE.DoubleSide && !KEEP_TWO_PASS.test(m.name || '')) m.forceSinglePass = true;
+    }
+  });
+}
+
+/** 1x1 white colour map: lets a map-less material share the shader program of its textured siblings (colour x 1). */
+let _white = null;
+function whiteMap() {
+  if (!_white) {
+    _white = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+    _white.colorSpace = THREE.SRGBColorSpace; _white.needsUpdate = true; _white.name = 'white1x1';
+  }
+  return _white;
+}
+
 const col = (hex) => new THREE.Color(hex);
 
 export class Props {
@@ -125,6 +247,9 @@ export class Props {
     this._loopsStarted = false;
     this._proxyMat = new THREE.MeshBasicMaterial({ visible: false });
     this._digits = {};
+    this._containers = [];   // { h, anim, contents } of drawers / doors / lids (contents hidden while closed)
+    this._leverVis = null;   // { group, anim } breaker lever, hidden while the panel door is shut
+    this._clueRest = [];     // { decal, obj, p, q } digit decals, hidden while their object rests
     world.setClueDigits = (d) => this.setClueDigits(d);
   }
 
@@ -133,6 +258,9 @@ export class Props {
   async build() {
     const { scene } = this.game;
     PT.setAnisotropy(this.game.renderer?.maxAnisotropy ?? 4);
+    // GPU memory: procedural canvases are capped at 512 px on low/medium, like the downscaled model textures (Assets)
+    const q = this.game.renderer?.quality;
+    PT.setMaxSize(q === 'low' || q === 'medium' ? 512 : 0);
     this._preset = this.game.renderer?.preset || {};
     await PT.waitFonts(2200);
     this._archOcc = this.world.occluders.slice(); // architecture shell (walls, ceiling, knee wall…)
@@ -142,6 +270,7 @@ export class Props {
     this._placeModels();
     scene.updateMatrixWorld(true);
     this._settle();
+    try { this._optimizeModels(); } catch (e) { console.error('[props] _optimizeModels failed', e); }
     scene.updateMatrixWorld(true);
 
     const steps = [
@@ -158,6 +287,32 @@ export class Props {
     this._registerOccluders();
     this._wireEvents();
     if (this.world.power === false) this.setPower(false);
+    this._updateHidden(true);
+  }
+
+  /**
+   * Perf: things that cannot be seen are not drawn (no visual change, fewer draw calls):
+   *  - the contents of closed drawers / cabinet / locked box (items, notes, batteries, key),
+   *  - the breaker lever while the panel door is shut,
+   *  - the clue digit decals under the duck / horse while they rest on their surface (shown as soon as they tilt).
+   * Item pickup visibility (set by gameplay on the item objects) is untouched: only the container groups toggle.
+   */
+  _updateHidden(force = false) {
+    for (const c of this._containers) {
+      const vis = c.anim.active || c.anim.v > 0.001 || c.h.isOpen;
+      if (force || c.contents.visible !== vis) c.contents.visible = vis;
+    }
+    const lv = this._leverVis;
+    if (lv) {
+      const vis = lv.anim.active || lv.anim.v > 0.001;
+      if (force || lv.group.visible !== vis) lv.group.visible = vis;
+    }
+    for (const d of this._clueRest) {
+      const o = d.obj;
+      const moved = o.position.distanceToSquared(d.p) > 1e-6 || Math.abs(o.quaternion.dot(d.q)) < 0.99999;
+      const vis = !!d.decal.userData.ready && moved;
+      if (force || d.decal.visible !== vis) d.decal.visible = vis;
+    }
   }
 
   // ------------------------------------------------------------------------------------------- placement
@@ -180,8 +335,23 @@ export class Props {
     this.objects.kidChair?.traverse((o) => { if (o.isMesh && o.material?.color) o.material.color.setRGB(0.42, 0.68, 0.72); });
     // static multi-mesh scans: one draw call per material (the encyclopedia set alone is 40 meshes)
     for (const k of ['books', 'cassette']) this._mergeStatic(this.objects[k]);
-    // tiny scans: no shadow casting (saves 6 cube-shadow passes each)
-    for (const k of ['alarmClock', 'cassette', 'bulb', 'photoFrame', 'books']) if (this.objects[k]) shadows(this.objects[k], false, true);
+    // one-pass glass / no transmission pass (see cheapTransparency)
+    for (const o of Object.values(this.objects)) cheapTransparency(o);
+    // Shadow casters: small props (< ~25 cm), wall decor and ceiling-mounted things don't cast into the cube shadow
+    // map (each caster is drawn up to 6 times per cube update); large furniture keeps casting. The duck and the horse
+    // keep theirs: clue objects the player studies up close (their contact shadow on the rug / shelf is visible).
+    for (const k of ['alarmClock', 'cassette', 'bulb', 'photoFrame', 'books', 'roundFrame', 'sofaPainting']) {
+      if (this.objects[k]) shadows(this.objects[k], false, true);
+    }
+  }
+
+  /** Static scans whose meshes never move relative to each other: one draw call per material. Called after _settle(). */
+  _optimizeModels() {
+    const O = this.objects;
+    // the horse scan has one morph target at weight 1: bake it (same shape, no morph shader variant, no morph shadow
+    // variant), then merge its two primitives
+    O.horse?.traverse((o) => { if (o.isMesh) bakeMorphs(o); });
+    for (const k of ['horse', 'pillows']) mergeByMaterial(O[k]);
   }
 
   /** Merge all meshes of a static model into one mesh per material (keeps the root transform). */
@@ -364,6 +534,7 @@ export class Props {
       ...extra,
     };
     this.world.handles[id] = h;
+    if (contents) this._containers.push({ h, anim, contents });
     return h;
   }
 
@@ -375,6 +546,30 @@ export class Props {
     const hit = this._ray.intersectObject(node, false)[0];
     if (!hit) return fallback;
     return node.worldToLocal(this._v2.copy(hit.point)).y;
+  }
+
+  /**
+   * Replace static meshes that share one material by a single world-space mesh (1 draw call). The originals are detached
+   * from the scene (their references stay valid). Returns the new mesh, or null when there was nothing to merge.
+   */
+  _mergeWorld(meshes, name) {
+    const list = meshes.filter((m) => m?.isMesh);
+    if (list.length < 2 || list.some((m) => m.material !== list[0].material)) return null;
+    for (const m of list) m.updateWorldMatrix(true, false);
+    const merged = mergeGeos(list.map((m) => bakedGeometry(m, m.matrixWorld)));
+    if (!merged) return null;
+    // keep a sensible sort position for transparent sorting: the centre of the merged bounds
+    merged.computeBoundingBox();
+    const c = merged.boundingBox.getCenter(new THREE.Vector3());
+    merged.translate(-c.x, -c.y, -c.z);
+    const mesh = new THREE.Mesh(merged, list[0].material);
+    mesh.position.copy(c);
+    mesh.name = name;
+    mesh.castShadow = list[0].castShadow; mesh.receiveShadow = list[0].receiveShadow; mesh.renderOrder = list[0].renderOrder;
+    for (const m of list) m.parent?.remove(m);
+    this.game.scene.add(mesh);
+    mesh.updateMatrixWorld(true);
+    return mesh;
   }
 
   /** Invisible raycast/occlusion box (local coords of parent). */
@@ -445,8 +640,9 @@ export class Props {
     if (!pb) return;
     const door = pb.getObjectByName('power_box_01_door');
     const body = pb.getObjectByName('power_box_01_box');
+    let doorAnim = null;
     if (door) {
-      const anim = this._anim((v) => { door.quaternion.setFromAxisAngle(UP, -1.9 * v); }, { easeUp: E.out });
+      const anim = doorAnim = this._anim((v) => { door.quaternion.setFromAxisAngle(UP, -1.9 * v); }, { easeUp: E.out });
       this._handle('powerBox.door', { object: door, anim, openDur: 0.7, closeDur: 0.55, sfx: ['cabinet_open', 'cabinet_close'], volume: 0.9 });
     }
     // find the back plate of the panel (local z) to mount the main breaker on it
@@ -496,6 +692,8 @@ export class Props {
     lever.close = () => lever.setOn(false);
     lever.toggle = () => lever.setOn(!lever.isOn);
     this._lever = { handle: lever, anim };
+    // the lever (4 small meshes) sits behind the panel door: drawn only while the door is (being) opened
+    if (doorAnim) this._leverVis = { group: g, anim: doorAnim };
   }
 
   _buildLockedBox() {
@@ -596,12 +794,18 @@ export class Props {
     inner.add(body);
     const wheelMat = new THREE.MeshStandardMaterial({ map: PT.lockWheelTexture(), metalness: 0.9, roughness: 0.35 });
     const wheelGeo = new THREE.CylinderGeometry(0.0062, 0.0062, 0.0058, 20).rotateZ(Math.PI / 2);
+    // the 4 number wheels are ONE mesh (1 draw call instead of 4): `wheels` are transform holders (position, rotation.x)
+    // and _applyWheels() rewrites the merged vertices when a wheel turns (only while dialing)
     const wheels = [];
     for (let i = 0; i < 4; i++) {
-      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      const w = new THREE.Object3D();
       w.position.set(-0.0105 + i * 0.007, -0.006, 0.0047);
-      inner.add(w); wheels.push(w);
+      wheels.push(w);
     }
+    const wheelsMesh = new THREE.Mesh(mergeGeometries([wheelGeo, wheelGeo, wheelGeo, wheelGeo], false), wheelMat);
+    wheelsMesh.name = 'lock.wheels';
+    inner.add(wheelsMesh);
+    const wheelSrc = { pos: Float32Array.from(wheelGeo.attributes.position.array), nor: Float32Array.from(wheelGeo.attributes.normal.array), n: wheelGeo.attributes.position.count };
     // shackle: U tube, legs at x = ±0.0085
     const r = 0.0085, top = 0.034;
     const pts = [];
@@ -614,8 +818,28 @@ export class Props {
     // generous hit box for phones
     this._proxy(inner, -0.022, -0.026, -0.01, 0.022, 0.046, 0.014, 'lock.hit');
     shadows(lock, false, true);
-    lock.userData = { wheels, shackle, digits: [0, 0, 0, 0], animating: false };
+    lock.userData = { wheels, wheelsMesh, wheelSrc, shackle, digits: [0, 0, 0, 0], animating: false };
     return lock;
+  }
+
+  /** Write the 4 wheel transforms (position + rotation about X) into the merged wheel mesh. */
+  _applyWheels() {
+    const ud = this._lock?.userData;
+    if (!ud?.wheelsMesh) return;
+    const src = ud.wheelSrc, g = ud.wheelsMesh.geometry;
+    const P = g.attributes.position.array, N = g.attributes.normal.array;
+    for (let i = 0; i < 4; i++) {
+      const w = ud.wheels[i], c = Math.cos(w.rotation.x), s = Math.sin(w.rotation.x), off = i * src.n * 3;
+      const px = w.position.x, py = w.position.y, pz = w.position.z;
+      for (let k = 0; k < src.n * 3; k += 3) {
+        const y = src.pos[k + 1], z = src.pos[k + 2], ny = src.nor[k + 1], nz = src.nor[k + 2];
+        P[off + k] = src.pos[k] + px; P[off + k + 1] = y * c - z * s + py; P[off + k + 2] = y * s + z * c + pz;
+        N[off + k] = src.nor[k]; N[off + k + 1] = ny * c - nz * s; N[off + k + 2] = ny * s + nz * c;
+      }
+    }
+    g.attributes.position.needsUpdate = true;
+    g.attributes.normal.needsUpdate = true;
+    if (!ud.wheelsBounds) { g.computeBoundingBox(); g.computeBoundingSphere(); ud.wheelsBounds = true; } // turning a wheel keeps them
   }
 
   _setLockDigits(str, animate) {
@@ -630,6 +854,7 @@ export class Props {
       if (!animate) ud.wheels[i].rotation.x = this._wheelAngle(d);
     }
     ud.animating = !!animate;
+    if (!animate) this._applyWheels();
   }
 
   _wheelAngle(d) { return ((d + 0.5) / 10) * Math.PI * 2; }
@@ -699,6 +924,7 @@ export class Props {
     try {
       const fl = assets.instance('pastic_torch_6v');
       fl.name = 'flashlight';
+      cheapTransparency(fl); // lens: one pass
       const c = H['dresser.drawerTop']?.contents;
       if (c) { c.add(fl); fl.position.set(-0.2, 0.07, 0.02); fl.rotation.y = 1.15; }
       else { this.game.scene.add(fl); fl.position.set(-0.55, 0.95, -2.2); }
@@ -987,7 +1213,8 @@ export class Props {
   _buildFan() {
     const fan = this.objects.fan;
     this._fanBlades = fan?.getObjectByName('ceiling_fan_blades') || null;
-    if (fan) shadows(fan, true, false);
+    // ceiling-mounted: the cube shadow camera's near plane (0.78 m) clips the whole fan anyway, so it never casts
+    if (fan) shadows(fan, false, false);
   }
 
   _buildRocking() {
@@ -1062,6 +1289,10 @@ export class Props {
       const s = O.horse.scale.x || 1;
       this._horseDecal = mk(O.horse, 0.05 / s, 0.04 / s, 0.0012 / s, 'horse.digit');
     }
+    // the decals face the surface the object rests on: only drawn while it is lifted / tilted (see _updateHidden)
+    for (const [decal, obj] of [[this._duckDecal, O.duck], [this._horseDecal, O.horse]]) {
+      if (decal && obj) this._clueRest.push({ decal, obj, p: obj.position.clone(), q: obj.quaternion.clone() });
+    }
     this.world.clues = {
       duck: O.duck || new THREE.Object3D(),
       horse: O.horse || new THREE.Object3D(),
@@ -1074,10 +1305,11 @@ export class Props {
     if (!d) return;
     const set = (decal, digit, onTape) => {
       if (!decal) return;
+      const had = !!decal.material.map;
       decal.material.map?.dispose?.();
       decal.material.map = PT.digitDecal(digit, { onTape });
-      decal.material.needsUpdate = true;
-      decal.visible = true;
+      if (!had) decal.material.needsUpdate = true; // map added: new program; a swapped map needs no recompile
+      decal.userData.ready = true;                 // drawn while the object is lifted (_updateHidden)
     };
     if (d.duck != null) { this._digits.duck = d.duck; set(this._duckDecal, d.duck, false); }
     if (d.horse != null) { this._digits.horse = d.horse; set(this._horseDecal, d.horse, true); }
@@ -1113,11 +1345,19 @@ export class Props {
   _buildRug() {
     const { assets, scene } = this.game;
     const mat = new THREE.MeshStandardMaterial({ map: PT.rugTexture(), roughness: 0.96 });
+    // Tiling 6 x 4.3 of the carpet normal map. Memory: instead of loading the image a second time with its own repeat,
+    // reuse the floor's carpet016 normal texture (repeat 1, shared GPU texture): the UVs carry the tiling and the
+    // rug's canvas map gets the inverse repeat (identical result).
+    const TU = 6, TV = 4.3;
+    const geo = new THREE.BoxGeometry(1.8, 0.007, 1.3);
     try {
-      mat.normalMap = assets.texture('textures/carpet016/normal.jpg', { repeat: [6, 4.3] });
+      mat.normalMap = assets.texture('textures/carpet016/normal.jpg', { repeat: [1, 1] });
       mat.normalScale = new THREE.Vector2(0.7, 0.7);
+      const uv = geo.attributes.uv;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * TU, uv.getY(i) * TV);
+      mat.map.repeat.set(1 / TU, 1 / TV);
     } catch (e) { /* ignore */ }
-    const rug = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.007, 1.3), mat);
+    const rug = new THREE.Mesh(geo, mat);
     rug.position.set(-1.55, 0.0035, 0.55); rug.rotation.y = 0.04;
     rug.receiveShadow = true; rug.castShadow = false; rug.name = 'kidsRug';
     scene.add(rug);
@@ -1186,7 +1426,7 @@ export class Props {
     for (let i = 0; i < 3; i++) {
       if (!frameGeos[i].length) continue;
       const m = new THREE.Mesh(mergeGeos(frameGeos[i]), mats[i]);
-      m.castShadow = true; m.receiveShadow = true; m.name = 'stairPhotos.frames' + i;
+      m.castShadow = false; m.receiveShadow = true; m.name = 'stairPhotos.frames' + i; // wall decor: no shadow pass
       this.game.scene.add(m);
     }
     const pm = new THREE.Mesh(mergeGeos(photoGeos), new THREE.MeshStandardMaterial({ map: atlas.texture, roughness: 0.3 }));
@@ -1238,7 +1478,7 @@ export class Props {
       new THREE.MeshStandardMaterial({ color: 0xd8d0bc, roughness: 0.55 }),
     );
     const face = new THREE.Mesh(new THREE.PlaneGeometry(0.115, 0.072).translate(0, 0, 0.0262), new THREE.MeshStandardMaterial({ map: PT.thermostatTexture(), roughness: 0.4 }));
-    th.add(face); th.name = 'thermostat'; th.receiveShadow = true; th.castShadow = true;
+    th.add(face); th.name = 'thermostat'; th.receiveShadow = true; th.castShadow = false; // flush wall decor: no shadow pass
     this._mount(th, 1.98, 1.52, -2.75, 'N', { gap: 0 });
     // air return grille, low on the south wall
     const gr = new THREE.Group(); gr.name = 'vent';
@@ -1248,6 +1488,8 @@ export class Props {
     this._mount(gr, 3.05, 0.2, 2.75, 'S', { gap: 0 });
     shadows(gr, false, true);
     this._outlets = { o1, o2, o3, o4 };
+    // the three plain outlets share one material: one draw call (after the TV cable read o1's transform)
+    this._mergeWorld([o1, o3, o4], 'outlets');
     void scene;
   }
 
@@ -1280,6 +1522,7 @@ export class Props {
     const cable = new THREE.Mesh(new THREE.TubeGeometry(curve, 90, 0.0028, 6, false), blk);
     cable.castShadow = false; cable.receiveShadow = true; cable.name = 'tvCable';
     this.game.scene.add(cable);
+    this._mergeWorld([cable, plug], 'tvCable'); // same material: one draw call
   }
 
   _buildDresserTop() {
@@ -1299,7 +1542,7 @@ export class Props {
     }
     const vhs = new THREE.Mesh(mergeGeos(geos), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45 }));
     vhs.position.set(-0.95, 1.4, -2.47); vhs.rotation.y = 0.18; vhs.name = 'vhsTapes';
-    shadows(vhs, true, true);
+    shadows(vhs, false, true); // 7.5 cm stack: too small for the shadow passes
     this.game.scene.add(vhs);
     this._dropOnto(vhs, [O.dresser]);
     // TV remote on the coffee table
@@ -1370,7 +1613,7 @@ export class Props {
     const ballTex = PT.painted(128, 64, (g, w, h) => { g.fillStyle = '#b8261c'; g.fillRect(0, 0, w, h); g.fillStyle = '#f0c63a'; g.fillRect(0, h * 0.44, w, h * 0.12); g.fillStyle = '#2f5fb3'; g.beginPath(); g.arc(w * 0.25, h * 0.25, 9, 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(w * 0.75, h * 0.75, 9, 0, Math.PI * 2); g.fill(); }, 77);
     const ball = new THREE.Mesh(new THREE.SphereGeometry(0.075, 24, 16), new THREE.MeshStandardMaterial({ map: ballTex, roughness: 0.42 }));
     ball.position.set(-2.24, rugTop + 0.075, -0.02); ball.rotation.set(0.4, 1.1, 0.2); ball.name = 'ball';
-    shadows(ball, true, true); scene.add(ball);
+    shadows(ball, false, true); scene.add(ball); // 15 cm, already in the kid table's shadow
     // toy car on the road rug
     const carParts = [
       new RoundedBoxGeometry(0.11, 0.032, 0.05, 2, 0.008).translate(0, 0.027, 0),
@@ -1451,7 +1694,7 @@ export class Props {
       }
       const canMesh = new THREE.Mesh(mergeGeos(canGeos), new THREE.MeshStandardMaterial({ map: labels, roughness: 0.6, metalness: 0.2 }));
       const lidMesh = new THREE.Mesh(mergeGeos(lidGeos), new THREE.MeshStandardMaterial({ color: 0x9a9890, roughness: 0.35, metalness: 1 }));
-      shadows(canMesh, true, true); shadows(lidMesh, true, true);
+      shadows(canMesh, false, true); shadows(lidMesh, false, true); // small shelf props: no shadow passes
       scene.add(canMesh, lidMesh);
       if (midBoard !== null) {
         const tg = [], tc = [];
@@ -1462,26 +1705,33 @@ export class Props {
           tg.push(new RoundedBoxGeometry(0.22, th, 0.3, 2, 0.012).rotateY((k - 1.5) * 0.04).translate(cx - 0.01, ty + th / 2, cz - 0.15));
           tc.push(col(towelCols[k])); ty += th;
         }
-        const towels = new THREE.Mesh(mergeGeos(tg, tc), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, normalMap: fabricN, normalScale: new THREE.Vector2(0.8, 0.8) }));
-        shadows(towels, true, true); scene.add(towels);
+        // (white 1x1 map: same shader program as the vertex-coloured, normal-mapped architecture trims)
+        const towels = new THREE.Mesh(mergeGeos(tg, tc), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, map: whiteMap(), normalMap: fabricN, normalScale: new THREE.Vector2(0.8, 0.8) }));
+        shadows(towels, false, true); scene.add(towels);
       }
     }
   }
 
   _buildDecals() {
     const atlas = PT.stainAtlas();
+    // one shared material + one merged mesh for the six stain/scuff decals (same atlas): 1 draw call instead of 6
+    const mat = new THREE.MeshStandardMaterial({ map: atlas, transparent: true, depthWrite: false, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -3 });
+    mat.name = 'props_decals';
     const mk = (cell, w, h) => {
       const g = remapUV(new THREE.PlaneGeometry(w, h), cell / 4, 0, (cell + 1) / 4, 1);
-      const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: atlas, transparent: true, depthWrite: false, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -3 }));
+      const m = new THREE.Mesh(g, mat);
       m.receiveShadow = true; m.castShadow = false;
       return m;
     };
-    this._mount(mk(0, 0.9, 0.75), 3.0, 2.5, -1.85, 'U', { gap: 0.001, tol: 0.3 });            // ceiling water stain
-    this._mount(mk(2, 0.55, 0.3), 3.5, 0.95, -1.05, 'E', { gap: 0.001 });                     // chair-back scuffs
-    this._mount(mk(2, 0.5, 0.28), 3.5, 0.95, 1.4, 'E', { gap: 0.001, rotZ: 0.1 });
-    this._mount(mk(3, 0.2, 0.2), -3.5, 1.22, 2.08, 'W', { gap: 0.0008 });                     // finger marks around the switch
-    this._mount(mk(1, 1.1, 0.5), 0.2, 0.25, -3.7, 'W', { gap: 0.001 });                       // grime in the nook
-    this._mount(mk(2, 0.45, 0.18), -2.5, 0.1, 1.32, 'W', { gap: 0.001 });                    // shoe scuffs at the stairs
+    const list = [
+      this._mount(mk(0, 0.9, 0.75), 3.0, 2.5, -1.85, 'U', { gap: 0.001, tol: 0.3 }),            // ceiling water stain
+      this._mount(mk(2, 0.55, 0.3), 3.5, 0.95, -1.05, 'E', { gap: 0.001 }),                     // chair-back scuffs
+      this._mount(mk(2, 0.5, 0.28), 3.5, 0.95, 1.4, 'E', { gap: 0.001, rotZ: 0.1 }),
+      this._mount(mk(3, 0.2, 0.2), -3.5, 1.22, 2.08, 'W', { gap: 0.0008 }),                     // finger marks around the switch
+      this._mount(mk(1, 1.1, 0.5), 0.2, 0.25, -3.7, 'W', { gap: 0.001 }),                       // grime in the nook
+      this._mount(mk(2, 0.45, 0.18), -2.5, 0.1, 1.32, 'W', { gap: 0.001 }),                    // shoe scuffs at the stairs
+    ];
+    this._mergeWorld(list, 'propsDecals');
   }
 
   // ------------------------------------------------------------------------------------------- physics registration
@@ -1588,7 +1838,9 @@ export class Props {
         if (Math.abs(diff) > 0.002) { w.rotation.x += diff * Math.min(1, dt * 14); moving = true; } else w.rotation.x = target;
       }
       if (!moving) ud.animating = false;
+      this._applyWheels();
     }
+    this._updateHidden();
     // smoke detector LED: brief blink every ~40 s
     if (this._ledMat) {
       this._ledT -= dt;
