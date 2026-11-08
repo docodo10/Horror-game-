@@ -1205,13 +1205,7 @@ export class Architecture {
       pa.setXYZ(i, cx + na.getX(i) * 0.05 * k, cy + na.getY(i) * 0.05 * k, cz + na.getZ(i) * 0.05 * k);
     }
     this.B('foil').geo(tube, new THREE.Matrix4(), { uvScale: [curve.getLength() / 0.014, 3] });
-    // pendant socket + pull chain for the broken bulb (bulb itself is a prop)
-    const bulb = L.PROPS.bulb.pos;
-    P.geo(new THREE.CylinderGeometry(0.0035, 0.0035, top - 2.37, 6), M(bulb[0], (top + 2.37) / 2, bulb[2]));
-    P.geo(new THREE.CylinderGeometry(0.017, 0.015, 0.045, 14), M(bulb[0], 2.352, bulb[2]));
-    P.geo(new THREE.CylinderGeometry(0.018, 0.018, 0.012, 14), M(bulb[0], top - 0.006, bulb[2]));
-    Br.geo(new THREE.CylinderGeometry(0.0013, 0.0013, 0.26, 4), M(bulb[0] + 0.016, 2.22, bulb[2]));
-    Br.geo(new THREE.SphereGeometry(0.004, 6, 4), M(bulb[0] + 0.016, 2.09, bulb[2]));
+    // (the broken bulb's pull-chain socket is a prop placed by Details/ExtraProps)
     // floor drain
     const dr = this.B('iron');
     dr.geo(new THREE.CylinderGeometry(0.085, 0.09, 0.006, 20), M(2.45, 0.003, -3.45), { color: 0.6 });

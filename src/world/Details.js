@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import * as L from '../config/layout.js';
 import * as PT from './ProcTextures.js';
+import { cheapTransparency } from './Props.js';
 
 /**
  * Details — realism detail pass (runs after Props + ExtraProps, before Lighting; see assets/NEW_ASSETS.md "Batch 3").
@@ -281,6 +282,7 @@ export class Details {
       o.position.fromArray(p.pos);
       o.rotation.set(p.rotX || 0, p.rotY || 0, p.rotZ || 0, 'ZXY'); // yaw, then world-axis tilts (as ExtraProps)
       if (Array.isArray(p.scale)) o.scale.set(p.scale[0], p.scale[1], p.scale[2]); else o.scale.setScalar(p.scale || 1);
+      cheapTransparency(o); // KHR transmission (lamp glass, lantern brass) would add a whole extra scene pass
       (p.hall ? hall : scene).add(o);
       if (p.on !== undefined && p.board !== undefined) this._seat(o, boards[p.board]);
       const inHall = !!p.hall;

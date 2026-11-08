@@ -337,6 +337,11 @@ export class Props {
     for (const k of ['books', 'cassette']) this._mergeStatic(this.objects[k]);
     // one-pass glass / no transmission pass (see cheapTransparency)
     for (const o of Object.values(this.objects)) cheapTransparency(o);
+    // the nook bulb is burnt out ("l'ampoule est grillée"): its filament must not glow
+    this.objects.bulb?.traverse((m) => {
+      if (!m.isMesh) return;
+      for (const mat of Array.isArray(m.material) ? m.material : [m.material]) if (mat?.emissive) { mat.emissive.setRGB(0, 0, 0); mat.emissiveIntensity = 0; }
+    });
     // Shadow casters: small props (< ~25 cm), wall decor and ceiling-mounted things don't cast into the cube shadow
     // map (each caster is drawn up to 6 times per cube update); large furniture keeps casting. The duck and the horse
     // keep theirs: clue objects the player studies up close (their contact shadow on the rug / shelf is visible).
