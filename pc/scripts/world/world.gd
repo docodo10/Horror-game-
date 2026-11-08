@@ -30,6 +30,7 @@
 ##   refresh()), anim (fan_speed, rocking, clock_hours, kick_chain), upper_hall (Node3D, visible while the door is open),
 ##   code_note (Node3D on the box lid), built (bool)
 ## Debug args (after --): --world-open=id1,id2 (open handles instantly; "all"), --world-tv[=digit], --world-crt, --world-rock,
+##   --world-hold (TV digit at full strength, CRT frozen in its snow: screenshots), --world-fallback (Layout level),
 ##   --world-log (build summary)
 extends Node3D
 
@@ -455,8 +456,12 @@ func _apply_debug_args() -> void:
 		for id in ids:
 			var h: Handle = handles.get(id)
 			if h != null and id != "powerBox.lever": h.set_state(true)
+	var hold := _args.has("world-hold")
 	if _args.has("world-tv"):
 		if _args["world-tv"] != "1": tv.call("set_digit", _args["world-tv"])
+		tv.set(&"hold_digit", hold)
 		tv.call("set_on", true)
-	if _args.has("world-crt") and crt != null: crt.flicker(0.5)
+	if _args.has("world-crt") and crt != null:
+		crt.set(&"hold", hold)
+		crt.flicker(0.3)
 	if _args.has("world-rock"): rock_chair(30.0)

@@ -18,7 +18,7 @@ render_mode cull_back;
 
 uniform float level = 1.0;
 uniform vec3 glow = vec3(0.85, 1.0, 0.9);
-uniform float energy = 5.0;
+uniform float energy = 8.0;
 uniform float t_s = 0.0;
 uniform float half_len = 0.575;
 varying float axial;

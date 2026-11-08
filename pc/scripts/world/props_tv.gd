@@ -71,6 +71,7 @@ var screen_position := Vector3(-0.55, 1.472, -2.376)
 var brightness := 1.0
 var digit := ""
 var phase := "off"           # off | warm | on | collapse
+var hold_digit := false      # debug (--world-hold): the digit stays at full strength (screenshots)
 
 var _t := 0.0
 var _phase_t := 0.0
@@ -187,7 +188,8 @@ func _process(dt: float) -> void:
 	var amount := 0.0
 	if _digit_tex != null:
 		var ph := fmod(_t, 1.5)
-		if ph < 0.34: amount = sin((ph / 0.34) * PI) * (0.85 if _rng.randf() < 0.75 else 0.2)
+		if hold_digit: amount = 0.85
+		elif ph < 0.34: amount = sin((ph / 0.34) * PI) * (0.85 if _rng.randf() < 0.75 else 0.2)
 		elif _rng.randf() < 0.025: amount = 0.18      # ghost frame
 	var jit := float(_rng.randi_range(0, 3)) if _rng.randi() % 4 == 0 else 0.0
 	material.set_shader_parameter("fill", -1.0)

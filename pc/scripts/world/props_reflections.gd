@@ -141,6 +141,7 @@ func set_quality(q: String) -> void:
 		_vp.size = Vector2i(w, h)
 		_live_mat.set_shader_parameter("texel", Vector2(1.0 / w, 1.0 / h))
 		_vp.msaa_3d = Viewport.MSAA_4X if q == "ultra" else Viewport.MSAA_2X
+		_vp.positional_shadow_atlas_size = 2048 if q == "ultra" else 1024
 	else:
 		_set_mirror_live(false)
 

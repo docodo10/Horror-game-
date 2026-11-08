@@ -57,6 +57,7 @@ var light: OmniLight3D = null
 var sound_position := Vector3(2.484, 0.26, -4.13)
 var active := false
 var on_kick := Callable()       # called when the beat starts (the panel thump shakes the pull chain)
+var hold := false               # debug (--world-hold): freeze the beat in its snow phase (screenshots)
 
 var _t := -1.0
 var _delay := 0.0
@@ -132,6 +133,7 @@ func _process(dt: float) -> void:
 		if screen != null: screen.visible = true
 		_snd = Audio.loop("tv_static", {"position": sound_position, "volume_db": linear_to_db(0.16)})
 	_t += dt
+	if hold: _t = 0.4 + fmod(_t, 0.8)
 	var t := _t
 	var b := 1.0
 	var h_ext := 1.0

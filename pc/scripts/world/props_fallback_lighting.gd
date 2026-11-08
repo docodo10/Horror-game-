@@ -51,7 +51,7 @@ func build(p_world: Node) -> void:
 	ceiling.omni_range = 10.0
 	ceiling.omni_attenuation = 1.2
 	ceiling.shadow_enabled = true
-	ceiling.light_size = 0.06
+	ceiling.light_size = 0.1          # ~ the frosted bowl: soft fan-housing shadow on the ceiling
 	ceiling.shadow_bias = 0.03
 	ceiling.shadow_normal_bias = 1.0
 	add_child(ceiling)

@@ -19,7 +19,7 @@ the exporter's outputs (`res://assets/generated/`: `level.glb` + `level_meta.jso
 | `props_materials.gd` | thin glass for the scans' atlas glass, the dead nook bulb, no-receive-shadow list, dynamic GI mode for moving parts |
 | `props_fallback_lighting.gd` | placeholder lights with the `lighting.gd` API — used only while the look module's `lighting.gd` builds no light |
 | `props_fallback_level.gd` | Layout-built level + synthetic meta — used only when `assets/generated/` is missing (or `--world-fallback`) |
-| `tests/` | `world_test.gd` (173 checks), `interact_test.gd` (gameplay ray x world bodies), `dump_level.gd`, `probe_mesh.gd` |
+| `tests/` | `world_test.gd` (173 checks: walk test, ground probes, sight, nav, handles, power, TV, clues, props), `interact_test.gd` (20 cases: gameplay ray x world bodies in the real main scene), `dump_level.gd`, `probe_mesh.gd` |
 
 ## Physics layers
 * `LAYER_WORLD` (1): what blocks the player / the entity — the 45 web AABBs (walls, closed upstairs door, open closet leaf,
@@ -52,5 +52,5 @@ godot --headless --fixed-fps 60 --path pc -s res://scripts/world/tests/interact_
 godot --headless --path pc --quit-after 900 -- --autostart --world-log
 pc/tools/godot_shot.sh --res 960x540 -- --shots=/abs/prefix --views=spawn,stairs,kids,nook,tv,console,landing --quality=high
 ```
-Debug args (after `--`): `--world-open=id1,id2|all`, `--world-tv[=digit]`, `--world-crt`, `--world-rock`, `--world-log`,
-`--world-fallback`.
+Debug args (after `--`): `--world-open=id1,id2|all`, `--world-tv[=digit]`, `--world-crt`, `--world-rock`, `--world-hold`
+(TV digit at full strength, CRT frozen in its snow: screenshots), `--world-log`, `--world-fallback`.

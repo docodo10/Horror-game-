@@ -41,12 +41,13 @@ static func _fix_mesh(mi: MeshInstance3D, inst_name: String) -> void:
 		if THIN_GLASS.has(mname):
 			var g := (base as BaseMaterial3D).duplicate() as BaseMaterial3D
 			g.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			g.albedo_texture = null                 # the scans' atlas glass is whitish: milky veil over the picture
 			g.metallic = 0.0
 			g.metallic_texture = null
-			g.roughness = 0.06
+			g.roughness = 0.05
 			g.roughness_texture = null
 			g.metallic_specular = 0.6
-			g.albedo_color = Color(1, 1, 1, 0.16 if mname == "lightbulb_01_glass" else 0.22)
+			g.albedo_color = Color(1, 1, 1, 0.14 if mname == "lightbulb_01_glass" else 0.08)
 			g.cull_mode = BaseMaterial3D.CULL_DISABLED
 			g.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
 			mi.set_surface_override_material(s, g)
