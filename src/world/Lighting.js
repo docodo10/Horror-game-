@@ -613,15 +613,46 @@ export class Lighting {
     this.tvLight.intensity = TV_CD * this.exposure * this._tvBase * this._tvLevel;
     this.moon.intensity = MOON_CD * this.exposure;
 
-    // ---- shadow map update throttling (big win on phones; cube shadow = 6 scene passes)
+    // ---- motion-gated shadow map updates (cube shadow = 6 scene passes: never re-render a static room).
+    // Shadows are re-rendered only while something that casts them moves (doors, drawers, lids, lever,
+    // rocking chair, the entity), at the preset's throttle rate, plus one final update when motion stops.
     let moving = false;
     const doors = this.world.architecture?.doors;
     if (doors) for (let i = 0; i < doors.length; i++) if (doors[i].animating) { moving = true; break; }
+    if (!moving) moving = this._dynamicCastersMoved();
     if (moving) this._shadowDirty = Math.max(this._shadowDirty, 1);
     const ev = this._every;
-    if ((lv > 0.003) && (this._frame % ev.ceil === 0 || this._shadowDirty > 0)) this.ceiling.shadow.needsUpdate = true;
-    if (this._frame % ev.moon === 0 || this._shadowDirty > 0) this.moon.shadow.needsUpdate = true;
-    if (this._shadowDirty > 0) this._shadowDirty--;
+    const tick = (n) => this._shadowDirty > 0 && (n <= 1 || this._frame % n === 0 || !moving);
+    if (lv > 0.003 && tick(ev.ceil)) this.ceiling.shadow.needsUpdate = true;
+    if (tick(ev.moon)) this.moon.shadow.needsUpdate = true;
+    if (this._shadowDirty > 0 && !moving) this._shadowDirty--;
+  }
+
+  /** True when any dynamic shadow caster moved since the last frame (cheap matrix comparison, no allocations). */
+  _dynamicCastersMoved() {
+    if (!this._dyn) {
+      this._dyn = [];
+      const add = (o) => { if (o && o.isObject3D && !this._dyn.includes(o)) this._dyn.push(o); };
+      add(this.game.entity?.root);
+      for (const h of Object.values(this.world.handles || {})) add(h?.object);
+      add(this.world.props?.objects?.rockingChair);
+      add(this.game.scene.getObjectByName('rockingChair'));
+      this._dynSnap = new Float32Array(this._dyn.length * 6);
+      // spinning fan blades would invalidate the cube shadow every frame: they don't cast shadows
+      this.game.scene.getObjectByName('ceiling_fan_blades')?.traverse((o) => { if (o.isMesh) o.castShadow = false; });
+    }
+    let moved = false;
+    const snap = this._dynSnap;
+    for (let i = 0; i < this._dyn.length; i++) {
+      const o = this._dyn[i];
+      if (!o.visible) continue;
+      const e = o.matrixWorld.elements, k = i * 6;
+      const v0 = e[12], v1 = e[13], v2 = e[14], v3 = e[0], v4 = e[2], v5 = e[5];
+      if (Math.abs(snap[k] - v0) + Math.abs(snap[k + 1] - v1) + Math.abs(snap[k + 2] - v2)
+        + Math.abs(snap[k + 3] - v3) + Math.abs(snap[k + 4] - v4) + Math.abs(snap[k + 5] - v5) > 1e-4) moved = true;
+      snap[k] = v0; snap[k + 1] = v1; snap[k + 2] = v2; snap[k + 3] = v3; snap[k + 4] = v4; snap[k + 5] = v5;
+    }
+    return moved;
   }
 
   _drawFeet() {
