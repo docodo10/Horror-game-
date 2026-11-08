@@ -799,18 +799,14 @@ export class Props {
     inner.add(body);
     const wheelMat = new THREE.MeshStandardMaterial({ map: PT.lockWheelTexture(), metalness: 0.9, roughness: 0.35 });
     const wheelGeo = new THREE.CylinderGeometry(0.0062, 0.0062, 0.0058, 20).rotateZ(Math.PI / 2);
-    // the 4 number wheels are ONE mesh (1 draw call instead of 4): `wheels` are transform holders (position, rotation.x)
-    // and _applyWheels() rewrites the merged vertices when a wheel turns (only while dialing)
+    // the 4 number wheels stay separate meshes: the PC (Godot) export animates each dial node
     const wheels = [];
     for (let i = 0; i < 4; i++) {
-      const w = new THREE.Object3D();
+      const w = new THREE.Mesh(wheelGeo, wheelMat);
+      w.name = 'lock.wheel' + i;
       w.position.set(-0.0105 + i * 0.007, -0.006, 0.0047);
-      wheels.push(w);
+      inner.add(w); wheels.push(w);
     }
-    const wheelsMesh = new THREE.Mesh(mergeGeometries([wheelGeo, wheelGeo, wheelGeo, wheelGeo], false), wheelMat);
-    wheelsMesh.name = 'lock.wheels';
-    inner.add(wheelsMesh);
-    const wheelSrc = { pos: Float32Array.from(wheelGeo.attributes.position.array), nor: Float32Array.from(wheelGeo.attributes.normal.array), n: wheelGeo.attributes.position.count };
     // shackle: U tube, legs at x = ±0.0085
     const r = 0.0085, top = 0.034;
     const pts = [];
@@ -823,7 +819,7 @@ export class Props {
     // generous hit box for phones
     this._proxy(inner, -0.022, -0.026, -0.01, 0.022, 0.046, 0.014, 'lock.hit');
     shadows(lock, false, true);
-    lock.userData = { wheels, wheelsMesh, wheelSrc, shackle, digits: [0, 0, 0, 0], animating: false };
+    lock.userData = { wheels, wheelsMesh: null, shackle, digits: [0, 0, 0, 0], animating: false };
     return lock;
   }
 
