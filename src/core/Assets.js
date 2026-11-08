@@ -179,6 +179,7 @@ export class Assets {
     const src = this.models.get(id);
     if (!src) throw new Error(`Model not loaded: ${id}`);
     const obj = src.clone(true);
+    obj.userData.modelId = id; // lets tools (e.g. the Godot exporter) map placed instances back to assets/models/<id>.glb
     if (uniqueMaterials) {
       obj.traverse((o) => {
         if (o.isMesh) o.material = Array.isArray(o.material) ? o.material.map((m) => m.clone()) : o.material.clone();
