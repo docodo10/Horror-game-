@@ -321,7 +321,7 @@ func _setup_flashlight() -> void:
 	_light.shadow_enabled = true
 	_light.shadow_bias = 0.02
 	_light.shadow_normal_bias = 1.2
-	_light.shadow_blur = 1.0
+	_light.shadow_blur = 0.75                  # near-point source: tighter penumbrae (TAA smooths the PCF dither)
 	_light.position = FLASH_POS
 	_light.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	camera.add_child(_light)
