@@ -24,6 +24,8 @@ const walk = (dir) => {
     const rel = path.posix.join(dir, f);
     const st = fs.statSync(path.join(ROOT, rel));
     if (st.isDirectory()) walk(rel);
+    // assets/models also holds the textures Godot extracts from each .glb (PC version); the web loads only the .glb.
+    else if (dir === 'assets/models' && !f.endsWith('.glb')) continue;
     else if (/\.(js|glb|jpg|png|webp|mp3|json)$/.test(f) && !/(^|\/)(NEW_ASSETS|CREDITS)/.test(f)) files[rel.endsWith('.glb') ? rel.replace(/\.glb$/, MODEL_EXT) : rel] = rel;
   }
 };
