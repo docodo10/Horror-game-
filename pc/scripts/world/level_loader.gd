@@ -41,13 +41,13 @@ static func find(ctx: Dictionary, ref: Variant) -> Node3D:
 	return null
 
 func load_level(host: Node, parent: Node3D, progress: Callable) -> Dictionary:
-	if has_generated():
+	if has_generated() and not "--world-fallback" in OS.get_cmdline_user_args():
 		var ctx := await _load_generated(host, parent, progress)
 		if ctx.get("level") != null: return ctx
 		push_warning("[world] exporter outputs unusable (%s): fallback level from Layout" % str(ctx.get("errors", [])))
 		for c in parent.get_children(): c.queue_free()
 	else:
-		push_warning("[world] res://assets/generated/ missing: fallback level built from Layout")
+		push_warning("[world] %s: fallback level built from Layout" % ("--world-fallback" if has_generated() else "res://assets/generated/ missing"))
 	return await FallbackLevel.new().build(host, parent, progress)
 
 func _load_generated(host: Node, parent: Node3D, progress: Callable) -> Dictionary:

@@ -36,15 +36,15 @@ void fragment() {
 	float ww = w_ext * 0.5;
 	float v = abs((cell.y + 0.5) / RES.y - 0.5);
 	float u = abs((cell.x + 0.5) / RES.x - 0.5);
-	bool line = line_mode > 0.5;
-	float vy = line ? max(0.0, 1.0 - v / (hh + 0.012)) : smooth_web(hh + 0.01, hh - 0.01, v);
+	bool is_line = line_mode > 0.5;
+	float vy = is_line ? max(0.0, 1.0 - v / (hh + 0.012)) : smooth_web(hh + 0.01, hh - 0.01, v);
 	float roll = fract(time_s * 0.7) * RES.y;
 	float dr = abs(cell.y - roll);
 	float dm = min(dr, RES.y - dr);
 	float bar = 1.0 - 0.45 * exp(-dm * dm / 40.0);
 	float vx = smooth_web(ww + 0.02, ww - 0.01, u);
-	float n = line ? 1.0 : 0.18 + 0.82 * hash12(cell + vec2(frame * 13.7, frame * 29.3));
-	float s = n * vy * vx * (line ? 1.0 : mask * bar);
+	float n = is_line ? 1.0 : 0.18 + 0.82 * hash12(cell + vec2(frame * 13.7, frame * 29.3));
+	float s = n * vy * vx * (is_line ? 1.0 : mask * bar);
 	ALBEDO = srgb_to_linear(clamp(vec3(s * 0.9, s * 0.95, s), 0.0, 1.0)) * level * 1.6;
 }
 """

@@ -28,8 +28,8 @@ void vertex() {
 }
 
 void fragment() {
-	float ends = smoothstep(0.0, 0.05, axial) * smoothstep(1.0, 0.95, axial);
-	float burn = mix(0.35, 1.0, smoothstep(0.02, 0.09, axial) * smoothstep(0.98, 0.91, axial));
+	float ends = smoothstep(0.0, 0.05, axial) * (1.0 - smoothstep(0.95, 1.0, axial));
+	float burn = mix(0.35, 1.0, smoothstep(0.02, 0.09, axial) * (1.0 - smoothstep(0.91, 0.98, axial)));
 	ALBEDO = mix(vec3(0.16), vec3(0.9, 0.92, 0.9), burn);
 	ROUGHNESS = 0.35;
 	SPECULAR = 0.6;

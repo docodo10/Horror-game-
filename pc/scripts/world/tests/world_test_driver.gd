@@ -73,7 +73,8 @@ func _run() -> void:
 	Game.world = world
 	await world.build(func(_p: float, _t: String) -> void: pass)
 	_check(world.built, "world built")
-	_check((world.ctx as Dictionary).get("generated", false), "built from the exporter outputs")
+	var forced_fallback := "--world-fallback" in OS.get_cmdline_user_args()
+	_check((world.ctx as Dictionary).get("generated", false) != forced_fallback, "built from the %s" % ("Layout fallback" if forced_fallback else "exporter outputs"))
 	await _frames(3)
 	_test_static()
 	await _test_walk()
