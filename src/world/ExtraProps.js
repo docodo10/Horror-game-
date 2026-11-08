@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import * as L from '../config/layout.js';
+import { mergeByMaterial, cheapTransparency } from './Props.js';
+import { capCanvas } from './ProcTextures.js';
 
 /**
  * ExtraProps — batch-2 Poly Haven set dressing (layout.EXTRA_PROPS, see assets/NEW_ASSETS.md) and the "glass" pass:
@@ -40,6 +42,11 @@ const FIX = {
 // gets there) and a box there would push the hidden player (hide position 0.16 m from the case).
 const NO_COLLIDER = new Set(['suitcase']);
 const OCCLUDERS = new Set(['oldTv', 'suitcase']);
+// Perf: wall decor, ceiling-mounted and small (< ~25-30 cm) props don't cast into the shadow maps (a cube shadow update
+// draws every caster up to 6 times); large props keep casting.
+const NO_CAST = new Set(['mirror', 'stairPhotoA', 'stairPhotoB', 'socket', 'gamepad', 'mousetrap', 'paintCan', 'bleach', 'jug']);
+// Perf: models whose parts never move relative to each other are merged into one mesh per material (draw calls).
+const MERGE_STATIC = new Set(['toolbox', 'suitcase', 'suitcaseHall', 'broom']);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Small deterministic noise / random helpers (build-time only)
@@ -768,10 +775,22 @@ export class ExtraProps {
     step('mirror', () => this._buildMirror());
     step('crt', () => this._buildCRT());
     step('socket', () => this._buildSocket());
+    step('perf', () => this._perfPass());
     this.game.events?.on?.('quality:changed', ({ quality }) => this._applyQuality(quality));
     this.game.events?.on?.('power', ({ on }) => this.setPower(on));
     this._applyQuality(this._quality);
+    this._built = true; // from now on _applyQuality never adds / removes lights (shader programs depend on the light count)
     scene.updateMatrixWorld(true);
+  }
+
+  /** Draw-call / shadow-pass reductions (no visual change). */
+  _perfPass() {
+    for (const o of Object.values(this.objects)) cheapTransparency(o);
+    for (const k of MERGE_STATIC) mergeByMaterial(this.objects[k]);
+    // the hallway suitcase is only visible through the upstairs door: let it follow the hallway group, which the
+    // architecture hides while the door is shut (the hall is otherwise drawn whenever it is inside the view frustum)
+    const hall = this.world.architecture?.hall, sh = this.objects.suitcaseHall;
+    if (hall && sh) hall.attach(sh);
   }
 
   // ------------------------------------------------------------------------------------------------ placement
@@ -797,7 +816,8 @@ export class ExtraProps {
     // rotY = yaw, then rotX / rotZ tilt about the WORLD axes (Euler 'ZXY' = Rz·Rx·Ry), as documented in NEW_ASSETS §3
     o.rotation.set(fix.rotX ?? p.rotX ?? 0, fix.rotY ?? p.rotY ?? 0, fix.rotZ ?? p.rotZ ?? 0, 'ZXY');
     o.scale.setScalar(p.scale || 1);
-    o.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+    const cast = !NO_CAST.has(key);
+    o.traverse((m) => { if (m.isMesh) { m.castShadow = cast; m.receiveShadow = true; } });
     if (key === 'toolbox') { const lid = o.getObjectByName('metal_toolbox_lid'); if (lid) lid.quaternion.identity(); } // authored open
     scene.add(o);
     o.updateMatrixWorld(true);
@@ -809,11 +829,17 @@ export class ExtraProps {
 
   /** Per-instance material tweaks: alpha-tested straw, metals that read as metal, glossy ceramic. */
   _upgradeMaterials() {
-    const each = (key, fn) => this.objects[key]?.traverse((m) => {
-      if (!m.isMesh) return;
-      m.material = m.material.clone();
-      fn(m.material, m);
-    });
+    // one clone per original material of the instance (not per mesh): meshes that shared a material still share it,
+    // so they keep sharing GPU state and can be merged into one draw call (_perfPass)
+    const each = (key, fn) => {
+      const clones = new Map();
+      this.objects[key]?.traverse((m) => {
+        if (!m.isMesh) return;
+        let c = clones.get(m.material);
+        if (!c) { c = m.material.clone(); clones.set(m.material, c); fn(c, m); }
+        m.material = c;
+      });
+    };
     each('broom', (mat) => {
       if (mat.name === 'wooden_broom_bristles' || mat.transparent) {
         mat.transparent = false; mat.alphaTest = 0.42; mat.alphaToCoverage = true; mat.depthWrite = true; mat.side = THREE.DoubleSide;
@@ -859,7 +885,7 @@ export class ExtraProps {
     for (const g of floor) { g.computeBoundingBox(); g.translate(0, 0.0015 - g.boundingBox.min.y, 0); }
     const fm = new THREE.Mesh(mergeGeometries(floor, false), fabric);
     fm.name = 'extra_laundry_floor';
-    fm.castShadow = true; fm.receiveShadow = true;
+    fm.castShadow = false; fm.receiveShadow = true; // flat cloth on the floor (≤ 3 cm): no shadow passes
     this.game.scene.add(fm);
     this.objects.laundryFloor = fm;
   }
@@ -869,10 +895,12 @@ export class ExtraProps {
     const maxAniso = this.game.renderer?.maxAnisotropy ?? 4;
     const painters = { stairPhotoA: paintFamilyPhoto, stairPhotoB: paintGardiennePhoto };
     const dustTex = {};
+    // GPU memory: the 1024 px photo canvases are resampled to 512 px on low/medium (same cap as ProcTextures/Assets)
+    const cap = this._quality === 'low' || this._quality === 'medium' ? 512 : 0;
     for (const [key, paint] of Object.entries(painters)) {
       const frame = this.objects[key];
       if (!frame) continue;
-      const tex = new THREE.CanvasTexture(paint());
+      const tex = new THREE.CanvasTexture(capCanvas(paint(), cap));
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.flipY = false;
       tex.anisotropy = maxAniso;
@@ -1028,20 +1056,19 @@ export class ExtraProps {
       refl.material.uniforms.texel.value.set(1 / w, 1 / h);
     }
     if (M && !live && M.reflector) { M.reflector.visible = false; M.glass.visible = true; }
-    // CRT glow light only where the extra light is affordable
+    // CRT glow light only where the extra light is affordable. The light set must stay fixed after the build (every
+    // lit shader program depends on the light count: adding / removing a light recompiles all of them, e.g. on an
+    // automatic quality step-down): the light is created at build time only, later quality changes just gate it.
     if (this.crt) {
-      const wantLight = live;
-      if (wantLight && !this.crt.light) {
+      if (live && !this.crt.light && !this._built) {
         const lt = new THREE.PointLight(0xbcd2ff, 0, 3.2, 2);
         lt.name = 'extra_crt_light';
         lt.position.set(-0.066, 0.26, 0.42);
         this.crt.root.add(lt);
         this.crt.light = lt;
-      } else if (!wantLight && this.crt.light) {
-        this.crt.root.remove(this.crt.light);
-        this.crt.light.dispose?.();
-        this.crt.light = null;
       }
+      this.crt.lightOK = live;
+      if (this.crt.light && !live) this.crt.light.intensity = 0;
     }
   }
 
@@ -1254,7 +1281,7 @@ export class ExtraProps {
     }
     C.tex.needsUpdate = true;
     C.mat.color.setScalar(b * 1.6);
-    if (C.light) C.light.intensity = b * (line ? 0.4 : 3.0) * Math.max(hExt, 0.05); // a CRT face is ~10 cd at full white
+    if (C.light) C.light.intensity = C.lightOK ? b * (line ? 0.4 : 3.0) * Math.max(hExt, 0.05) : 0; // a CRT face is ~10 cd at full white
   }
 
   // ------------------------------------------------------------------------------------------------ pull-chain socket

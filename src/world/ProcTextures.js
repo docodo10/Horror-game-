@@ -2,7 +2,8 @@ import * as THREE from 'three';
 
 // Procedural canvas textures for the props module (no external images).
 // Everything is drawn once at build time (except the TV static, which is animated by TVStatic.draw()).
-// Conventions: functions return a THREE.CanvasTexture (sRGB, mipmapped) unless noted; `.image` is the canvas.
+// Conventions: functions return a THREE.CanvasTexture (sRGB, mipmapped) unless noted; `.image` is the canvas (a
+// downscaled copy when the setMaxSize() cap applies — low/medium: 512 px).
 // Kid writing uses an internal stroke font (capital letters, wobbly crayon strokes) so it looks hand-made even
 // when the web fonts are unavailable; adult handwriting uses Caveat (loaded by index.html) with per-glyph jitter.
 
@@ -45,7 +46,30 @@ export function makeCanvas(w, h) {
 let _aniso = 4;
 export function setAnisotropy(a) { _aniso = a || 4; }
 
-export function canvasTexture(c, { srgb = true, mipmaps = true, repeat = false } = {}) {
+// GPU memory cap for the generated canvases (px, longest side; 0 = none). Props sets 512 on low/medium, like the
+// downscale of the model textures in Assets. Textures are still drawn at full size (same strokes, same text layout)
+// and then resampled, so the look only loses resolution, never layout.
+let _maxSize = 0;
+export function setMaxSize(px) { _maxSize = px > 0 ? Math.round(px) : 0; }
+
+/** Downscaled copy of `c` when it exceeds the cap (high-quality smoothing), else `c` itself. */
+export function capCanvas(c, max = _maxSize) {
+  const m = Math.max(c.width, c.height);
+  if (!max || m <= max) return c;
+  const k = max / m;
+  const d = makeCanvas(c.width * k, c.height * k), g = d.getContext('2d');
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.drawImage(c, 0, 0, d.width, d.height);
+  return d;
+}
+
+/**
+ * CanvasTexture factory. Mipmaps: on by default (trilinear: the props are mostly seen small / at grazing angles);
+ * textures that are redrawn at runtime pass { mipmaps: false, cap: false } (no per-update mip chain rebuild and the
+ * texture must keep using the canvas that gets redrawn).
+ */
+export function canvasTexture(c, { srgb = true, mipmaps = true, repeat = false, cap = true } = {}) {
+  if (cap) c = capCanvas(c);
   const t = new THREE.CanvasTexture(c);
   if (srgb) t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = _aniso;
@@ -1237,7 +1261,7 @@ export class TVStatic {
       const r = Math.pow(Math.pow(Math.abs(dx), 6) + Math.pow(Math.abs(dy), 6), 1 / 6);
       this.vig[y * w + x] = r > 1 ? 0 : Math.max(0, 1 - Math.pow(r, 3) * 0.55) * (r > 0.97 ? (1 - r) / 0.03 : 1);
     }
-    this.texture = canvasTexture(this.canvas, { mipmaps: false });
+    this.texture = canvasTexture(this.canvas, { mipmaps: false, cap: false }); // redrawn every frame: same canvas, no mips
     this.texture.magFilter = THREE.LinearFilter;
   }
 
