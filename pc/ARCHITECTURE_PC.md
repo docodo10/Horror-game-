@@ -176,6 +176,19 @@ Gameplay is merged (see `pc/scripts/game/README.md` for the full world conventio
   `set_inventory(items, notes)` (inventory entries carry an SVG `icon` with stroke="currentColor").
 * Modals go through `Game.modal(func(): return await Game.ui.show_keypad(...))`.
 
+**From the player module (merged):**
+* look: keep positional shadows available on every preset (the torch cookie only renders while the torch casts a shadow;
+  if a preset disables them, call `Game.player.set_flashlight_shadows(false)`). Enable TAA on high/ultra (soft-shadow edges
+  dither without it). Provide `static Quality.set_hidden_view(v)` (closet slats). Never set `camera.fov` in Quality — the
+  player sets it every frame (Settings "fov" + sprint kick + fear squeeze). Tune the torch with
+  `Game.player.flashlight_energy_scale`; the torch is excluded from SDFGI (bounce from SSIL + fill on high/ultra).
+* world: `set_meta("tag", "...")` on collider bodies (e.g. "dresser", "wall") so bump events carry tags. hide_spots entries:
+  {id, door: Handle, hide_pos (EYE position, y ≈ 1.35), hide_yaw, exit_pos}. The stair ramp must end flush with the landing
+  at y 2.75 (floor_max_angle 50°, ramp ≈ 39°). Never make two faces coplanar (shadow z-fighting stripes).
+* entity: take the camera with `player.camera_override = true` + `player.enabled = false`; `reset_after_caught()` releases
+  both. Use `player.global_position` (feet), `eye_position()`, `get_visibility()`, `hidden`, `flashlight.light`.
+* ui: set `menu_camera_active = true` while the TV menu drives a camera; on start the player blends 1.2 s from the active camera.
+
 ## 7. User feedback (2026-11-08 22:05) — cinematic quality + new soft-play area
 The user finds the current look "low quality, walls badly textured" and sent 6 screenshots of a UE5 liminal horror game set in
 indoor soft-play centers (Subliminal) as the QUALITY target:

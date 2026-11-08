@@ -100,6 +100,13 @@ func _process(delta: float) -> void:
 	fear = lerpf(fear, target, clampf(delta * 2.5, 0.0, 1.0))
 	Audio.set_fear(fear)
 
+## Like most PC games: alt-tab / losing the window pauses the game (not during automated test runs).
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_APPLICATION_FOCUS_OUT or state != "playing": return
+	var dbg = get_node_or_null("/root/DebugTools")
+	if dbg and not (dbg.get("args") as Dictionary).is_empty(): return
+	pause()
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
 		if state == "playing": pause()
