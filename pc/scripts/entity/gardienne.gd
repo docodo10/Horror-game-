@@ -5,7 +5,7 @@
 ## Extra public members: model (gardienne_model.gd), enabled, aggression, suspicion, yaw, seeing, state_log (transitions
 ##   {t, state, prev, pos}), stall_events, summon(target, reason, aggressive := false),
 ##   debug_place(pos, yaw, mode := "idle", t := -1.0, look := null), debug_release(), debug_jumpscare(freeze_t := -1.0),
-##   head_position() / eye_position() / face_position().
+##   head_position() / eye_position() / face_position(), get_head_position() / get_feet_position() (audio module hooks).
 ##
 ## Behaviour (same states, numbers and timings as the web version):
 ##  dormant    upstairs (hall), invisible. Noise raises suspicion (muffled by the floor, scaled by distance to the stairwell
@@ -314,6 +314,10 @@ func eye_position() -> Vector3:
 
 func face_position() -> Vector3:
 	return model.get_face_world() if model else global_position + Vector3(0, 1.75, 0)
+
+## Audio module hooks (entity-following sounds: hum, breath, steps).
+func get_head_position() -> Vector3: return head_position()
+func get_feet_position() -> Vector3: return global_position
 
 # ====================================================================== main update
 
