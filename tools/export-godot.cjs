@@ -1288,10 +1288,24 @@ async function pull(page, key) {
 }
 
 function writeFile(rel, data) {
+  PRODUCED.add(rel);
   const f = path.join(OUT, rel);
   fs.mkdirSync(path.dirname(f), { recursive: true });
   fs.writeFileSync(f, data);
   return f;
+}
+const PRODUCED = new Set();
+function pruneStale(folderRel) {
+  const dir = path.join(OUT, folderRel);
+  if (!fs.existsSync(dir)) return 0;
+  let n = 0;
+  for (const f of fs.readdirSync(dir)) {
+    const rel = `${folderRel}/${f}`;
+    const base = f.endsWith('.import') ? rel.slice(0, -7) : rel;
+    if (PRODUCED.has(base)) continue;
+    fs.rmSync(path.join(dir, f), { recursive: true, force: true }); n++;
+  }
+  return n;
 }
 function keepImport(rel, stub) { // keep an existing (Godot-rewritten) .import file when its params match our preset
   const f = path.join(OUT, rel + '.import');
@@ -1317,13 +1331,14 @@ async function writeImages(page, group, folder, used) {
       const parts = im.path.split('/');
       const base = sanitizeFile(parts.slice(-2).join('_').replace(/\.[a-z]+$/i, ''));
       rel = `textures/shared/${base}${path.extname(src).toLowerCase()}`;
-      if (!names.has(rel)) { writeFile(rel, fs.readFileSync(src)); names.add(rel); }
+      if (!names.has(rel)) { const b = fs.readFileSync(src); const dst = path.join(OUT, rel); if (!fs.existsSync(dst) || !b.equals(fs.readFileSync(dst))) writeFile(rel, b); else PRODUCED.add(rel); names.add(rel); }
     } else {
       const bytes = await pull(page, im.key);
       let base = sanitizeFile(im.name || im.id), r = `${folder}/${base}.${im.ext}`, k = 2;
       while (names.has(r)) r = `${folder}/${base}_${k++}.${im.ext}`;
       rel = r; names.add(rel);
-      writeFile(rel, bytes);
+      const dst = path.join(OUT, rel);
+      if (fs.existsSync(dst) && bytes.equals(fs.readFileSync(dst))) PRODUCED.add(rel); else writeFile(rel, bytes); // unchanged: no reimport
     }
     keepImport(rel, importStub(im.usage));
     map[im.id] = { uri: rel, usage: im.usage };
@@ -1450,7 +1465,6 @@ function deepResolve(v, resolve) {
     console.log('[export] handles', Object.keys(handles).length);
     const L = await page.evaluate(() => { const l = window.__X.level; return { ...l }; });
     // textures + GLBs
-    for (const f of ['textures/level']) fs.rmSync(path.join(OUT, f), { recursive: true, force: true });
     const images = await writeImages(page, 'level', 'textures/level', usedNames);
     const glb = await pull(page, 'level.glb');
     writeFile('level.glb', patchGLB(glb, L.materials, images));
@@ -1502,10 +1516,10 @@ function deepResolve(v, resolve) {
 
   // ----------------------------------------------------------------------------------------- gardienne
   if (ONLY.has('gardienne')) {
+    const w0 = await page.evaluate(() => window.__X.warnings.length);
     const g = await page.evaluate(() => window.__X.gardienne());
     console.log('[export] gardienne', JSON.stringify(g));
     const G = await page.evaluate(() => window.__X.gardienneOut);
-    fs.rmSync(path.join(OUT, 'textures/gardienne'), { recursive: true, force: true });
     const images = await writeImages(page, 'gardienne', 'textures/gardienne', usedNames);
     const glb = await pull(page, 'gardienne.glb');
     writeFile('gardienne.glb', patchGLB(glb, G.materials, images));
@@ -1513,6 +1527,7 @@ function deepResolve(v, resolve) {
     const gm = { version: 1, generator: 'tools/export-godot.cjs', source: { url: report.url, date: report.date, model: 'src/entity/GardienneModel.js' }, file: `${RES_PREFIX}/gardienne.glb`, ...G };
     delete gm.materials;
     gm.materials = Object.values(G.materials).map((d) => ({ name: d.name, extras: d.extras }));
+    gm.warnings = await page.evaluate((n) => window.__X.warnings.slice(n), w0);
     writeFile('gardienne_meta.json', JSON.stringify(gm, null, 1));
     console.log('[export] verify gardienne.glb (three)', JSON.stringify(await page.evaluate((u) => window.__X.verify(u), '/' + path.relative(ROOT, path.join(OUT, 'gardienne.glb')).split(path.sep).join('/'))));
   }
@@ -1520,15 +1535,20 @@ function deepResolve(v, resolve) {
   // ----------------------------------------------------------------------------------------- UI / decal textures
   if (ONLY.has('textures')) {
     const t = await page.evaluate(() => window.__X.uiTextures());
-    for (const sub of ['textures/notes', 'textures/decals']) fs.rmSync(path.join(OUT, sub), { recursive: true, force: true });
     for (const it of t.list) {
       const rel = 'textures/' + it.name;
-      writeFile(rel, await pull(page, it.key));
+      const bytes = await pull(page, it.key);
+      const dst = path.join(OUT, rel);
+      if (fs.existsSync(dst) && bytes.equals(fs.readFileSync(dst))) PRODUCED.add(rel); else writeFile(rel, bytes);
       keepImport(rel, importStub(['color']).replace('compress/mode=2', 'compress/mode=0').replace('detect_3d/compress_to=0', 'detect_3d/compress_to=1'));
     }
     console.log(`[export] ui textures: ${t.list.length} (fonts loaded: ${t.fonts.join(', ') || 'none — fallback fonts'})`);
   }
 
+  const pruned = [...(ONLY.has('level') ? ['textures/level'] : []), ...(ONLY.has('gardienne') ? ['textures/gardienne'] : []),
+    ...(ONLY.has('textures') ? ['textures/notes', 'textures/decals'] : []), ...(ONLY.has('level') && ONLY.has('gardienne') ? ['textures/shared'] : [])]
+    .reduce((n, d) => n + pruneStale(d), 0);
+  if (pruned) console.log(`[export] removed ${pruned} stale files`);
   const warnings = await page.evaluate(() => window.__X.warnings.length);
   console.log(`[export] done in ${((Date.now() - t0) / 1000).toFixed(1)} s — ${warnings} warnings, ${pageErrors} page errors → ${path.relative(ROOT, OUT)}`);
   await browser.close();

@@ -3,7 +3,7 @@
  "generator": "tools/export-godot.cjs",
  "source": {
   "url": "http://127.0.0.1:PORT/index.html?debug&noentity&quality=high",
-  "date": "2026-11-08T21:35:12.770Z",
+  "date": "2026-11-08T21:40:01.943Z",
   "three": "0.170.0",
   "quality": "high"
  },
@@ -673,12 +673,12 @@
     {
      "node": "vintage_grandfather_clock_01_HourHand",
      "local": [
-      -0.954635,
-      0.297777,
+      0.219435,
+      -0.975627,
       0,
       0,
-      -0.297777,
-      -0.954635,
+      0.975627,
+      0.219435,
       0,
       0,
       0,
@@ -1122,14 +1122,14 @@
      "node": "houd_hand",
      "local": [
       -0.998026,
-      0.062805,
+      0.062804,
       0,
       0,
       0,
       0,
       1,
       0,
-      0.062805,
+      0.062804,
       0.998026,
       0,
       0,
@@ -1142,16 +1142,16 @@
     {
      "node": "minute_hand",
      "local": [
-      -0.685531,
-      -0.728044,
+      -0.685524,
+      -0.72805,
       0,
       0,
       0,
       0,
       1,
       0,
-      -0.728044,
-      0.685531,
+      -0.72805,
+      0.685524,
       0,
       0,
       0,
@@ -1245,17 +1245,17 @@
     {
      "node": "ceiling_fan_blades",
      "local": [
-      0.700028,
+      0.697796,
       0,
-      -0.714116,
+      -0.716296,
       0,
       0,
       1,
       0,
       0,
-      0.714116,
+      0.716296,
       0,
-      0.700028,
+      0.697796,
       0,
       0,
       0,
@@ -2953,17 +2953,17 @@
     "instance": "extra_socket"
    },
    "local": [
-    0.999826,
-    0.018674,
-    -0.000288,
+    0.999807,
+    0.019636,
+    0.000353,
     0,
-    -0.018676,
-    0.999707,
-    -0.015401,
+    -0.01964,
+    0.999645,
+    0.017987,
     0,
     0,
-    0.015403,
-    0.999881,
+    -0.01799,
+    0.999838,
     0,
     -0.023,
     -0.019,
@@ -11224,9 +11224,9 @@
    },
    "intensity": 0,
    "position": [
-    -0.348542,
-    1.278632,
-    -1.819306
+    -0.348549,
+    1.278614,
+    -1.819309
    ],
    "castShadow": true,
    "visible": true,
@@ -11235,9 +11235,9 @@
    "angle": 0.42,
    "penumbra": 0.45,
    "target": [
-    -0.781133,
-    1.584528,
-    -4.800546
+    -0.781117,
+    1.584598,
+    -4.800544
    ],
    "shadow": {
     "mapSize": [
@@ -11383,7 +11383,7 @@
      1
     ]
    },
-   "intensity": 0.554249,
+   "intensity": 0.538553,
    "position": [
     -0.55,
     1.472043,
@@ -11721,19 +11721,13 @@
   "material hallWall: map tiling snapped from 2.8302 x 2.8302 to 3 x 3 per base tile (seamless)",
   "material hallWall: map re-sampled into the base UV space (1536x1536)",
   "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
-  "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
   "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
-  "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
   "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
-  "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
   "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
-  "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
   "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
-  "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
   "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
-  "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
-  "material MeshStandardMaterial: normalMap re-sampled into the map UV space (2048x1468)",
-  "material MeshStandardMaterial: normalMap re-sampled into the base UV space (2048x2048)",
+  "material MeshStandardMaterial: normalMap re-sampled into the map UV space (2048x1365)",
+  "material MeshStandardMaterial: normalMap re-sampled into the base UV space (1024x1024)",
   "override extra_stairPhotoA:Cube009_2: the web build replaced this primitive's geometry (e.g. generated UVs) — Godot keeps the original mesh",
   "override extra_stairPhotoB:Cube009_2: the web build replaced this primitive's geometry (e.g. generated UVs) — Godot keeps the original mesh"
  ]
