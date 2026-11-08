@@ -284,6 +284,8 @@ func _ready() -> void:
 	camera.current = true
 
 	_setup_flashlight()
+	_ray.collision_mask = LAYER_WORLD
+	_ray.exclude = [get_rid()]
 	_read_settings()
 	_parse_debug_args()
 
@@ -1245,8 +1247,6 @@ func _update_beam() -> void:
 	var d := -xf.basis.z.normalized()
 	_ray.from = o
 	_ray.to = o + d * 9.0
-	_ray.collision_mask = LAYER_WORLD
-	_ray.exclude = [get_rid()] if _ray.exclude.is_empty() else _ray.exclude
 	var hit := get_world_3d().direct_space_state.intersect_ray(_ray)
 	_beam_t = o.distance_to(hit.position) if not hit.is_empty() else 9.0
 
@@ -1257,6 +1257,7 @@ func _update_bounce(dt: float) -> void:
 		if _bounce.visible:
 			_bounce.visible = false
 		_bounce.light_energy = 0.0
+		_bounce_init = false                    # snap to the new hit point when the torch comes back on
 		return
 	var xf := _light.global_transform
 	var d := -xf.basis.z.normalized()
@@ -1394,7 +1395,8 @@ func _door_wait(state: Dictionary, timeout: float) -> void:
 	var waited := 0.0
 	while state.done != true and waited < timeout and is_inside_tree():
 		await get_tree().process_frame
-		waited += get_process_delta_time()
+		if not get_tree().paused:               # the door tween is paused too: don't time out during a pause
+			waited += get_process_delta_time()
 
 func _set_hidden(v: bool, spot: Variant) -> void:
 	if hidden == v:
