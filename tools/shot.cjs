@@ -71,7 +71,7 @@ const server = http.createServer((req, res) => {
     if (s.eval) { try { const r = await page.evaluate(s.eval); if (r !== undefined) console.log('[eval]', typeof r === 'string' ? r : JSON.stringify(r).slice(0, 2000)); } catch (e) { console.log('[eval error]', e.message); pageErrors++; } }
     if (s.key) { await page.keyboard.down(s.key); await page.waitForTimeout(s.ms || 500); await page.keyboard.up(s.key); }
     if (s.click) await page.mouse.click(s.click[0], s.click[1]);
-    if (s.shot) { await page.screenshot({ path: s.shot }); console.log('[shot]', s.shot); }
+    if (s.shot) { await page.screenshot({ path: s.shot, timeout: 180000 }); console.log('[shot]', s.shot); }
   }
   const fps = await page.evaluate(() => window.__game?.renderer?.fps).catch(() => null);
   console.log('[harness] fps(software GL)=', fps && fps.toFixed ? fps.toFixed(1) : fps, ' pageErrors=', pageErrors);
