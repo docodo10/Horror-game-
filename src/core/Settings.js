@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS = {
   volume: 0.85,         // master volume 0..1
   subtitles: true,
   fov: 70,
+  cameraMotion: 1,     // 0..1 scales head bob, roll, tremor and breathing sway
 };
 
 export class Settings {
