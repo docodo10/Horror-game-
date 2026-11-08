@@ -109,8 +109,9 @@ export const PROPS = {
   alcoveCabinet: { model: 'painted_wooden_cabinet', pos: [1.0, 0, -4.28], rotY: 0 },    // battery #2 in drawer_01
   powerBox:      { model: 'power_box_01', pos: [2.6, 1.45, -4.553], rotY: 0 },          // breaker panel; door must start CLOSED
   alcoveShelf:   { model: 'Shelf_01', pos: [3.5, 0, -3.7], rotY: -PI / 2 },
-  boxA:          { model: 'cardboard_box_01', pos: [2.0, 0, -4.3], rotY: 0.2 },
-  boxB:          { model: 'cardboard_box_01', pos: [2.05, 0.335, -4.28], rotY: -0.3, scale: 0.85 },
+  // boxA / boxB stand on the boards of the north steel shelf (DETAIL_PROPS.shelfN, batch 3); Details.js re-seats them
+  boxA:          { model: 'cardboard_box_01', pos: [1.92, 0.133, -4.34], rotY: PI / 2 + 0.05 },                // bottom board of shelfN
+  boxB:          { model: 'cardboard_box_01', pos: [1.92, 0.639, -4.33], rotY: -PI / 2 + 0.08, scale: 0.85 }, // board 2 of shelfN
   boxC:          { model: 'cardboard_box_01', pos: [-3.05, 0, -1.0], rotY: 1.2 },          // inside the closet
   bulb:          { model: 'lightbulb_01', pos: [1.8, 2.28, -3.6], rotY: 0 },                // broken bulb hanging in alcove
   cassette:      { model: 'portable_cassette_player', pos: [-1.95, 0.551, 0.12], rotY: 0.3 }, // on kid table (flavor)
@@ -182,21 +183,119 @@ export const EXTRA_PROPS = {
   boombox:      { model: 'boombox', pos: [-2.35, 0, -0.50], rotY: PI / 2 },
   gamepad:      { model: 'gamepad', pos: [-0.30, 0, -1.95], rotY: 0.5, noCollider: true },
   bat:          { model: 'baseball_bat', pos: [-3.40, 0.254, 2.63], rotY: 0, rotX: 0.10, rotZ: 0.10 },
-  football:     { model: 'football', pos: [-2.35, 0, 1.15], rotY: 0.7, hideNodes: ['football_inflated'], zeroNodeX: 'football_deflated' },
+  football:     { model: 'football', pos: [-2.35, 0.007, 1.15], rotY: 0.7, hideNodes: ['football_inflated'], zeroNodeX: 'football_deflated' },
   mirror:       { model: 'ornate_mirror_01', pos: [0.47, 1.62, -2.749], rotY: 0, noCollider: true },
   stairPhotoA:  { model: 'hanging_picture_frame_02', pos: [-3.498, 2.55, 0.30], rotY: PI / 2, noCollider: true },
   stairPhotoB:  { model: 'hanging_picture_frame_02', pos: [-3.498, 3.50, -0.75], rotY: PI / 2, noCollider: true },
   oldTv:        { model: 'Television_01', pos: [2.55, 0, -4.33], rotY: 0 },
   socket:       { model: 'pull_chain_light_socket', pos: [1.80, 2.50, -3.60], rotY: 0, noCollider: true },
   toolbox:      { model: 'metal_toolbox', pos: [3.20, 0, -4.38], rotY: -PI / 2 },
-  laundry:      { model: 'plastic_crate_02', pos: [0.58, 0, -3.22], rotY: 0.15 },
+  laundry:      { model: 'plastic_crate_02', pos: [0.636, 0.133, -3.165], rotY: PI / 2 + 0.04, noCollider: true }, // bottom board of DETAIL_PROPS.shelfW
   stool:        { model: 'painted_wooden_stool', pos: [0.62, 0, -3.72], rotY: 0 },
   broom:        { model: 'wooden_broom', pos: [0.29, 0.122, -3.72], rotY: PI / 2, rotZ: 0.12, noCollider: true },
   bleach:       { model: 'bleach_bottle', pos: [0.85, 1.182, -4.30], rotY: -0.3, noCollider: true },
   jug:          { model: 'plastic_bottle_gallon', pos: [0.60, 1.182, -4.36], rotY: 0.5, noCollider: true },
   paintCan:     { model: 'can_rusted', pos: [3.36, 0.66, -3.95], rotY: 1.0, noCollider: true },
   gnome:        { model: 'garden_gnome', pos: [3.25, 0, -3.10], rotY: -1.47 },
-  mousetrap:    { model: 'mousetrap', pos: [1.68, 0, -4.50], rotY: 0.3, noCollider: true },
+  mousetrap:    { model: 'mousetrap', pos: [1.70, 0, -4.03], rotY: 0.3, noCollider: true },                // front-left foot of shelfN
   suitcase:     { model: 'vintage_suitcase', pos: [-3.31, 0, -1.20], rotY: PI / 2, hidePrefix: 'vintage_suitcase_02' },
   suitcaseHall: { model: 'vintage_suitcase', pos: [-3.47, 2.75, -4.356], rotY: PI / 2, hidePrefix: 'vintage_suitcase_01', noCollider: true },
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Batch-3 detail pass (src/world/Details.js; models in assets/NEW_ASSETS.md §B3). Same conventions as EXTRA_PROPS, plus:
+//   on / board: the model rests on that board of a steel shelf (y computed from STEEL_SHELF_BOARDS + the model's bbox)
+//   scale: number or [x, y, z]; nodeRot: { node: [x, y, z] } Euler set on a child node; hall: parented to the hallway
+//   group (drawn only while the upstairs door is open).
+// Built walls (Architecture.js): the nook's south face is the back of the 0.15 m partition, z = ROOM.minZ - 0.15 = -2.9
+// (NEW_ASSETS assumed -2.95: shelfW / ladder / N7 / N10 are 5 cm further south here). The ABS drain stack stands at
+// (0.31, -3.2) and the doorway jamb at x = 0.9, so the west steel shelf is a 0.52 m-wide unit (x scale 0.88) between them.
+// The HVAC trunk (y >= 2.30) runs over shelfW: its top board only takes low items. Both shelves stand 1.4 cm off
+// their wall (the tiled wainscot of the nook is a 3 mm overlay).
+export const STEEL_SHELF_BOARDS = [0.133, 0.639, 1.145, 1.651, 2.130];
+export const DETAIL_PROPS = {
+  // ── Nook = storage room ───────────────────────────────────────────────────
+  shelfW:      { model: 'steel_frame_shelves_02', pos: [0.636, 0, -3.165], rotY: PI, scale: [0.88, 1, 1] }, // laundry basket on board 0
+  shelfWcan:   { model: 'metal_jerrycan', on: 'shelfW', board: 1, pos: [0.64, 0, -3.17], rotY: PI + 0.06 },
+  medkit:      { model: 'medical_box', on: 'shelfW', board: 2, pos: [0.63, 0, -3.176], rotY: PI / 2 - 0.03 }, // latch toward the doorway
+  milkCrate:   { model: 'plastic_crate_01', on: 'shelfW', board: 3, pos: [0.60, 0, -3.16], rotY: PI / 2 + 0.08 },
+  shelfN:      { model: 'steel_frame_shelves_02', pos: [1.92, 0, -4.336], rotY: 0 },                       // boxA board 0, boxB board 1
+  shelfNbox3:  { model: 'cardboard_box_01', on: 'shelfN', board: 2, pos: [1.93, 0, -4.35], rotY: PI / 2 - 0.06, scale: 0.8 },
+  shelfNbox4:  { model: 'cardboard_box_01', on: 'shelfN', board: 3, pos: [1.90, 0, -4.34], rotY: PI / 2 + 0.12, scale: 0.75 },
+  shelfNbox5:  { model: 'cardboard_box_01', on: 'shelfN', board: 4, pos: [1.94, 0, -4.36], rotY: PI / 2 - 0.15, scale: 0.72 },
+  tubeLight:   { model: 'mounted_fluorescent_lights', pos: [1.95, 2.51, -3.85], rotY: 0 },                // screwed under the joists
+  ladder:      { model: 'wooden_ladder', pos: [2.13, 0.1255, -2.709], rotY: -PI / 2, rotX: -0.25,
+                 nodeRot: { wooden_ladder_supports: [0, 0, -0.70] } },                                    // folded, leaning on the S face
+  // ── Upstairs hallway (win view) ───────────────────────────────────────────
+  hallLamp:    { model: 'hanging_industrial_lamp', pos: [-3.0, 5.2, -4.0], rotY: 0.4, scale: 0.6, hall: true }, // shade bottom 4.63
+  hallLantern: { model: 'Lantern_01', pos: [-2.62, 2.75, -4.22], rotY: -0.6, hall: true },
+};
+// Bulb of hallLamp (scale 0.6): Details moves Lighting's hallway light (doorLight when the door is open) here.
+export const HALL_LAMP_BULB = [-3.0, 4.7, -4.0];
+// Fluorescent batten light: ONE non-shadow SpotLight created at build, intensity-driven (on only with mains power).
+// A spot rather than a point light: without a shadow map a point light in the nook would light the main room's ceiling
+// and floor straight through the partition. Aimed down and 25° north, its cone (soft edge) lights the shelves, the
+// breaker panel and the nook floor, reaches the doorway threshold, and never points up at the room ceiling.
+export const TUBE_LIGHT = { pos: [1.95, 2.46, -3.85], target: [1.95, 0, -5.0], angle: 1.35, penumbra: 0.9, cd: 55 };
+
+// Grime / leak / stain decals (assets/NEW_ASSETS.md §B3.5, positions corrected to the built walls: nook S face z = -2.9,
+// closet walls x = -3.5 / z = -2.75, closet ceiling 2.45, nook "ceiling" = subfloor between the joists at 2.75; hall
+// decals kept off the runner rug, the window and the bedroom door). pos = centre ON the surface, normal toward the
+// viewer, up = texture top direction, size = [w, h] m, tint sRGB hex, opacity, flip = mirror u.
+// tex: a batch-3 decal set, or 'crayon:N' = cell N of the procedural crayon-scribble atlas (Details.js).
+// Ids: N nook, M main room (batch-3 plan), G main-room grime (scuffs / smudges / leaks), K crayon scribbles, C closet, H hall.
+export const DECALS = [
+  { id: 'N1', tex: 'decal_leak_streaks', pos: [0.95, 2.05, -4.6], normal: [0, 0, 1], up: [0, 1, 0], size: [1.3, 0.9] },
+  { id: 'N2', tex: 'decal_pipe_leak', pos: [2.98, 2.0, -4.6], normal: [0, 0, 1], up: [0, 1, 0], size: [0.45, 0.6] },
+  { id: 'N3', tex: 'decal_rust_drip', pos: [2.66, 0.94, -4.6], normal: [0, 0, 1], up: [0, 1, 0], size: [0.12, 0.48] },
+  { id: 'N4', tex: 'decal_grime', pos: [2.55, 1.45, -4.6], normal: [0, 0, 1], up: [0, 1, 0], size: [0.9, 0.85], tint: '#b8b0a4' },
+  { id: 'N5', tex: 'decal_mold', pos: [0.2, 2.2, -4.25], normal: [1, 0, 0], up: [0, 1, 0], size: [0.7, 0.6] },
+  { id: 'N6', tex: 'decal_water_ring', pos: [2.9, 2.75, -3.55], normal: [0, -1, 0], up: [0.4226, 0, -0.9063], size: [0.8, 0.8] },
+  { id: 'N7', tex: 'decal_rising_damp', pos: [2.65, 0.28, -2.9], normal: [0, 0, -1], up: [0, 1, 0], size: [1.6, 0.56] },
+  { id: 'N8', tex: 'decal_dirt_patch', pos: [2.1, 0, -3.8], normal: [0, 1, 0], up: [0, 0, -1], size: [1.1, 1], tint: '#a08a70', opacity: 0.85 },
+  { id: 'N9', tex: 'decal_dirt_patch', pos: [1.35, 0, -3.25], normal: [0, 1, 0], up: [-1, 0, 0], size: [0.8, 0.86], tint: '#a08a70', opacity: 0.7 },
+  { id: 'N10', tex: 'decal_scuffs', pos: [3.2, 0.2, -2.9], normal: [0, 0, -1], up: [0, 1, 0], size: [0.55, 0.25], tint: '#2b2622' },
+  { id: 'N11', tex: 'decal_mold', pos: [3.5, 0.3, -3.05], normal: [-1, 0, 0], up: [0, 1, 0], size: [0.5, 0.45], flip: true },
+  { id: 'M1', tex: 'decal_leak_streaks', pos: [2.45, 1.35, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [1.15, 0.9], opacity: 0.8 },
+  { id: 'M2', tex: 'decal_water_ring', pos: [-2.0, 2.5, 1.62], normal: [0, -1, 0], up: [-0.2588, 0, -0.9659], size: [0.85, 0.85] }, // by the stairwell
+  { id: 'M3', tex: 'decal_grime', pos: [-0.55, 1.78, -2.75], normal: [0, 0, 1], up: [0, 1, 0], size: [0.9, 0.6], tint: '#9c958a', opacity: 0.5 },
+  { id: 'M4', tex: 'decal_scuffs', pos: [-1.85, 0.22, -2.75], normal: [0, 0, 1], up: [0, 1, 0], size: [1, 0.3], tint: '#2b2622' },
+  { id: 'M5', tex: 'decal_scuffs', pos: [3.5, 0.78, -1.05], normal: [-1, 0, 0], up: [0, 1, 0], size: [0.6, 0.25], tint: '#2b2622', opacity: 0.6 },
+  { id: 'M6', tex: 'decal_hand_smudges', pos: [-2.5, 1.0, -1.58], normal: [1, 0, 0], up: [0, 1, 0], size: [0.3, 0.4] },
+  { id: 'M7', tex: 'decal_hand_smudges', pos: [-3.5, 2.77, -0.6], normal: [1, 0, 0], up: [0, 0.798, 0.603], size: [1, 0.3] },
+  { id: 'M8', tex: 'decal_mold', pos: [-3.15, 0.45, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [0.65, 0.6] },
+  { id: 'M9', tex: 'decal_dirt_patch', pos: [-3.0, 0, 2.1], normal: [0, 1, 0], up: [0, 0, -1], size: [0.9, 0.7], tint: '#8a7660', opacity: 0.6 },
+  { id: 'G1', tex: 'decal_scuffs', pos: [0.62, 0.17, -2.75], normal: [0, 0, 1], up: [0, 1, 0], size: [0.5, 0.22], tint: '#2b2622', opacity: 0.85 },
+  { id: 'G2', tex: 'decal_scuffs', pos: [3.5, 0.16, -1.95], normal: [-1, 0, 0], up: [0, 1, 0], size: [0.6, 0.22], tint: '#2b2622', opacity: 0.8, flip: true },
+  { id: 'G3', tex: 'decal_scuffs', pos: [3.5, 0.17, -0.45], normal: [-1, 0, 0], up: [0, 1, 0], size: [0.6, 0.24], tint: '#2b2622', opacity: 0.75 },
+  { id: 'G4', tex: 'decal_scuffs', pos: [3.5, 0.15, 2.2], normal: [-1, 0, 0], up: [0, 1, 0], size: [0.7, 0.2], tint: '#2b2622', opacity: 0.7, flip: true },
+  { id: 'G5', tex: 'decal_scuffs', pos: [-2.0, 0.16, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [0.5, 0.22], tint: '#2b2622', opacity: 0.8 },
+  { id: 'G6', tex: 'decal_scuffs', pos: [-2.5, 0.19, -0.95], normal: [1, 0, 0], up: [0, 1, 0], size: [0.8, 0.25], tint: '#2b2622', opacity: 0.8 },
+  { id: 'G7', tex: 'decal_scuffs', pos: [2.35, 0.14, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [0.45, 0.2], tint: '#2b2622', opacity: 0.7, flip: true },
+  { id: 'G8', tex: 'decal_hand_smudges', pos: [-3.5, 1.2, 2.08], normal: [1, 0, 0], up: [0, 1, 0], size: [0.34, 0.4] },          // light switch
+  { id: 'G9', tex: 'decal_hand_smudges', pos: [0.77, 1.15, -2.75], normal: [0, 0, 1], up: [0, 1, 0], size: [0.24, 0.5], flip: true }, // nook jambs
+  { id: 'G10', tex: 'decal_hand_smudges', pos: [1.93, 1.2, -2.75], normal: [0, 0, 1], up: [0, 1, 0], size: [0.24, 0.5] },
+  { id: 'G12', tex: 'decal_grime', pos: [1.98, 1.52, -2.75], normal: [0, 0, 1], up: [0, 1, 0], size: [0.3, 0.26], tint: '#8f877c', opacity: 0.55 }, // thermostat
+  { id: 'G13', tex: 'decal_leak_streaks', pos: [-2.7, 2.05, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [0.7, 0.9], opacity: 0.55, flip: true },
+  { id: 'G14', tex: 'decal_grime', pos: [3.1, 0.5, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [0.7, 0.6], tint: '#8f877c', opacity: 0.45 }, // above the vent
+  { id: 'G15', tex: 'decal_hand_smudges', pos: [-2.5, 1.35, -0.2], normal: [1, 0, 0], up: [0, 1, 0], size: [0.3, 0.32], opacity: 0.7, flip: true },
+  { id: 'K1', tex: 'crayon:0', pos: [-2.5, 0.62, -0.95], normal: [1, 0, 0], up: [0, 1, 0], size: [0.7, 0.55] },
+  { id: 'K2', tex: 'crayon:1', pos: [-2.5, 0.95, -0.1], normal: [1, 0, 0], up: [0, 1, 0], size: [0.42, 0.4] },
+  { id: 'K3', tex: 'crayon:2', pos: [-1.95, 0.64, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [0.6, 0.5] },
+  { id: 'K4', tex: 'crayon:3', pos: [-2.62, 0.55, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [0.44, 0.6] },
+  { id: 'K5', tex: 'crayon:4', pos: [-1.45, 0.88, 2.75], normal: [0, 0, -1], up: [0, 1, 0], size: [0.3, 0.25] },
+  { id: 'K6', tex: 'crayon:5', pos: [-2.5, 0.35, 0.95], normal: [1, 0, 0], up: [0, 1, 0], size: [0.3, 0.22] },
+  { id: 'K7', tex: 'crayon:6', pos: [-1.95, 0.48, -2.75], normal: [0, 0, 1], up: [0, 1, 0], size: [0.34, 0.28] },
+  { id: 'C1', tex: 'decal_grime', pos: [-3.5, 1.25, -2.15], normal: [1, 0, 0], up: [0, 1, 0], size: [0.8, 0.8], tint: '#8f877c' },
+  { id: 'C2', tex: 'decal_mold', pos: [-3.5, 0.3, -0.75], normal: [1, 0, 0], up: [0, 1, 0], size: [0.6, 0.45] },
+  { id: 'C3', tex: 'decal_leak_streaks', pos: [-3.03, 2.0, -2.75], normal: [0, 0, 1], up: [0, 1, 0], size: [0.8, 0.9] },
+  { id: 'C4', tex: 'decal_hand_smudges', pos: [-2.6, 1.05, -1.58], normal: [-1, 0, 0], up: [0, 1, 0], size: [0.28, 0.38] },
+  { id: 'C5', tex: 'decal_dirt_patch', pos: [-3.05, 0, -1.9], normal: [0, 1, 0], up: [0, 0, -1], size: [0.75, 0.9], tint: '#8a7660', opacity: 0.8 },
+  { id: 'H1', tex: 'decal_water_ring', pos: [-3.03, 5.2, -3.35], normal: [0, -1, 0], up: [0.6428, 0, -0.766], size: [0.75, 0.75] },
+  { id: 'H2', tex: 'decal_leak_streaks', pos: [-2.45, 4.75, -3.165], normal: [-1, 0, 0], up: [0, 1, 0], size: [0.5, 0.9] },
+  { id: 'H3', tex: 'decal_mold', pos: [-2.68, 4.98, -4.4], normal: [0, 0, 1], up: [0, 1, 0], size: [0.45, 0.44] },
+  { id: 'H4', tex: 'decal_scuffs', pos: [-3.6, 2.95, -3.2], normal: [1, 0, 0], up: [0, 1, 0], size: [0.9, 0.3], tint: '#2b2622' },
+  { id: 'H5', tex: 'decal_dirt_patch', pos: [-2.6, 2.75, -3.15], normal: [0, 1, 0], up: [0, 0, -1], size: [0.3, 0.75], tint: '#7a6450', opacity: 0.6 },
+  { id: 'H6', tex: 'decal_dirt_patch', pos: [-2.7, 2.75, -4.05], normal: [0, 1, 0], up: [1, 0, 0], size: [0.5, 0.3], tint: '#7a6450', opacity: 0.55, flip: true },
+  { id: 'H7', tex: 'decal_grime', pos: [-3.6, 3.3, -3.0], normal: [1, 0, 0], up: [0, 1, 0], size: [0.5, 0.7], tint: '#8f877c', opacity: 0.5 },
+];
