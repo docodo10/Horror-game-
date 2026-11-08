@@ -3,7 +3,7 @@
  "generator": "tools/export-godot.cjs",
  "source": {
   "url": "http://127.0.0.1:PORT/index.html?debug&noentity&quality=high",
-  "date": "2026-11-08T21:40:01.943Z",
+  "date": "2026-11-08T21:53:31.686Z",
   "model": "src/entity/GardienneModel.js"
  },
  "file": "res://assets/generated/gardienne.glb",
@@ -2062,5 +2062,11 @@
     "vertexColors": true
    }
   }
+ ],
+ "warnings": [
+  "material gardienne_gown: map re-sampled into the base UV space (2048x1024)",
+  "material gardienne_gown: normalMap re-sampled into the base UV space (2048x1024)",
+  "material gardienne_gown: roughnessMap re-sampled into the base UV space (2048x1024)",
+  "material gardienne_gown: aoMap re-sampled into the base UV space (2048x1024)"
  ]
 }

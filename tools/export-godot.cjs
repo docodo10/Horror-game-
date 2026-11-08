@@ -38,7 +38,10 @@
 //   * Materials are converted by this tool (not by GLTFExporter): textures become external files with the three.js
 //     UV transform + flipY baked into the exported UVs (Godot only honours one uv1 transform per material), alphaMap is
 //     merged into the base colour alpha, roughness/metalness maps are packed glTF-style, mismatched texture transforms
-//     are re-sampled into one UV space.
+//     are re-sampled into one UV space (tiling ratios snapped to whole tiles so tiling maps stay seamless).
+//   * Handles are opened and closed in the page to measure the closed/open local transform of every moving node.
+//   * La Gardienne is rebuilt from src/entity/GardienneModel.js and her procedural animation is baked bone by bone.
+//   Output format reference: pc/assets/generated/README.md. Godot checks: res://assets/generated/_check.gd.
 'use strict';
 
 const http = require('http');
@@ -103,20 +106,28 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(f).pipe(res);
 });
 
-// Machine-wide mutex shared with tools/shot.cjs and pc/tools/godot_shot.sh (one heavy renderer at a time).
+// Machine-wide mutex shared with tools/shot.cjs and pc/tools/godot_shot.sh (one heavy renderer at a time; same
+// protocol: mkdir is atomic, the lock is broken only when its holder process is dead, the holder touches it every minute).
 const LOCK = path.join(os.tmpdir(), 'lagardienne-browser.lock');
+function lockIsStale() {
+  let pid = '';
+  try { pid = fs.readFileSync(path.join(LOCK, 'pid'), 'utf8').trim(); } catch (_) { /* no pid yet */ }
+  if (!pid) { try { return Date.now() - fs.statSync(LOCK).mtimeMs > 2 * 60e3; } catch (_) { return false; } }
+  try { process.kill(Number(pid), 0); return false; } catch (e) { return e.code === 'ESRCH'; }
+}
 async function acquireLock() {
   if (process.env.NO_LOCK) return;
   const t0 = Date.now();
   for (;;) {
     try { fs.mkdirSync(LOCK); fs.writeFileSync(path.join(LOCK, 'pid'), String(process.pid)); break; }
     catch (_) {
-      try { if (Date.now() - fs.statSync(LOCK).mtimeMs > 25 * 60e3) { fs.rmSync(LOCK, { recursive: true, force: true }); continue; } } catch (_) { /* gone */ }
-      if (Date.now() - t0 > 60 * 60e3) throw new Error('browser lock timeout');
-      await new Promise((r) => setTimeout(r, 400));
+      if (lockIsStale()) { fs.rmSync(LOCK, { recursive: true, force: true }); continue; }
+      if (Date.now() - t0 > 3 * 3600e3) throw new Error('browser lock timeout');
+      await new Promise((r) => setTimeout(r, 1000));
     }
   }
   console.log(`[export] lock acquired after ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+  setInterval(() => { try { const n = new Date(); fs.utimesSync(LOCK, n, n); } catch (_) { /* gone */ } }, 60e3).unref();
   const release = () => { try { if (fs.readFileSync(path.join(LOCK, 'pid'), 'utf8') === String(process.pid)) fs.rmSync(LOCK, { recursive: true, force: true }); } catch (_) { /* gone */ } };
   process.on('exit', release);
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { release(); process.exit(130); });
@@ -510,7 +521,7 @@ async function PAGE_LIB() {
   /** Mesh -> exportable (geometry, placeholder materials) or a skip reason. */
   function exportMesh(o) {
     const mats = Array.isArray(o.material) ? o.material : [o.material];
-    const hint = o.name || o.parent?.name || '';
+    const hint = o.name || X.role?.get(o) || o.parent?.name || '';
     const recs = mats.map((x) => convertMaterial(x, hint, !!o.isSkinnedMesh));
     const sk = recs.find((r) => r.skip);
     if (sk) return { skip: sk.skip };
@@ -657,7 +668,7 @@ async function PAGE_LIB() {
     const lock = P?._lock;
     if (lock) {
       if (lock.userData.shackle) role.set(lock.userData.shackle, 'lockedBox.lock.shackle');
-      (lock.userData.wheels || []).forEach((w, i) => role.set(w, `lockedBox.lock.wheel${i}`));
+      (lock.userData.wheels || []).forEach((w, i) => role.set(w, `lockedBox.lock.dial${i}`));
       if (lock.children[0] && !lock.children[0].name) role.set(lock.children[0], 'lockedBox.lock.body');
     }
     if (P?._boxFrame) role.set(P._boxFrame, 'lockedBox.frame');
@@ -666,6 +677,13 @@ async function PAGE_LIB() {
     const leverG = P?._lever?.handle?.object;
     if (leverG) { const pv = leverG.children.find((c) => !c.isMesh && c.children.some((x) => x.isMesh)); if (pv && !pv.name) role.set(pv, 'powerBox.lever.pivot'); }
     if (P?._rock?.pivot && !P._rock.pivot.name) role.set(P._rock.pivot, 'rockingChair.pivot');
+    // unnamed loose meshes: decals (polygon offset + transparent) vs props
+    for (const o of S.procRoots) {
+      if (o.name || role.has(o) || !o.isMesh || S.procNodes.get(o).parent !== scene) continue;
+      const m0 = Array.isArray(o.material) ? o.material[0] : o.material;
+      role.set(o, m0?.polygonOffset && m0?.transparent ? 'decal' : 'prop');
+    }
+    X.role = role;
     const HINT = /(^|_)(col|colonly|convcol|convcolonly|rigid|noimp|occ|occonly|navmesh|vehicle|wheel|loop|cycle|skip)$/i;
     const nameFor = (o, parentName) => {
       let n = (o.name || role.get(o) || '').replace(/[^A-Za-z0-9_]/g, '_');
