@@ -1,0 +1,42 @@
+; La Gardienne — PC version (Godot 4.5, Forward+).
+config_version=5
+
+[application]
+
+config/name="La Gardienne"
+config/description="Chapitre 1 — Le sous-sol"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.5", "Forward Plus")
+config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0.043, 0.035, 0.027, 1)
+boot_splash/show_image=false
+
+[autoload]
+
+Events="*res://autoload/events.gd"
+Settings="*res://autoload/settings.gd"
+Audio="*res://autoload/audio_manager.gd"
+Game="*res://autoload/game.gd"
+DebugTools="*res://autoload/debug_tools.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/mode=3
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/vsync/vsync_mode=1
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+common/physics_ticks_per_second=60
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+textures/vram_compression/import_etc2_astc=false
+anti_aliasing/quality/msaa_3d=2
+lights_and_shadows/positional_shadow/atlas_size=4096
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
