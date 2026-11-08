@@ -1,0 +1,236 @@
+[gd_resource type="AudioBusLayout" load_steps=23 format=3]
+
+[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_j3pel"]
+resource_name = "pause_lowpass"
+cutoff_hz = 20500.0
+resonance = 0.6
+db = 1
+
+[sub_resource type="AudioEffectCompressor" id="AudioEffectCompressor_g28q7"]
+resource_name = "glue"
+threshold = -18.0
+ratio = 1.4
+attack_us = 2000.0
+release_ms = 280.0
+
+[sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_n8wo2"]
+resource_name = "limiter"
+ceiling_db = -1.0
+release = 0.12
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_5t1r3"]
+resource_name = "user_volume"
+
+[sub_resource type="AudioEffectReverb" id="AudioEffectReverb_cenje"]
+resource_name = "room_reverb"
+predelay_msec = 5.0
+predelay_feedback = 0.0
+room_size = 0.0
+damping = 0.12
+spread = 0.85
+hipass = 0.025
+dry = 0.0
+wet = 0.066
+
+[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_dqt2m"]
+resource_name = "hidden_lowpass"
+cutoff_hz = 20500.0
+resonance = 0.6
+db = 1
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_7kkex"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_k2ilm"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_2g6t7"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_y2dp7"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_dapn3"]
+resource_name = "hidden_lowpass"
+cutoff_hz = 20500.0
+resonance = 0.6
+db = 1
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_e2wrs"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_ro4dx"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectReverb" id="AudioEffectReverb_51bpa"]
+resource_name = "dark_reverb"
+predelay_msec = 11.0
+predelay_feedback = 0.08
+room_size = 0.5
+damping = 0.15
+hipass = 0.03
+dry = 0.0
+wet = 0.15
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_2mq3o"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_5tfch"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_sjxdv"]
+resource_name = "hidden_lowpass"
+cutoff_hz = 20500.0
+resonance = 0.6
+db = 1
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_hnxjo"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_3r1kf"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_nf0co"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_w8t7n"]
+resource_name = "duck"
+
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_7h8fu"]
+resource_name = "duck"
+
+[resource]
+bus/0/effect/0/effect = SubResource("AudioEffectLowPassFilter_j3pel")
+bus/0/effect/0/enabled = true
+bus/0/effect/1/effect = SubResource("AudioEffectCompressor_g28q7")
+bus/0/effect/1/enabled = true
+bus/0/effect/2/effect = SubResource("AudioEffectHardLimiter_n8wo2")
+bus/0/effect/2/enabled = true
+bus/0/effect/3/effect = SubResource("AudioEffectAmplify_5t1r3")
+bus/0/effect/3/enabled = true
+bus/1/name = &"ReverbRoom"
+bus/1/solo = false
+bus/1/mute = false
+bus/1/bypass_fx = false
+bus/1/volume_db = 0.0
+bus/1/send = &"Master"
+bus/1/effect/0/effect = SubResource("AudioEffectReverb_cenje")
+bus/1/effect/0/enabled = true
+bus/2/name = &"ReverbDark"
+bus/2/solo = false
+bus/2/mute = false
+bus/2/bypass_fx = false
+bus/2/volume_db = 0.0
+bus/2/send = &"Master"
+bus/2/effect/0/effect = SubResource("AudioEffectReverb_51bpa")
+bus/2/effect/0/enabled = true
+bus/3/name = &"SFX"
+bus/3/solo = false
+bus/3/mute = false
+bus/3/bypass_fx = false
+bus/3/volume_db = 12.0
+bus/3/send = &"Master"
+bus/3/effect/0/effect = SubResource("AudioEffectAmplify_2mq3o")
+bus/3/effect/0/enabled = true
+bus/4/name = &"Foley"
+bus/4/solo = false
+bus/4/mute = false
+bus/4/bypass_fx = false
+bus/4/volume_db = 12.0
+bus/4/send = &"Master"
+bus/4/effect/0/effect = SubResource("AudioEffectAmplify_5tfch")
+bus/4/effect/0/enabled = true
+bus/5/name = &"Ambience"
+bus/5/solo = false
+bus/5/mute = false
+bus/5/bypass_fx = false
+bus/5/volume_db = 12.0
+bus/5/send = &"Master"
+bus/5/effect/0/effect = SubResource("AudioEffectLowPassFilter_sjxdv")
+bus/5/effect/0/enabled = true
+bus/5/effect/1/effect = SubResource("AudioEffectAmplify_hnxjo")
+bus/5/effect/1/enabled = true
+bus/6/name = &"Music"
+bus/6/solo = false
+bus/6/mute = false
+bus/6/bypass_fx = false
+bus/6/volume_db = 12.0
+bus/6/send = &"Master"
+bus/6/effect/0/effect = SubResource("AudioEffectAmplify_3r1kf")
+bus/6/effect/0/enabled = true
+bus/7/name = &"Voice"
+bus/7/solo = false
+bus/7/mute = false
+bus/7/bypass_fx = false
+bus/7/volume_db = 12.0
+bus/7/send = &"Master"
+bus/7/effect/0/effect = SubResource("AudioEffectAmplify_nf0co")
+bus/7/effect/0/enabled = true
+bus/8/name = &"SFX_Room"
+bus/8/solo = false
+bus/8/mute = false
+bus/8/bypass_fx = false
+bus/8/volume_db = 12.0
+bus/8/send = &"ReverbRoom"
+bus/8/effect/0/effect = SubResource("AudioEffectAmplify_w8t7n")
+bus/8/effect/0/enabled = true
+bus/9/name = &"Foley_Room"
+bus/9/solo = false
+bus/9/mute = false
+bus/9/bypass_fx = false
+bus/9/volume_db = 12.0
+bus/9/send = &"ReverbRoom"
+bus/9/effect/0/effect = SubResource("AudioEffectAmplify_7h8fu")
+bus/9/effect/0/enabled = true
+bus/10/name = &"Ambience_Room"
+bus/10/solo = false
+bus/10/mute = false
+bus/10/bypass_fx = false
+bus/10/volume_db = 12.0
+bus/10/send = &"ReverbRoom"
+bus/10/effect/0/effect = SubResource("AudioEffectLowPassFilter_dqt2m")
+bus/10/effect/0/enabled = true
+bus/10/effect/1/effect = SubResource("AudioEffectAmplify_7kkex")
+bus/10/effect/1/enabled = true
+bus/11/name = &"Voice_Room"
+bus/11/solo = false
+bus/11/mute = false
+bus/11/bypass_fx = false
+bus/11/volume_db = 12.0
+bus/11/send = &"ReverbRoom"
+bus/11/effect/0/effect = SubResource("AudioEffectAmplify_k2ilm")
+bus/11/effect/0/enabled = true
+bus/12/name = &"SFX_Dark"
+bus/12/solo = false
+bus/12/mute = false
+bus/12/bypass_fx = false
+bus/12/volume_db = 12.0
+bus/12/send = &"ReverbDark"
+bus/12/effect/0/effect = SubResource("AudioEffectAmplify_2g6t7")
+bus/12/effect/0/enabled = true
+bus/13/name = &"Foley_Dark"
+bus/13/solo = false
+bus/13/mute = false
+bus/13/bypass_fx = false
+bus/13/volume_db = 12.0
+bus/13/send = &"ReverbDark"
+bus/13/effect/0/effect = SubResource("AudioEffectAmplify_y2dp7")
+bus/13/effect/0/enabled = true
+bus/14/name = &"Ambience_Dark"
+bus/14/solo = false
+bus/14/mute = false
+bus/14/bypass_fx = false
+bus/14/volume_db = 12.0
+bus/14/send = &"ReverbDark"
+bus/14/effect/0/effect = SubResource("AudioEffectLowPassFilter_dapn3")
+bus/14/effect/0/enabled = true
+bus/14/effect/1/effect = SubResource("AudioEffectAmplify_e2wrs")
+bus/14/effect/1/enabled = true
+bus/15/name = &"Voice_Dark"
+bus/15/solo = false
+bus/15/mute = false
+bus/15/bypass_fx = false
+bus/15/volume_db = 12.0
+bus/15/send = &"ReverbDark"
+bus/15/effect/0/effect = SubResource("AudioEffectAmplify_ro4dx")
+bus/15/effect/0/enabled = true
