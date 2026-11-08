@@ -16,6 +16,7 @@ const VIEWS := {
 	"stairs_duck": {"cam": [-1.6, 1.3, 2.4, 50.6, 9.4], "her": [-3.0, 1.22, 0.0, "stairs_duck", 0.3], "light": "lit", "flash": false},
 	"dark": {"cam": [0.25, 1.62, 0.3, 0.0, -5.0], "her": [0.05, -1.95, null, "walk", 0.95], "light": "dark", "flash": true},
 	"dark_close": {"cam": [0.3, 1.62, -0.75, 0.0, 2.0], "her": [0.2, -1.95, null, "search", 2.2], "light": "dark", "flash": true},
+	"stare": {"cam": [0.3, 1.62, -0.15, 0.0, -1.0], "her": [0.25, -1.95, null, "idle", 1.0], "light": "dark", "flash": true, "look": "camera"},
 	"jump": {"cam": [0.25, 1.62, -0.6, 0.0, 0.0], "her": [0.25, -1.6, null, "chase", 0.0], "light": "dark", "flash": true, "jump": 0.45},
 	"jump_lit": {"cam": [0.25, 1.62, -0.6, 0.0, 0.0], "her": [0.25, -1.6, null, "chase", 0.0], "light": "lit", "flash": false, "jump": 0.6},
 }
@@ -144,7 +145,7 @@ func _view(vname: String, v: Dictionary, frames: int) -> void:
 	var p := Vector3(h[0], 0.0, h[1])
 	p.y = Layout.ground_height_at(p.x, p.z, 0.5 if String(h[3]).begins_with("stairs") else 0.0)
 	var yaw: float = atan2(c[0] - p.x, c[2] - p.z) if h[2] == null else deg_to_rad(h[2])
-	entity.debug_place(p, yaw, String(h[3]), float(h[4]))
+	entity.debug_place(p, yaw, String(h[3]), float(h[4]), v.get("look"))
 	if v.has("jump"):
 		await get_tree().process_frame
 		entity.debug_jumpscare(float(v.jump))

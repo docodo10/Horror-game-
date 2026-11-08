@@ -3,8 +3,9 @@
 ##   summon(target: Vector3, reason := ""), set_aggression(level: int), set_enabled(on: bool), reset_after_caught()
 ## Signals via Events: entity_state, entity_spotted, entity_caught. Listens: Events.noise, Events.player_hide.
 ## Extra public members: model (gardienne_model.gd), enabled, aggression, suspicion, yaw, seeing, state_log (transitions
-##   {t, state, prev, pos}), stall_events, summon(target, reason, aggressive := false), debug_place(pos, yaw, mode := "idle", t := -1.0),
-##   debug_release(), debug_jumpscare(freeze_t := -1.0), head_position() / eye_position() / face_position().
+##   {t, state, prev, pos}), stall_events, summon(target, reason, aggressive := false),
+##   debug_place(pos, yaw, mode := "idle", t := -1.0, look := null), debug_release(), debug_jumpscare(freeze_t := -1.0),
+##   head_position() / eye_position() / face_position().
 ##
 ## Behaviour (same states, numbers and timings as the web version):
 ##  dormant    upstairs (hall), invisible. Noise raises suspicion (muffled by the floor, scaled by distance to the stairwell
@@ -26,8 +27,9 @@
 ## Never stuck: the web waypoint watchdog (back off, skip waypoint, give up the goal) + a global no-progress watchdog
 ## (detour through another nav node, then a short collision-less squeeze) + a visit timeout.
 ## Debug args (after --): --noentity  --entity-log  --entity-aggression=N  --entity-noise=x,y,z[,loudness]
-##   --entity-summon=x,z  --entity-place=x,y,z,yawDeg[,mode[,t]]  --entity-front=dist[,mode[,t]] (in front of the camera,
-##   facing it)  --entity-jumpscare[=t] (t = frozen frame time)  --entity-light (lookdev: key light near her)
+##   --entity-summon=x,z  --entity-place=x,y,z,yawDeg[,mode[,t[,stare]]]  --entity-front=dist[,mode[,t[,stare]]] (in front
+##   of the camera, facing it; stare = she looks into the lens)  --entity-jumpscare[=t] (t = frozen frame time)
+##   --entity-light (lookdev: key light near her)
 ##   modes: idle walk chase search reach duck_walk stairs_up stairs_down stairs_duck jumpscare
 extends CharacterBody3D
 
@@ -143,6 +145,7 @@ var _quality_script: Script = null
 var _dbg := {}
 var _log_on := false
 var _dbg_applied := false
+var _quality_applied := false
 var _ceiling_y: float = float(Layout.ROOM.ceilingY) + 0.45
 var _bulk_z0: float = float(Layout.STAIRS.ceilingOpeningMaxZ)
 var _bulk_y: float = float(Layout.ROOM.ceilingY) - 0.12
@@ -273,9 +276,11 @@ func _reset(kind: String) -> void:
 	_apply_visibility()
 
 ## Debug/test helper: freeze the AI and show her at a spot in a given animation mode (t >= 0: frozen frame time).
-func debug_place(pos: Vector3, yaw_rad := 0.0, mode := "idle", t := -1.0) -> void:
+## look: null, a world point, or "camera" (she stares into the lens through the pose layer).
+func debug_place(pos: Vector3, yaw_rad := 0.0, mode := "idle", t := -1.0, look: Variant = null) -> void:
 	_stop_sounds()
 	_debug_hold = {"mode": mode, "t": t, "jump_t": 0.0}
+	if look != null: _debug_hold.look = look
 	_set_pos(pos, true)
 	_disp_y = pos.y
 	yaw = yaw_rad
@@ -932,14 +937,17 @@ func _on_hide(hidden: bool, _spot_id: String) -> void:
 
 func _on_game_state(s: String, _prev: String) -> void:
 	_apply_visibility()
+	if s == "playing" and not _quality_applied and model:
+		_quality_applied = true   # Quality.apply() ran after build(): pick the preset's MSAA / TAA up now
+		model.apply_quality(String(Settings.get_value("quality", "high")))
 	if s == "playing" and not _dbg_applied and not _dbg.is_empty():
 		_dbg_applied = true
 		_apply_debug_args()
 
-func _on_settings(key: String, _v: Variant) -> void:
+func _on_settings(key: String, v: Variant) -> void:
 	if key == "quality" and model:
 		await get_tree().process_frame   # the look module applies the preset to the viewport first
-		if is_instance_valid(model): model.refresh_aa()
+		if is_instance_valid(model): model.apply_quality(String(v))
 
 # ====================================================================== movement
 
@@ -1205,6 +1213,12 @@ func _debug_present(dt: float) -> void:
 	root.visible = true
 	if model == null: return
 	_update_flash_exposure(0.0 if float(h.t) >= 0.0 else dt)
+	# optional stare: h.look = a world point, or "camera" (she looks into the lens)
+	var lk = h.get("look")
+	var cam := Game.camera
+	model.look_on = lk is Vector3 or (lk is String and cam != null and is_instance_valid(cam))
+	if lk is Vector3: model.look_target = lk
+	elif model.look_on: model.look_target = cam.global_position
 	if float(h.t) >= 0.0:
 		model.eyeshine_target = _eyeshine
 		model.update(0.0)   # frozen frame (debug_pose already set every weight / clip time)
@@ -1215,7 +1229,6 @@ func _debug_present(dt: float) -> void:
 	model.speed = 0.9 if walking else (2.9 if md == "chase" else 0.0)
 	model.stairs = 1 if md == "stairs_up" else (-1 if md in ["stairs_down", "stairs_duck"] else 0)
 	model.duck = 1.0 if md in ["duck_walk", "stairs_duck"] else 0.0
-	model.look_on = false
 	model.aggression = aggression
 	model.eyeshine_target = _eyeshine
 	if md == "jumpscare":
@@ -1515,17 +1528,18 @@ func _apply_debug_args() -> void:
 		var v := _floats(_dbg["entity-place"])
 		if v.size() >= 3:
 			var md := parts[4] if parts.size() > 4 else "idle"
-			debug_place(Vector3(v[0], v[1], v[2]), deg_to_rad(v[3]) if v.size() > 3 else 0.0, md, float(parts[5]) if parts.size() > 5 else -1.0)
+			debug_place(Vector3(v[0], v[1], v[2]), deg_to_rad(v[3]) if v.size() > 3 else 0.0, md,
+				float(parts[5]) if parts.size() > 5 else -1.0, "camera" if parts.has("stare") else null)
 	if _dbg.has("entity-front"):
 		var parts: PackedStringArray = String(_dbg["entity-front"]).split(",")
 		var dist := float(parts[0]) if parts.size() > 0 and parts[0] != "" else 2.0
-		_place_in_front(dist, parts[1] if parts.size() > 1 else "idle", float(parts[2]) if parts.size() > 2 else -1.0)
+		_place_in_front(dist, parts[1] if parts.size() > 1 else "idle", float(parts[2]) if parts.size() > 2 else -1.0, parts.has("stare"))
 	if _dbg.has("entity-jumpscare"):
 		var ft := float(_dbg["entity-jumpscare"]) if String(_dbg["entity-jumpscare"]) != "" else -1.0
 		if not _dbg.has("entity-front"): _place_in_front(1.0, "chase", -1.0)
 		debug_jumpscare(ft)
 
-func _place_in_front(dist: float, md: String, t: float) -> void:
+func _place_in_front(dist: float, md: String, t: float, stare := false) -> void:
 	var cam := Game.camera
 	if cam == null or not is_instance_valid(cam): return
 	var f := -cam.global_basis.z
@@ -1533,7 +1547,7 @@ func _place_in_front(dist: float, md: String, t: float) -> void:
 	f = f.normalized() if f.length_squared() > 1e-6 else Vector3.FORWARD
 	var p := cam.global_position + f * dist
 	p.y = _ground(p.x, p.z, cam.global_position.y - 1.5)
-	debug_place(p, atan2(-f.x, -f.z), md, t)
+	debug_place(p, atan2(-f.x, -f.z), md, t, "camera" if stare else null)
 
 ## Lookdev helper (--entity-light): a warm key light 1.6 m in front of her at head height + a dim cool rim behind.
 func _add_debug_light() -> void:

@@ -111,6 +111,8 @@ func _run() -> void:
 	await _scenario_c()
 	await _scenario_d()
 	await _scenario_e()
+	await _scenario_f()
+	await _scenario_g()
 	_finish()
 
 # ------------------------------------------------------------------ helpers
@@ -303,6 +305,75 @@ func _scenario_e() -> void:
 	crate.queue_free()
 	await _until(func(): return entity.state == "dormant", 200.0)
 	check(entity.state == "dormant", "E: she still went home afterwards")
+
+## Face direction of the FINAL pose (the head BoneAttachment3D follows the skeleton after the pose layer ran).
+func _head_fwd() -> Vector3:
+	return (entity.model.head_attach.global_basis * Vector3.BACK).normalized()
+
+func _yaw_pitch(f: Vector3) -> Vector2:
+	return Vector2(rad_to_deg(atan2(f.x, f.z)), rad_to_deg(atan2(f.y, Vector2(f.x, f.z).length())))
+
+func _scenario_f() -> void:
+	_begin("F: look-at pose layer")
+	var p := Vector3(0.9, 0.0, -0.45)
+	entity.debug_place(p, 0.0, "idle", 0.5)
+	await _frames(6)
+	var a := _yaw_pitch(_head_fwd())
+	var eye: Vector3 = entity.model.get_eye_world()
+	var target := Vector3(eye.x + 1.6, eye.y - 0.1, eye.z + 1.6)   # 45° to her left, a little below her eyes
+	entity.debug_place(p, 0.0, "idle", 0.5, target)
+	await _frames(6)
+	var b := _yaw_pitch(_head_fwd())
+	var want := _yaw_pitch((target - eye).normalized())
+	print("[entity-test]   F: head yaw/pitch %s -> %s, target %s" % [a.round(), b.round(), want.round()])
+	check(absf(a.x) < 15.0, "F: idle head faces forward (yaw %.1f)" % a.x)
+	check(absf(b.x - want.x) < 12.0, "F: head turned to the target (yaw %.1f, want %.1f)" % [b.x, want.x])
+	check(b.y > a.y + 8.0 and absf(b.y - want.y) < 15.0, "F: head raised toward the target (pitch %.1f -> %.1f, want %.1f)" % [a.y, b.y, want.y])
+	entity.debug_place(p, 0.0, "idle", 0.5, "camera")
+	await _frames(6)
+	var c := _yaw_pitch(_head_fwd())
+	var wc := _yaw_pitch((Game.camera.global_position - entity.model.get_eye_world()).normalized())
+	check(absf(wrapf(c.x - wc.x, -180.0, 180.0)) < 15.0 or absf(wc.x) > 66.0, "F: stare at the camera (yaw %.1f, want %.1f)" % [c.x, wc.x])
+	entity.debug_release()
+	await _frames(2)
+
+## The footstep sounds fire from the shared gait phase (web: L at 0.25, R at 0.75 cycle). They must land on the baked
+## clip's own heel strikes (gardienne_meta.json footsteps[]): that is what proves the per-clip phase offsets are right.
+## (The ankle height is only a sanity check for the walk: the web's procedural chase strikes with the leg 35° forward,
+## ankle ~0.17 m above its mid-stance low, and that is baked as is.)
+func _scenario_g() -> void:
+	_begin("G: heel strikes (clip phase offsets from the meta)")
+	var m = entity.model
+	var meta = JSON.parse_string(FileAccess.get_file_as_string("res://assets/generated/gardienne_meta.json"))
+	for md in ["walk", "chase"]:
+		var c: Dictionary = m.clips[md]
+		var o := {"ev": [], "min": {"L": INF, "R": INF}}
+		var on_step := func(side: String, pos: Vector3):
+			var ct := fposmod((float(m.get("_phase")) - float(c.phi0)) * float(c.cycle), float(c.len))
+			o.ev.append([side, pos.y, ct])
+		m.footstep.connect(on_step)
+		entity.debug_place(Vector3(0.9, 0.0, -0.45), 0.0, md, -1.0)
+		for i in 240:
+			await get_tree().physics_frame
+			for s in ["L", "R"]: o.min[s] = minf(o.min[s], m.get_foot_world(s).y)
+		m.footstep.disconnect(on_step)
+		var worst_h := 0.0
+		var worst_t := 0.0
+		var sides := {}
+		for e in o.ev:
+			worst_h = maxf(worst_h, float(e[1]) - float(o.min[e[0]]))
+			sides[e[0]] = true
+			var best := INF
+			for fs in meta.clips[md].footsteps:
+				if String(fs.side) != String(e[0]): continue
+				var dt := absf(float(e[2]) - float(fs.t))
+				best = minf(best, minf(dt, float(c.len) - dt))
+			worst_t = maxf(worst_t, best)
+		print("[entity-test]   G: %s: %d heel strikes, at most %.3f s from the clip's own strikes, ankle <= %.3f m above its low" % [md, o.ev.size(), worst_t, worst_h])
+		check(o.ev.size() >= (5 if md == "walk" else 10) and sides.size() == 2, "G: %s footsteps on both feet (%d)" % [md, o.ev.size()])
+		check(worst_t < 0.05, "G: %s footsteps on the baked heel strikes (worst %.3f s)" % [md, worst_t])
+		if md == "walk": check(worst_h < 0.07, "G: walk footsteps with the foot down (%.3f m)" % worst_h)
+	entity.debug_release()
 
 func _finish() -> void:
 	if failures.is_empty():

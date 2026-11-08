@@ -326,6 +326,17 @@ func _configure(m: BaseMaterial3D, kind: String) -> void:
 			m.cull_mode = BaseMaterial3D.CULL_DISABLED
 			_alpha_mats.append(m)
 
+## Quality preset (low | medium | high | ultra): "low" drops the subsurface scattering / transmittance / clear coat
+## (cheapest shading); then refresh_aa(). Call after the look module applied the preset to the viewport.
+func apply_quality(q: String) -> void:
+	_quality = q
+	var rich := q != "low"
+	for m in _mats:
+		if m.subsurf_scatter_strength > 0.0: m.subsurf_scatter_enabled = rich
+		if m.subsurf_scatter_transmittance_depth > 0.0 and m.subsurf_scatter_skin_mode: m.subsurf_scatter_transmittance_enabled = rich
+		if m.clearcoat > 0.0 or float(_base[m][2]) > 0.0: m.clearcoat_enabled = rich
+	refresh_aa()
+
 ## Hair / gown alpha: alpha-to-coverage when the viewport uses MSAA, alpha hash when it uses TAA, plain scissor otherwise.
 ## Call again after a quality change (the look module applies it to the viewport).
 func refresh_aa() -> void:
@@ -442,6 +453,7 @@ func update(dt: float) -> void:
 	# ---- look-at weight (web look rates: 16 searching, 10 chasing, 4 otherwise)
 	var look_rate := 16.0 if _search_w > 0.5 else (10.0 if _chase_w > 0.5 else 4.0)
 	if jumping: _look_w = 0.0
+	elif debug_freeze: _look_w = 1.0 if look_on else 0.0
 	else: _look_w = _damp(_look_w, 1.0 if look_on else 0.0, look_rate, dt)
 
 	# ---- tree inputs
