@@ -33,7 +33,7 @@ const server = http.createServer((req, res) => {
 (async () => {
   await new Promise((r) => server.listen(Number(process.env.PORT || 0), r));
   const port = server.address().port;
-  const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'] });
+  const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', '--disable-gpu-watchdog', '--disable-renderer-backgrounding', '--disable-background-timer-throttling'] });
   const size = String(opt('size', '1280x720')).split('x').map(Number);
   const ctx = opt('mobile', false)
     ? await browser.newContext({ ...devices['Pixel 7'], viewport: { width: 915, height: 412 } , isMobile: true, hasTouch: true })
