@@ -29,3 +29,25 @@ Toujours sous licence **CC0** (domaine public).
 
 Textures converties en JPEG 1024 px (q84, normales OpenGL) ; modèles optimisés comme le lot 1 (GLB, WebP 512–1024 px,
 simplification des maillages lourds).
+
+## Ajouts — lot 3 (voir `assets/NEW_ASSETS.md`, section « Batch 3 »)
+
+Toujours sous licence **CC0** (domaine public).
+
+- Modèles 3D photoscannés : [Poly Haven](https://polyhaven.com/models) — steel_frame_shelves_02 (James Ray Cock),
+  mounted_fluorescent_lights et medical_box (Ulan Cabanilla), hanging_industrial_lamp (Kuutti Siitonen),
+  wooden_ladder (Miroslav Turura), plastic_crate_01 (PierreB3D), Lantern_01 (Rajil Jose Macatangay),
+  metal_jerrycan (Sean Buckley).
+  Modifications : une seule variante gardée pour mounted_fluorescent_lights ; la suspension de hanging_industrial_lamp
+  a été raccourcie (0,386 m de chaîne retirés, câble recomprimé).
+- Textures PBR : [Poly Haven](https://polyhaven.com/textures) — herringbone_parquet (Jenelle van Heerden, Sergej Majboroda),
+  decrepit_wallpaper (Rob Tuytel), peeling_painted_wall (Dimitrios Savva), concrete_wall_007 (Dario Barresi, Rico Cilliers,
+  Charlotte Baglioni), worn_cracked_plaster (Amal Kumar), brick_wall_001 (Rob Tuytel, Dimitrios Savva) ;
+  [ambientCG](https://ambientcg.com) — Tiles094.
+- Décalques (taches, fuites, moisissure, saleté) : [ambientCG](https://ambientcg.com) — Leaking003, Leaking008,
+  Leaking006, Leaking010C, SurfaceImperfections001, SurfaceImperfections008, Smear005, Fingerprints009 ;
+  dérivés (masques procéduraux appliqués aux photos CC0) : decal_water_ring (de SurfaceImperfections002) et
+  decal_mold (de Wallpaper002C).
+
+Textures converties en JPEG 1024 px (q84, normales OpenGL ; décalques 512 px avec masque `alpha.jpg`) ; modèles
+optimisés comme les lots 1 et 2 (GLB, WebP 512–1024 px, simplification des maillages lourds).
