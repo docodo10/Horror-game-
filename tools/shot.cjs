@@ -30,7 +30,29 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(f).pipe(res);
 });
 
+// Machine-wide mutex: only one headless browser at a time (software WebGL uses 3-5 GB of RAM per page; several
+// agents testing at once get OOM-killed). mkdir is atomic; stale locks (> 25 min) are broken. NO_LOCK=1 skips it.
+const os = require('os');
+const LOCK = path.join(os.tmpdir(), 'lagardienne-browser.lock');
+async function acquireLock() {
+  if (process.env.NO_LOCK) return;
+  const t0 = Date.now();
+  for (;;) {
+    try { fs.mkdirSync(LOCK); fs.writeFileSync(path.join(LOCK, 'pid'), String(process.pid)); break; }
+    catch (_) {
+      try { if (Date.now() - fs.statSync(LOCK).mtimeMs > 25 * 60e3) { fs.rmSync(LOCK, { recursive: true, force: true }); continue; } } catch (_) {}
+      if (Date.now() - t0 > 60 * 60e3) throw new Error('browser lock timeout');
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+  }
+  console.log(`[harness] lock acquired after ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+  const release = () => { try { if (fs.readFileSync(path.join(LOCK, 'pid'), 'utf8') === String(process.pid)) fs.rmSync(LOCK, { recursive: true, force: true }); } catch (_) {} };
+  process.on('exit', release);
+  for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { release(); process.exit(130); });
+}
+
 (async () => {
+  await acquireLock();
   await new Promise((r) => server.listen(Number(process.env.PORT || 0), r));
   const port = server.address().port;
   const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', '--disable-gpu-watchdog', '--disable-renderer-backgrounding', '--disable-background-timer-throttling'] });
