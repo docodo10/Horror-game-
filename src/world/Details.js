@@ -523,8 +523,9 @@ export class Details {
       mat.needsUpdate = true;
     };
     swap(mats.hallFloor, 'herringbone_parquet', 2.5, [0.75, 0.5, 0.38]);
-    swap(mats.hallCeil, 'worn_cracked_plaster', 2.0, [1.3, 1.22, 1.08]);
-    mats.hallCeil.aoMapIntensity = 0.6;
+    // darker than the NEW_ASSETS tint: the hallway light hangs 0.5 m under it with no shadow from the shade
+    swap(mats.hallCeil, 'worn_cracked_plaster', 2.0, [0.92, 0.86, 0.76]);
+    mats.hallCeil.aoMapIntensity = 0.5;
     let damask = null;
     try { damask = await this._damask(this._low ? 512 : 1024); } catch (e) { console.warn('[details] damask', e); }
     swap(mats.hallWall, 'decrepit_wallpaper', 2.5, damask ? [1.12, 0.98, 0.8] : [1.1, 0.95, 0.75], damask);
