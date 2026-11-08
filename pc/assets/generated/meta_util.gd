@@ -233,6 +233,9 @@ static func _apply_hint(mi: MeshInstance3D, hint: Dictionary) -> void:
 		if hint.get("blending", "") == "additive":
 			m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 		if hint.has("depthWrite") and hint.depthWrite == false:
+			# glTF BLEND imports as ALPHA_DEPTH_PRE_PASS: decals / glass that never wrote depth in the web build
+			if m.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS:
+				m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 			m.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
 		if hint.has("polygonOffset"):
 			m.render_priority = clampi(int(-float(hint.polygonOffset[0])), 1, 8)

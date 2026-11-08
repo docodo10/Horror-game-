@@ -113,7 +113,7 @@ async function acquireLock() {
     catch (_) {
       try { if (Date.now() - fs.statSync(LOCK).mtimeMs > 25 * 60e3) { fs.rmSync(LOCK, { recursive: true, force: true }); continue; } } catch (_) { /* gone */ }
       if (Date.now() - t0 > 60 * 60e3) throw new Error('browser lock timeout');
-      await new Promise((r) => setTimeout(r, 2000));
+      await new Promise((r) => setTimeout(r, 400));
     }
   }
   console.log(`[export] lock acquired after ${((Date.now() - t0) / 1000).toFixed(0)} s`);
@@ -925,7 +925,7 @@ async function PAGE_LIB() {
     'lockedBox.lid': { kind: 'lid', duration: [0.85, 0.5], sfx: { open: ['box_open', 0.8, 1], close: ['cabinet_close', 0.8, 1] }, ease: 'open outBack(c1=1.3), close inOut', note: 'opening also pops the padlock off (lockedBox.lock)' },
     'lockedBox.lock': { kind: 'padlock', duration: [0.68, 0.0], sfx: { open: ['unlock', 1, 1], close: null }, note: 'open = shackle pops (0.18 s, outBack) then the lock falls onto the console (0.5 s, see anim.padlock); close = reset' },
   };
-  function snap(root) { const m = new Map(); root.updateMatrixWorld(true); root.traverse((o) => { o.updateMatrix(); m.set(o, o.matrix.clone()); }); return m; }
+  function snap(root) { const m = new Map(); root.updateMatrixWorld(true); root.traverse((o) => { if (o.matrixAutoUpdate) o.updateMatrix(); m.set(o, o.matrix.clone()); }); return m; }
   async function runHandle(h, open) {
     const p = open ? h.open() : h.close();
     await Promise.race([Promise.resolve(p), sleep(5000)]);

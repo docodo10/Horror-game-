@@ -1,0 +1,11690 @@
+{
+ "version": 1,
+ "generator": "tools/export-godot.cjs",
+ "source": {
+  "url": "http://127.0.0.1:PORT/index.html?debug&noentity&quality=high",
+  "date": "2026-11-08T21:29:34.561Z",
+  "three": "0.170.0",
+  "quality": "high"
+ },
+ "conventions": {
+  "units": "metres, +Y up, north = -Z (identical in the web build, glTF and Godot)",
+  "matrix": "16 floats, column-major (three.js Matrix4.elements): basis columns x=[0,1,2] y=[4,5,6] z=[8,9,10], origin=[12,13,14] — see meta_util.gd mat16()",
+  "refs": "{level: \"<node name in level.glb>\"} | {instance: \"<instances[].name>\"} | {instance, node: \"<path inside res://assets/models/<model>.glb>\", surface?}",
+  "colors": "srgb = hex as authored in three (use for StandardMaterial3D.albedo_color), linear = three.js working values"
+ },
+ "files": {
+  "level": "res://assets/generated/level.glb",
+  "shadowCasters": "res://assets/generated/level_shadow_casters.glb",
+  "gardienne": "res://assets/generated/gardienne.glb",
+  "textures": "res://assets/generated/textures/"
+ },
+ "level": {
+  "roots": [
+   "architecture",
+   "kidsRug",
+   "level_node",
+   "dresser_drawerBottom_contents",
+   "dresser_drawerMid_contents",
+   "dresser_drawerTop_contents",
+   "tv_screen",
+   "lockedBox_lid",
+   "level_node_2",
+   "lockedBox_contents",
+   "level_node_3",
+   "level_node_4",
+   "alcoveCabinet_door_01_contents",
+   "alcoveCabinet_door_02_contents",
+   "powerBox_lever",
+   "note1",
+   "note2",
+   "rockingChair_root",
+   "drawing_gardienne",
+   "drawing_maison",
+   "drawing_mer",
+   "drawing_arcenciel",
+   "wallScribbles",
+   "stairPhotos_frames0",
+   "stairPhotos_frames1",
+   "stairPhotos_frames2",
+   "stairPhotos",
+   "outlet_tv",
+   "outlet_east",
+   "outlet_south",
+   "outlet_nook",
+   "level_mesh",
+   "tvCable",
+   "lightSwitch",
+   "smokeDetector",
+   "thermostat",
+   "vent",
+   "toyBlocks",
+   "crayons",
+   "crayonBox",
+   "ball",
+   "toyCar",
+   "floorDrawing",
+   "shirt",
+   "sock",
+   "level_mesh_2",
+   "level_mesh_3",
+   "level_mesh_4",
+   "vhsTapes",
+   "remote",
+   "level_mesh_5",
+   "level_mesh_6",
+   "level_mesh_7",
+   "level_mesh_8",
+   "level_mesh_9",
+   "level_mesh_10",
+   "extra_mirror_glass",
+   "extra_crt_screen",
+   "extra_socket_chain_pivot",
+   "extra_laundry_cloth",
+   "extra_laundry_floor",
+   "lighting"
+  ],
+  "hidden": [
+   "upperHall",
+   "tv_screen",
+   "extra_mirror_glass",
+   "extra_crt_screen"
+  ],
+  "noCastShadow": [
+   "doorSlab",
+   "doorHardware",
+   "upperHall_mesh",
+   "upperHall_mesh_2",
+   "upperHall_mesh_3",
+   "upperHall_mesh_4",
+   "arch_hallWall",
+   "arch_hallFloor",
+   "arch_hallCeil",
+   "arch_hallTrim",
+   "arch_hallFabric",
+   "arch_hallBrass",
+   "arch_hallWood",
+   "architecture_mesh",
+   "architecture_mesh_2",
+   "architecture_mesh_3",
+   "architecture_mesh_4",
+   "architecture_mesh_5",
+   "architecture_mesh_6",
+   "architecture_mesh_7",
+   "architecture_mesh_8",
+   "arch_carpet",
+   "arch_nookFloor",
+   "arch_closetFloor",
+   "arch_ceil",
+   "arch_wall",
+   "arch_ceilStair",
+   "arch_wallStair",
+   "arch_carpetStair",
+   "arch_closetWall",
+   "arch_closetBlock",
+   "arch_nookBlock",
+   "arch_nookDrywall",
+   "arch_ground",
+   "arch_snow",
+   "arch_grass",
+   "kidsRug",
+   "battery1_mesh",
+   "battery1_mesh_2",
+   "tv_screen",
+   "codeNote",
+   "lockedBox_lid_node_mesh",
+   "level_node_2_mesh",
+   "lockedBox_lock_node_mesh",
+   "lockedBox_lock_node_mesh_2",
+   "lockedBox_lock_node_mesh_3",
+   "lockedBox_lock_node_mesh_4",
+   "lockedBox_lock_node_mesh_5",
+   "lockedBox_lock_node_mesh_6",
+   "key_mesh",
+   "key_mesh_2",
+   "key_mesh_3",
+   "battery2_mesh",
+   "battery2_mesh_2",
+   "note3",
+   "powerBox_lever_mesh",
+   "powerBox_lever_mesh_2",
+   "powerBox_lever_node_mesh",
+   "powerBox_lever_mesh_3",
+   "note1",
+   "note2",
+   "drawing_gardienne",
+   "drawing_maison",
+   "drawing_mer",
+   "drawing_arcenciel",
+   "wallScribbles",
+   "stairPhotos",
+   "outlet_tv",
+   "outlet_east",
+   "outlet_south",
+   "outlet_nook",
+   "level_mesh",
+   "tvCable",
+   "lightSwitch",
+   "lightSwitch_mesh",
+   "smokeDetector_mesh",
+   "smokeDetector_mesh_2",
+   "thermostat_mesh",
+   "vent_mesh",
+   "vent_mesh_2",
+   "toyBlocks",
+   "crayons",
+   "crayonBox",
+   "toyCar",
+   "floorDrawing",
+   "shirt",
+   "sock",
+   "remote",
+   "remote_mesh",
+   "level_mesh_5",
+   "level_mesh_6",
+   "level_mesh_7",
+   "level_mesh_8",
+   "level_mesh_9",
+   "level_mesh_10",
+   "extra_mirror_glass",
+   "extra_crt_screen",
+   "fanBowl",
+   "doorStrip"
+  ],
+  "noReceiveShadow": [
+   "doorSlab",
+   "doorHardware",
+   "upperHall_mesh",
+   "upperHall_mesh_2",
+   "upperHall_mesh_3",
+   "upperHall_mesh_4",
+   "arch_hallWall",
+   "arch_hallFloor",
+   "arch_hallCeil",
+   "arch_hallTrim",
+   "arch_hallFabric",
+   "arch_hallBrass",
+   "arch_hallWood",
+   "architecture_mesh_2",
+   "architecture_mesh_3",
+   "architecture_mesh_4",
+   "architecture_mesh_5",
+   "architecture_mesh_6",
+   "architecture_mesh_8",
+   "closetHardware",
+   "tv_screen",
+   "lightSwitch_mesh",
+   "thermostat_mesh",
+   "extra_mirror_glass",
+   "extra_crt_screen",
+   "fanBowl",
+   "doorStrip"
+  ],
+  "materialHints": [
+   {
+    "node": "architecture_mesh",
+    "polygonOffset": [
+     -2,
+     -2
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "architecture_mesh_2",
+    "renderOrder": 3,
+    "depthWrite": false
+   },
+   {
+    "node": "architecture_mesh_3",
+    "renderOrder": 2,
+    "depthWrite": false
+   },
+   {
+    "node": "architecture_mesh_4",
+    "renderOrder": 2,
+    "depthWrite": false
+   },
+   {
+    "node": "architecture_mesh_5",
+    "renderOrder": 3,
+    "depthWrite": false
+   },
+   {
+    "node": "architecture_mesh_8",
+    "renderOrder": 3,
+    "depthWrite": false
+   },
+   {
+    "node": "powerBox_lever_mesh_3",
+    "polygonOffset": [
+     -2,
+     0
+    ]
+   },
+   {
+    "node": "wallScribbles",
+    "polygonOffset": [
+     -2,
+     0
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "remote_mesh",
+    "polygonOffset": [
+     -1,
+     0
+    ]
+   },
+   {
+    "node": "level_mesh_5",
+    "polygonOffset": [
+     -3,
+     0
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "level_mesh_6",
+    "polygonOffset": [
+     -3,
+     0
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "level_mesh_7",
+    "polygonOffset": [
+     -3,
+     0
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "level_mesh_8",
+    "polygonOffset": [
+     -3,
+     0
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "level_mesh_9",
+    "polygonOffset": [
+     -3,
+     0
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "level_mesh_10",
+    "polygonOffset": [
+     -3,
+     0
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "extra_crt_screen",
+    "renderOrder": 3,
+    "polygonOffset": [
+     -2,
+     -2
+    ],
+    "blending": "additive",
+    "depthWrite": false
+   }
+  ],
+  "skipped": [
+   {
+    "path": "extra_mirror/extra_mirror_reflector",
+    "reason": "ShaderMaterial",
+    "material": "ShaderMaterial"
+   },
+   {
+    "path": "lighting/moonShaft",
+    "reason": "ShaderMaterial",
+    "material": "ShaderMaterial"
+   },
+   {
+    "path": "lighting/moonDust",
+    "reason": "Points",
+    "material": "ShaderMaterial"
+   },
+   {
+    "path": "lighting/sparks",
+    "reason": "Points",
+    "material": "ShaderMaterial"
+   },
+   {
+    "path": "ui.tvMenu",
+    "reason": "ShaderMaterial",
+    "material": "ShaderMaterial"
+   }
+  ],
+  "stats": {
+   "meshes": 125,
+   "tris": 61347,
+   "nodes": 157,
+   "materials": 108
+  }
+ },
+ "instances": [
+  {
+   "name": "sofa",
+   "model": "sofa_03",
+   "path": "sofa",
+   "transform": [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0.25,
+    0,
+    2.27,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/sofa_03.glb",
+   "parent": null
+  },
+  {
+   "name": "pillows",
+   "model": "throw_pillows_01",
+   "path": "pillows",
+   "transform": [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0.25,
+    0.557937,
+    2.3,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/throw_pillows_01.glb",
+   "parent": null
+  },
+  {
+   "name": "coffeeTable",
+   "model": "small_wooden_table_01",
+   "path": "coffeeTable",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0.25,
+    0,
+    0.95,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/small_wooden_table_01.glb",
+   "parent": null
+  },
+  {
+   "name": "endTable",
+   "model": "painted_wooden_nightstand",
+   "path": "endTable",
+   "transform": [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    -1.5,
+    0,
+    2.48,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/painted_wooden_nightstand.glb",
+   "parent": null
+  },
+  {
+   "name": "dresser",
+   "model": "GothicCommode_01",
+   "path": "dresser",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -0.55,
+    0,
+    -2.44,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/GothicCommode_01.glb",
+   "parent": null
+  },
+  {
+   "name": "flashlight",
+   "model": "pastic_torch_6v",
+   "path": "dresser/GothicCommode_01_door01/dresser.drawerTop.contents/flashlight",
+   "transform": [
+    0.408487,
+    0,
+    -0.912764,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.912764,
+    0,
+    0.408487,
+    0,
+    -0.750911,
+    0.969109,
+    -2.418872,
+    1
+   ],
+   "parent": {
+    "level": "dresser_drawerTop_contents"
+   },
+   "local": [
+    0.408487,
+    0,
+    -0.912764,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.912764,
+    0,
+    0.408487,
+    0,
+    -0.2,
+    0.07,
+    0.02,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "noCastShadow": [
+    "pastic_torch_6v"
+   ],
+   "castShadow": false,
+   "scene": "res://assets/models/pastic_torch_6v.glb"
+  },
+  {
+   "name": "tv",
+   "model": "television_02",
+   "path": "tv",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -0.55,
+    1.212043,
+    -2.5,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/television_02.glb",
+   "parent": null
+  },
+  {
+   "name": "photoFrame",
+   "model": "standing_picture_frame_01",
+   "path": "photoFrame",
+   "transform": [
+    0.296281,
+    0,
+    0.955101,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.955101,
+    0,
+    0.296281,
+    0,
+    -0.05,
+    1.212517,
+    -2.45,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "standing_picture_frame_01",
+     "surface": 0,
+     "material": "standing_picture_frame_01_glass",
+     "set": {
+      "albedo": {
+       "srgb": "#ffffff",
+       "linear": [
+        1,
+        1,
+        1
+       ],
+       "alpha": 0.1
+      },
+      "roughness": 0.04,
+      "metalness": 0,
+      "textures": {
+       "albedo_texture": null,
+       "normal_texture": null,
+       "roughness_texture": null,
+       "metallic_texture": null
+      }
+     }
+    }
+   ],
+   "noCastShadow": [
+    "standing_picture_frame_01"
+   ],
+   "castShadow": false,
+   "scene": "res://assets/models/standing_picture_frame_01.glb",
+   "parent": null
+  },
+  {
+   "name": "grandfather",
+   "model": "vintage_grandfather_clock_01",
+   "path": "grandfather",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.95,
+    0,
+    -2.52,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [
+    {
+     "node": "vintage_grandfather_clock_01_HourHand",
+     "local": [
+      -0.219435,
+      0.975627,
+      0,
+      0,
+      -0.975627,
+      -0.219435,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1.731939,
+      0.125532,
+      1
+     ]
+    },
+    {
+     "node": "vintage_grandfather_clock_01_MinuteHand",
+     "local": [
+      -0.734461,
+      -0.67865,
+      0,
+      0,
+      0.67865,
+      -0.734461,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1.731939,
+      0.125532,
+      1
+     ]
+    }
+   ],
+   "materialOverrides": [
+    {
+     "node": "vintage_grandfather_clock_01_Body",
+     "surface": 1,
+     "material": "vintage_grandfather_clock_01_glass",
+     "set": {
+      "albedo": {
+       "srgb": "#ffffff",
+       "linear": [
+        1,
+        1,
+        1
+       ],
+       "alpha": 0.1
+      },
+      "roughness": 0.04,
+      "metalness": 0,
+      "textures": {
+       "albedo_texture": null,
+       "roughness_texture": null,
+       "metallic_texture": null
+      }
+     }
+    }
+   ],
+   "scene": "res://assets/models/vintage_grandfather_clock_01.glb",
+   "parent": null
+  },
+  {
+   "name": "shelves",
+   "model": "painted_wooden_shelves",
+   "path": "shelves",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.15,
+    0,
+    -2.75,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/painted_wooden_shelves.glb",
+   "parent": null
+  },
+  {
+   "name": "books",
+   "model": "book_encyclopedia_set_01",
+   "path": "books",
+   "transform": [
+    0.8,
+    0,
+    0,
+    0,
+    0,
+    0.8,
+    0,
+    0,
+    0,
+    0,
+    0.8,
+    0,
+    1.93,
+    0.460565,
+    -2.62,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/book_encyclopedia_set_01.glb",
+   "parent": null
+  },
+  {
+   "name": "horse",
+   "model": "horse_statue_01",
+   "path": "horse",
+   "transform": [
+    0.877583,
+    0,
+    -0.479426,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.479426,
+    0,
+    0.877583,
+    0,
+    2.15,
+    0.737076,
+    -2.63,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/horse_statue_01.glb",
+   "parent": null
+  },
+  {
+   "name": "console",
+   "model": "ClassicConsole_01",
+   "path": "console",
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.18,
+    0,
+    0.15,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/ClassicConsole_01.glb",
+   "parent": null
+  },
+  {
+   "name": "lockedBox",
+   "model": "CheeseBox_01",
+   "path": "lockedBox",
+   "transform": [
+    0,
+    0,
+    1.7,
+    0,
+    0,
+    1.7,
+    0,
+    0,
+    -1.7,
+    0,
+    0,
+    0,
+    3.12,
+    0.949058,
+    0.15,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/CheeseBox_01.glb",
+   "parent": null
+  },
+  {
+   "name": "chairA",
+   "model": "painted_wooden_chair_02",
+   "path": "chairA",
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.12,
+    0,
+    -1.05,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/painted_wooden_chair_02.glb",
+   "parent": null
+  },
+  {
+   "name": "chairB",
+   "model": "painted_wooden_chair_02",
+   "path": "chairB",
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.12,
+    0,
+    1.4,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/painted_wooden_chair_02.glb",
+   "parent": null
+  },
+  {
+   "name": "roundFrame",
+   "model": "hanging_picture_frame_03",
+   "path": "roundFrame",
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.497428,
+    1.62,
+    0.15,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/hanging_picture_frame_03.glb",
+   "parent": null
+  },
+  {
+   "name": "sofaPainting",
+   "model": "fancy_picture_frame_01",
+   "path": "sofaPainting",
+   "transform": [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0.25,
+    1.65,
+    2.748899,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/fancy_picture_frame_01.glb",
+   "parent": null
+  },
+  {
+   "name": "kidTable",
+   "model": "side_table_01",
+   "path": "kidTable",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -2,
+    0,
+    0.2,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/side_table_01.glb",
+   "parent": null
+  },
+  {
+   "name": "kidChair",
+   "model": "painted_wooden_chair_01",
+   "path": "kidChair",
+   "transform": [
+    -0.72,
+    0,
+    0,
+    0,
+    0,
+    0.72,
+    0,
+    0,
+    0,
+    0,
+    -0.72,
+    0,
+    -2.06,
+    0,
+    0.75,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "painted_wooden_chair_01",
+     "surface": 0,
+     "material": "painted_wooden_chair_01",
+     "set": {
+      "albedo": {
+       "srgb": "#add7dd",
+       "linear": [
+        0.42,
+        0.68,
+        0.72
+       ],
+       "alpha": 1
+      }
+     }
+    }
+   ],
+   "scene": "res://assets/models/painted_wooden_chair_01.glb",
+   "parent": null
+  },
+  {
+   "name": "duck",
+   "model": "rubber_duck_toy",
+   "path": "duck",
+   "transform": [
+    0.418024,
+    0,
+    -0.430414,
+    0,
+    0,
+    0.6,
+    0,
+    0,
+    0.430414,
+    0,
+    0.418024,
+    0,
+    -1.35,
+    0.007027,
+    0.95,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/rubber_duck_toy.glb",
+   "parent": null
+  },
+  {
+   "name": "alarmClock",
+   "model": "alarm_clock_01",
+   "path": "alarmClock",
+   "transform": [
+    0.921061,
+    0,
+    0.389418,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.389418,
+    0,
+    0.921061,
+    0,
+    0.55,
+    0.527666,
+    0.92,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [
+    {
+     "node": "houd_hand",
+     "local": [
+      -0.998026,
+      0.062807,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0.062807,
+      0.998026,
+      0,
+      0,
+      0,
+      0.064597,
+      0,
+      1
+     ]
+    },
+    {
+     "node": "minute_hand",
+     "local": [
+      -0.685545,
+      -0.72803,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.72803,
+      0.685545,
+      0,
+      0,
+      0,
+      0.064597,
+      0,
+      1
+     ]
+    },
+    {
+     "node": "second_hand",
+     "local": [
+      0,
+      0,
+      1,
+      0,
+      0.948749,
+      0.31603,
+      0,
+      0,
+      -0.31603,
+      0.948749,
+      0,
+      0,
+      0,
+      0.064597,
+      0,
+      1
+     ]
+    }
+   ],
+   "materialOverrides": [
+    {
+     "node": "alarm_clock_01",
+     "surface": 1,
+     "material": "alarm_clock_01_Glass",
+     "set": {
+      "albedo": {
+       "srgb": "#ffffff",
+       "linear": [
+        1,
+        1,
+        1
+       ],
+       "alpha": 0.1
+      },
+      "roughness": 0.04,
+      "metalness": 0,
+      "textures": {
+       "albedo_texture": null,
+       "normal_texture": null,
+       "roughness_texture": null,
+       "metallic_texture": null
+      }
+     }
+    }
+   ],
+   "noCastShadow": [
+    "houd_hand",
+    "minute_hand",
+    "second_hand",
+    "alarm_clock_01"
+   ],
+   "castShadow": false,
+   "scene": "res://assets/models/alarm_clock_01.glb",
+   "parent": null
+  },
+  {
+   "name": "fan",
+   "model": "ceiling_fan",
+   "path": "fan",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0.25,
+    2.5,
+    0.35,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [
+    {
+     "node": "ceiling_fan_blades",
+     "local": [
+      0.81615,
+      0,
+      -0.57784,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0.57784,
+      0,
+      0.81615,
+      0,
+      0,
+      0,
+      0,
+      1
+     ]
+    }
+   ],
+   "materialOverrides": [],
+   "noCastShadow": [
+    "ceiling_fan_blades"
+   ],
+   "scene": "res://assets/models/ceiling_fan.glb",
+   "parent": null
+  },
+  {
+   "name": "alcoveCabinet",
+   "model": "painted_wooden_cabinet",
+   "path": "alcoveCabinet",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    -4.28,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [
+    {
+     "node": "painted_wooden_cabinet_door_02",
+     "local": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0.567788,
+      0.533416,
+      0.211471,
+      1
+     ]
+    },
+    {
+     "node": "painted_wooden_cabinet_door_01",
+     "local": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.568228,
+      0.532444,
+      0.211471,
+      1
+     ]
+    },
+    {
+     "node": "painted_wooden_cabinet_drawer_02",
+     "local": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0.274567,
+      1.046504,
+      0.235,
+      1
+     ]
+    },
+    {
+     "node": "painted_wooden_cabinet_drawer_01",
+     "local": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.280299,
+      1.046504,
+      0.235,
+      1
+     ]
+    }
+   ],
+   "materialOverrides": [],
+   "scene": "res://assets/models/painted_wooden_cabinet.glb",
+   "parent": null
+  },
+  {
+   "name": "powerBox",
+   "model": "power_box_01",
+   "path": "powerBox",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.6,
+    1.45,
+    -4.553,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [
+    {
+     "node": "power_box_01_door",
+     "local": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.16383,
+      0.000005,
+      0.043181,
+      1
+     ]
+    }
+   ],
+   "materialOverrides": [],
+   "scene": "res://assets/models/power_box_01.glb",
+   "parent": null
+  },
+  {
+   "name": "alcoveShelf",
+   "model": "Shelf_01",
+   "path": "alcoveShelf",
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.5,
+    0,
+    -3.7,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/Shelf_01.glb",
+   "parent": null
+  },
+  {
+   "name": "boxA",
+   "model": "cardboard_box_01",
+   "path": "boxA",
+   "transform": [
+    0.980067,
+    0,
+    -0.198669,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.198669,
+    0,
+    0.980067,
+    0,
+    2,
+    0,
+    -4.3,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/cardboard_box_01.glb",
+   "parent": null
+  },
+  {
+   "name": "boxB",
+   "model": "cardboard_box_01",
+   "path": "boxB",
+   "transform": [
+    0.812036,
+    0,
+    0.251192,
+    0,
+    0,
+    0.85,
+    0,
+    0,
+    -0.251192,
+    0,
+    0.812036,
+    0,
+    2.05,
+    0.326123,
+    -4.28,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/cardboard_box_01.glb",
+   "parent": null
+  },
+  {
+   "name": "boxC",
+   "model": "cardboard_box_01",
+   "path": "boxC",
+   "transform": [
+    0.362358,
+    0,
+    -0.932039,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.932039,
+    0,
+    0.362358,
+    0,
+    -3.05,
+    0,
+    -1,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/cardboard_box_01.glb",
+   "parent": null
+  },
+  {
+   "name": "bulb",
+   "model": "lightbulb_01",
+   "path": "bulb",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1.8,
+    2.28,
+    -3.6,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "noCastShadow": [
+    "lightbulb_01"
+   ],
+   "castShadow": false,
+   "scene": "res://assets/models/lightbulb_01.glb",
+   "parent": null
+  },
+  {
+   "name": "cassette",
+   "model": "portable_cassette_player",
+   "path": "cassette",
+   "transform": [
+    0.955336,
+    0,
+    -0.29552,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.29552,
+    0,
+    0.955336,
+    0,
+    -1.95,
+    0.604536,
+    0.12,
+    1
+   ],
+   "hiddenNodes": [],
+   "mergedNodes": [
+    "portable_cassette_player_casette"
+   ],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/portable_cassette_player.glb",
+   "parent": null
+  },
+  {
+   "name": "rockingChair",
+   "model": "Rockingchair_01",
+   "path": "rockingChair.root/Group/rockingChair",
+   "transform": [
+    -0.588501,
+    0,
+    0.808496,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.808496,
+    0,
+    -0.588501,
+    0,
+    2.55,
+    -0.102,
+    1.95,
+    1
+   ],
+   "parent": {
+    "level": "rockingChair_root_node"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1.052,
+    0,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/Rockingchair_01.glb"
+  },
+  {
+   "name": "extra_boombox",
+   "model": "boombox",
+   "path": "extra_boombox",
+   "transform": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    -2.35,
+    0,
+    -0.5,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/boombox.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_gamepad",
+   "model": "gamepad",
+   "path": "extra_gamepad",
+   "transform": [
+    0.877583,
+    0,
+    -0.479426,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.479426,
+    0,
+    0.877583,
+    0,
+    -0.3,
+    0,
+    -1.95,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/gamepad.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_bat",
+   "model": "baseball_bat",
+   "path": "extra_bat",
+   "transform": [
+    0.995004,
+    0.099833,
+    0,
+    0,
+    -0.099335,
+    0.990033,
+    0.099833,
+    0,
+    0.009967,
+    -0.099335,
+    0.995004,
+    0,
+    -3.4,
+    0.254,
+    2.63,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/baseball_bat.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_football",
+   "model": "football",
+   "path": "extra_football",
+   "transform": [
+    0.764842,
+    0,
+    -0.644218,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.644218,
+    0,
+    0.764842,
+    0,
+    -2.35,
+    0,
+    1.15,
+    1
+   ],
+   "hiddenNodes": [
+    "football_inflated"
+   ],
+   "nodeTransforms": [
+    {
+     "node": "football_deflated",
+     "local": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+     ]
+    }
+   ],
+   "materialOverrides": [],
+   "scene": "res://assets/models/football.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_mirror",
+   "model": "ornate_mirror_01",
+   "path": "extra_mirror",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0.47,
+    1.62,
+    -2.749,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "ornate_mirror_01",
+     "surface": 0,
+     "material": "ornate_mirror_01",
+     "set": {
+      "envMapIntensity": 1.35
+     }
+    }
+   ],
+   "scene": "res://assets/models/ornate_mirror_01.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_stairPhotoA",
+   "model": "hanging_picture_frame_02",
+   "path": "extra_stairPhotoA",
+   "transform": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    -3.498,
+    2.55,
+    0.3,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "hanging_picture_frame_02",
+     "surface": 0,
+     "material": "hanging_picture_frame_02_artwork",
+     "set": {
+      "roughness": 0.42,
+      "doubleSided": false,
+      "textures": {
+       "albedo_texture": {
+        "path": "res://assets/generated/textures/level/extra_stairPhotoA_Cube009_map.jpg",
+        "uv1_scale": [
+         1.014199,
+         1.730104
+        ],
+        "uv1_offset": [
+         -0.007099,
+         -0.385813
+        ]
+       },
+       "normal_texture": null,
+       "roughness_texture": null,
+       "metallic_texture": null
+      }
+     }
+    },
+    {
+     "node": "hanging_picture_frame_02",
+     "surface": 2,
+     "material": "hanging_picture_frame_02_glass",
+     "set": {
+      "type": "MeshPhysicalMaterial",
+      "albedo": {
+       "srgb": "#ffffff",
+       "linear": [
+        1,
+        1,
+        1
+       ],
+       "alpha": 1
+      },
+      "roughness": 1,
+      "envMapIntensity": 1.25,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0,
+      "specularIntensity": 0.85,
+      "ior": 1.52,
+      "sheen": 0,
+      "sheenRoughness": 1,
+      "doubleSided": false,
+      "blending": "additive",
+      "textures": {
+       "albedo_texture": {
+        "path": "res://assets/generated/textures/level/extra_stairPhotoA_Cube009_2_map.jpg",
+        "uv1_scale": [
+         1,
+         -1
+        ],
+        "uv1_offset": [
+         0,
+         1
+        ]
+       },
+       "roughness_texture": {
+        "path": "res://assets/generated/textures/level/extra_stairPhotoA_Cube009_2_roughnessMap.jpg",
+        "uv1_scale": [
+         1,
+         -1
+        ],
+        "uv1_offset": [
+         0,
+         1
+        ]
+       }
+      },
+      "geometryChanged": true
+     }
+    }
+   ],
+   "scene": "res://assets/models/hanging_picture_frame_02.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_stairPhotoB",
+   "model": "hanging_picture_frame_02",
+   "path": "extra_stairPhotoB",
+   "transform": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    -3.498,
+    3.5,
+    -0.75,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "hanging_picture_frame_02",
+     "surface": 0,
+     "material": "hanging_picture_frame_02_artwork",
+     "set": {
+      "roughness": 0.42,
+      "doubleSided": false,
+      "textures": {
+       "albedo_texture": {
+        "path": "res://assets/generated/textures/level/extra_stairPhotoB_Cube009_map.jpg",
+        "uv1_scale": [
+         1.014199,
+         1.730104
+        ],
+        "uv1_offset": [
+         -0.007099,
+         -0.385813
+        ]
+       },
+       "normal_texture": null,
+       "roughness_texture": null,
+       "metallic_texture": null
+      }
+     }
+    },
+    {
+     "node": "hanging_picture_frame_02",
+     "surface": 2,
+     "material": "hanging_picture_frame_02_glass",
+     "set": {
+      "type": "MeshPhysicalMaterial",
+      "albedo": {
+       "srgb": "#ffffff",
+       "linear": [
+        1,
+        1,
+        1
+       ],
+       "alpha": 1
+      },
+      "roughness": 1,
+      "envMapIntensity": 1.25,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0,
+      "specularIntensity": 0.85,
+      "ior": 1.52,
+      "sheen": 0,
+      "sheenRoughness": 1,
+      "doubleSided": false,
+      "blending": "additive",
+      "textures": {
+       "albedo_texture": {
+        "path": "res://assets/generated/textures/level/extra_stairPhotoB_Cube009_2_map.jpg",
+        "uv1_scale": [
+         1,
+         -1
+        ],
+        "uv1_offset": [
+         0,
+         1
+        ]
+       },
+       "roughness_texture": {
+        "path": "res://assets/generated/textures/level/extra_stairPhotoB_Cube009_2_roughnessMap.jpg",
+        "uv1_scale": [
+         1,
+         -1
+        ],
+        "uv1_offset": [
+         0,
+         1
+        ]
+       }
+      },
+      "geometryChanged": true
+     }
+    }
+   ],
+   "scene": "res://assets/models/hanging_picture_frame_02.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_oldTv",
+   "model": "Television_01",
+   "path": "extra_oldTv",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.55,
+    0,
+    -4.33,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/Television_01.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_socket",
+   "model": "pull_chain_light_socket",
+   "path": "extra_socket",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1.8,
+    2.5,
+    -3.6,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "pull_chain_light_socket",
+     "surface": 0,
+     "material": "pull_chain_light_socket",
+     "set": {
+      "envMapIntensity": 1.4
+     }
+    },
+    {
+     "node": "pull_chain_light_socket_chain",
+     "surface": 0,
+     "material": "pull_chain_light_socket",
+     "set": {
+      "envMapIntensity": 1.4
+     }
+    }
+   ],
+   "scene": "res://assets/models/pull_chain_light_socket.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_toolbox",
+   "model": "metal_toolbox",
+   "path": "extra_toolbox",
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.13,
+    0,
+    -4.38,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [
+    {
+     "node": "metal_toolbox_lid",
+     "local": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.000009,
+      0.119594,
+      -0.103134,
+      1
+     ]
+    }
+   ],
+   "materialOverrides": [
+    {
+     "node": "metal_toolbox",
+     "surface": 0,
+     "material": "metal_toolbox",
+     "set": {
+      "roughness": 0.85,
+      "envMapIntensity": 1.6
+     }
+    },
+    {
+     "node": "metal_toolbox_tray",
+     "surface": 0,
+     "material": "metal_toolbox",
+     "set": {
+      "roughness": 0.85,
+      "envMapIntensity": 1.6
+     }
+    },
+    {
+     "node": "metal_toolbox_lid",
+     "surface": 0,
+     "material": "metal_toolbox",
+     "set": {
+      "roughness": 0.85,
+      "envMapIntensity": 1.6
+     }
+    },
+    {
+     "node": "metal_toolbox_lid/metal_toolbox_handle",
+     "surface": 0,
+     "material": "metal_toolbox",
+     "set": {
+      "roughness": 0.85,
+      "envMapIntensity": 1.6
+     }
+    },
+    {
+     "node": "metal_toolbox_lid/metal_toolbox_handle_latch_l",
+     "surface": 0,
+     "material": "metal_toolbox",
+     "set": {
+      "roughness": 0.85,
+      "envMapIntensity": 1.6
+     }
+    },
+    {
+     "node": "metal_toolbox_lid/metal_toolbox_handle_latch_r",
+     "surface": 0,
+     "material": "metal_toolbox",
+     "set": {
+      "roughness": 0.85,
+      "envMapIntensity": 1.6
+     }
+    }
+   ],
+   "scene": "res://assets/models/metal_toolbox.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_laundry",
+   "model": "plastic_crate_02",
+   "path": "extra_laundry",
+   "transform": [
+    0.988771,
+    0,
+    -0.149438,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.149438,
+    0,
+    0.988771,
+    0,
+    0.58,
+    0,
+    -3.22,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "plastic_crate_02",
+     "surface": 0,
+     "material": "plastic_crate_02",
+     "set": {
+      "alphaTest": 0.5,
+      "transparent": false,
+      "doubleSided": true,
+      "depthWrite": true,
+      "alphaToCoverage": true
+     }
+    }
+   ],
+   "scene": "res://assets/models/plastic_crate_02.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_stool",
+   "model": "painted_wooden_stool",
+   "path": "extra_stool",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0.62,
+    0,
+    -3.72,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/painted_wooden_stool.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_broom",
+   "model": "wooden_broom",
+   "path": "extra_broom",
+   "transform": [
+    0,
+    0,
+    -1,
+    0,
+    -0.079915,
+    0.996802,
+    0,
+    0,
+    0.996802,
+    0.079915,
+    0,
+    0,
+    0.325,
+    0.126,
+    -3.72,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "wooden_broom_bristles",
+     "surface": 0,
+     "material": "wooden_broom_bristles",
+     "set": {
+      "alphaTest": 0.42,
+      "transparent": false,
+      "depthWrite": true,
+      "alphaToCoverage": true
+     }
+    },
+    {
+     "node": "wooden_broom",
+     "surface": 1,
+     "material": "wooden_broom_bristles",
+     "set": {
+      "alphaTest": 0.42,
+      "transparent": false,
+      "depthWrite": true,
+      "alphaToCoverage": true
+     }
+    }
+   ],
+   "scene": "res://assets/models/wooden_broom.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_bleach",
+   "model": "bleach_bottle",
+   "path": "extra_bleach",
+   "transform": [
+    0.955336,
+    0,
+    0.29552,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.29552,
+    0,
+    0.955336,
+    0,
+    0.85,
+    1.182,
+    -4.3,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/bleach_bottle.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_jug",
+   "model": "plastic_bottle_gallon",
+   "path": "extra_jug",
+   "transform": [
+    0.877583,
+    0,
+    -0.479426,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.479426,
+    0,
+    0.877583,
+    0,
+    0.6,
+    1.182,
+    -4.36,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/plastic_bottle_gallon.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_paintCan",
+   "model": "can_rusted",
+   "path": "extra_paintCan",
+   "transform": [
+    0.540302,
+    0,
+    -0.841471,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.841471,
+    0,
+    0.540302,
+    0,
+    3.36,
+    0.66,
+    -3.95,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "can_rusted",
+     "surface": 0,
+     "material": "can_rusted",
+     "set": {
+      "envMapIntensity": 1.5
+     }
+    }
+   ],
+   "scene": "res://assets/models/can_rusted.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_gnome",
+   "model": "garden_gnome",
+   "path": "extra_gnome",
+   "transform": [
+    0.100626,
+    0,
+    0.994924,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.994924,
+    0,
+    0.100626,
+    0,
+    3.13,
+    0,
+    -3.1,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "garden_gnome",
+     "surface": 0,
+     "material": "garden_gnome_01",
+     "set": {
+      "envMapIntensity": 1.3
+     }
+    }
+   ],
+   "scene": "res://assets/models/garden_gnome.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_mousetrap",
+   "model": "mousetrap",
+   "path": "extra_mousetrap",
+   "transform": [
+    0.955336,
+    0,
+    -0.29552,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.29552,
+    0,
+    0.955336,
+    0,
+    1.68,
+    0,
+    -4.5,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/mousetrap.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_suitcase",
+   "model": "vintage_suitcase",
+   "path": "extra_suitcase",
+   "transform": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    -3.31,
+    0,
+    -1.2,
+    1
+   ],
+   "hiddenNodes": [
+    "vintage_suitcase_02_bottom",
+    "vintage_suitcase_02_clasp",
+    "vintage_suitcase_02_handle",
+    "vintage_suitcase_02_top"
+   ],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/vintage_suitcase.glb",
+   "parent": null
+  },
+  {
+   "name": "extra_suitcaseHall",
+   "model": "vintage_suitcase",
+   "path": "extra_suitcaseHall",
+   "transform": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    -3.47,
+    2.75,
+    -4.356,
+    1
+   ],
+   "hiddenNodes": [
+    "vintage_suitcase_01_bottom",
+    "vintage_suitcase_01_clasp",
+    "vintage_suitcase_01_handle",
+    "vintage_suitcase_01_top"
+   ],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/vintage_suitcase.glb",
+   "parent": null
+  }
+ ],
+ "attachments": [
+  {
+   "level": "level_node",
+   "parent": {
+    "instance": "endTable",
+    "node": "painted_wooden_nightstand_drawer"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.042011,
+    -0.17,
+    1
+   ],
+   "path": "endTable/painted_wooden_nightstand_drawer/Group"
+  },
+  {
+   "level": "dresser_drawerBottom_contents",
+   "parent": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door03"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.085297,
+    -0.27,
+    1
+   ],
+   "path": "dresser/GothicCommode_01_door03/dresser.drawerBottom.contents"
+  },
+  {
+   "level": "dresser_drawerMid_contents",
+   "parent": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door02"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.086202,
+    -0.27,
+    1
+   ],
+   "path": "dresser/GothicCommode_01_door02/dresser.drawerMid.contents"
+  },
+  {
+   "level": "dresser_drawerTop_contents",
+   "parent": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door01"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.087799,
+    -0.27,
+    1
+   ],
+   "path": "dresser/GothicCommode_01_door01/dresser.drawerTop.contents"
+  },
+  {
+   "level": "tv_screen",
+   "parent": {
+    "instance": "tv"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.26,
+    0,
+    1
+   ],
+   "path": "tv/tv.screen"
+  },
+  {
+   "level": "lockedBox_lid",
+   "parent": {
+    "instance": "lockedBox"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.066,
+    -0.0527,
+    1
+   ],
+   "path": "lockedBox/lockedBox.lid"
+  },
+  {
+   "level": "level_node_2",
+   "parent": {
+    "instance": "lockedBox"
+   },
+   "local": [
+    0.588235,
+    0,
+    0,
+    0,
+    0,
+    0.588235,
+    0,
+    0,
+    0,
+    0,
+    0.588235,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "path": "lockedBox/Group"
+  },
+  {
+   "level": "lockedBox_contents",
+   "parent": {
+    "instance": "lockedBox"
+   },
+   "local": [
+    0.588235,
+    0,
+    0,
+    0,
+    0,
+    0.588235,
+    0,
+    0,
+    0,
+    0,
+    0.588235,
+    0,
+    -0.055,
+    0.004145,
+    0,
+    1
+   ],
+   "path": "lockedBox/lockedBox.contents"
+  },
+  {
+   "level": "level_node_3",
+   "parent": {
+    "instance": "alcoveCabinet",
+    "node": "painted_wooden_cabinet_drawer_02"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.129659,
+    -0.17,
+    1
+   ],
+   "path": "alcoveCabinet/painted_wooden_cabinet_drawer_02/Group"
+  },
+  {
+   "level": "level_node_4",
+   "parent": {
+    "instance": "alcoveCabinet",
+    "node": "painted_wooden_cabinet_drawer_01"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.129659,
+    -0.17,
+    1
+   ],
+   "path": "alcoveCabinet/painted_wooden_cabinet_drawer_01/Group"
+  },
+  {
+   "level": "alcoveCabinet_door_01_contents",
+   "parent": {
+    "instance": "alcoveCabinet"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -0.3,
+    0.168729,
+    0.02,
+    1
+   ],
+   "path": "alcoveCabinet/alcoveCabinet.door_01.contents"
+  },
+  {
+   "level": "alcoveCabinet_door_02_contents",
+   "parent": {
+    "instance": "alcoveCabinet"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0.3,
+    0.168729,
+    0.02,
+    1
+   ],
+   "path": "alcoveCabinet/alcoveCabinet.door_02.contents"
+  },
+  {
+   "level": "powerBox_lever",
+   "parent": {
+    "instance": "powerBox"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "path": "powerBox/powerBox.lever"
+  },
+  {
+   "level": "extra_mirror_glass",
+   "parent": {
+    "instance": "extra_mirror"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "path": "extra_mirror/extra_mirror_glass"
+  },
+  {
+   "level": "extra_crt_screen",
+   "parent": {
+    "instance": "extra_oldTv"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "path": "extra_oldTv/extra_crt_screen"
+  },
+  {
+   "level": "extra_socket_chain_pivot",
+   "parent": {
+    "instance": "extra_socket"
+   },
+   "local": [
+    0.999659,
+    -0.026112,
+    0.000518,
+    0,
+    0.026117,
+    0.999462,
+    -0.019843,
+    0,
+    0,
+    0.01985,
+    0.999803,
+    0,
+    -0.023,
+    -0.019,
+    0,
+    1
+   ],
+   "path": "extra_socket/extra_socket_chain_pivot"
+  },
+  {
+   "level": "extra_laundry_cloth",
+   "parent": {
+    "instance": "extra_laundry"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "path": "extra_laundry/extra_laundry_cloth"
+  }
+ ],
+ "reparent": [
+  {
+   "instance": "lockedBox",
+   "node": "CheeseBox_01_lid"
+  },
+  {
+   "instance": "extra_socket",
+   "node": "pull_chain_light_socket_chain"
+  }
+ ],
+ "handles": {
+  "lockedBox.lock": {
+   "id": "lockedBox.lock",
+   "kind": "padlock",
+   "duration": [
+    0.68,
+    0
+   ],
+   "sfx": {
+    "open": [
+     "unlock",
+     1,
+     1
+    ],
+    "close": null
+   },
+   "note": "open = shackle pops (0.18 s, outBack) then the lock falls onto the console (0.5 s, see anim.padlock); close = reset",
+   "object": {
+    "level": "lockedBox_lock"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": null,
+   "moving": [
+    {
+     "ref": {
+      "level": "lockedBox_lock"
+     },
+     "path": "lockedBox/Group/lockedBox.lock",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0.992809,
+      -0.119712,
+      0,
+      0,
+      0.119712,
+      0.992809,
+      0,
+      0,
+      0.068,
+      0.0967,
+      1
+     ],
+     "open": [
+      0.877583,
+      0,
+      -0.479426,
+      0,
+      -0.479426,
+      0,
+      -0.877583,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0.05,
+      0.0075,
+      0.1121,
+      1
+     ],
+     "restored": true
+    },
+    {
+     "ref": {
+      "level": "lockedBox_lock_node_mesh_6"
+     },
+     "path": "lockedBox/Group/lockedBox.lock/Group/Mesh",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0.0095,
+      0,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "door.upstairs": {
+   "id": "door.upstairs",
+   "kind": "door",
+   "duration": [
+    1.1,
+    1.1
+   ],
+   "sfx": {
+    "open": [
+     "door_creak_open",
+     1,
+     1
+    ],
+    "close": [
+     "door_close",
+     1,
+     1
+    ]
+   },
+   "ease": "open 1-(1-k)^3, close k*k*(1.6-0.6k)",
+   "object": {
+    "level": "door_upstairs"
+   },
+   "locked": true,
+   "initiallyOpen": false,
+   "contents": null,
+   "moving": [
+    {
+     "ref": {
+      "level": "door_upstairs"
+     },
+     "path": "architecture/door.upstairs",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -3.45,
+      2.75,
+      -2.75,
+      1
+     ],
+     "open": [
+      -0.0292,
+      0,
+      0.999574,
+      0,
+      0,
+      1,
+      0,
+      0,
+      -0.999574,
+      0,
+      -0.0292,
+      0,
+      -3.45,
+      2.75,
+      -2.75,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "door.closet": {
+   "id": "door.closet",
+   "kind": "door",
+   "duration": [
+    0.6,
+    0.6
+   ],
+   "sfx": {
+    "open": [
+     "door_creak_open",
+     0.5,
+     1.3
+    ],
+    "close": [
+     "door_close",
+     0.45,
+     1.35
+    ]
+   },
+   "ease": "open 1-(1-k)^3, close k*k*(1.6-0.6k)",
+   "object": {
+    "level": "door_closet"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": null,
+   "moving": [
+    {
+     "ref": {
+      "level": "door_closet"
+     },
+     "path": "architecture/door.closet",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -2.5,
+      0,
+      -2.36,
+      1
+     ],
+     "open": [
+      0.070737,
+      0,
+      -0.997495,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0.997495,
+      0,
+      0.070737,
+      0,
+      -2.5,
+      0,
+      -2.36,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "dresser.drawerTop": {
+   "id": "dresser.drawerTop",
+   "kind": "drawer",
+   "duration": [
+    0.55,
+    0.45
+   ],
+   "sfx": {
+    "open": [
+     "drawer_open",
+     1,
+     1
+    ],
+    "close": [
+     "drawer_close",
+     1,
+     1
+    ]
+   },
+   "object": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door01"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "dresser_drawerTop_contents"
+   },
+   "contentsParent": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door01"
+   },
+   "moving": [
+    {
+     "ref": {
+      "instance": "dresser",
+      "node": "GothicCommode_01_door01"
+     },
+     "path": "dresser/GothicCommode_01_door01",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.000911,
+      0.986908,
+      0.271128,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.000911,
+      0.986908,
+      0.571128,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "dresser.drawerMid": {
+   "id": "dresser.drawerMid",
+   "kind": "drawer",
+   "duration": [
+    0.55,
+    0.45
+   ],
+   "sfx": {
+    "open": [
+     "drawer_open",
+     1,
+     1
+    ],
+    "close": [
+     "drawer_close",
+     1,
+     1
+    ]
+   },
+   "object": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door02"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "dresser_drawerMid_contents"
+   },
+   "contentsParent": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door02"
+   },
+   "moving": [
+    {
+     "ref": {
+      "instance": "dresser",
+      "node": "GothicCommode_01_door02"
+     },
+     "path": "dresser/GothicCommode_01_door02",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.001487,
+      0.667048,
+      0.261231,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.001487,
+      0.667048,
+      0.561231,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "dresser.drawerBottom": {
+   "id": "dresser.drawerBottom",
+   "kind": "drawer",
+   "duration": [
+    0.55,
+    0.45
+   ],
+   "sfx": {
+    "open": [
+     "drawer_open",
+     1,
+     1
+    ],
+    "close": [
+     "drawer_close",
+     1,
+     1
+    ]
+   },
+   "object": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door03"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "dresser_drawerBottom_contents"
+   },
+   "contentsParent": {
+    "instance": "dresser",
+    "node": "GothicCommode_01_door03"
+   },
+   "moving": [
+    {
+     "ref": {
+      "instance": "dresser",
+      "node": "GothicCommode_01_door03"
+     },
+     "path": "dresser/GothicCommode_01_door03",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.001415,
+      0.356499,
+      0.280746,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.001415,
+      0.356499,
+      0.580746,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "endTable.drawer": {
+   "id": "endTable.drawer",
+   "kind": "drawer",
+   "duration": [
+    0.5,
+    0.4
+   ],
+   "sfx": {
+    "open": [
+     "drawer_open",
+     1,
+     1
+    ],
+    "close": [
+     "drawer_close",
+     1,
+     1
+    ]
+   },
+   "object": {
+    "instance": "endTable",
+    "node": "painted_wooden_nightstand_drawer"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "level_node"
+   },
+   "contentsParent": {
+    "instance": "endTable",
+    "node": "painted_wooden_nightstand_drawer"
+   },
+   "moving": [
+    {
+     "ref": {
+      "instance": "endTable",
+      "node": "painted_wooden_nightstand_drawer"
+     },
+     "path": "endTable/painted_wooden_nightstand_drawer",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.000606,
+      0.512062,
+      0.210861,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.000606,
+      0.512062,
+      0.430861,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "alcoveCabinet.drawer_01": {
+   "id": "alcoveCabinet.drawer_01",
+   "kind": "drawer",
+   "duration": [
+    0.55,
+    0.45
+   ],
+   "sfx": {
+    "open": [
+     "drawer_open",
+     1,
+     1
+    ],
+    "close": [
+     "drawer_close",
+     1,
+     1
+    ]
+   },
+   "object": {
+    "instance": "alcoveCabinet",
+    "node": "painted_wooden_cabinet_drawer_01"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "level_node_4"
+   },
+   "contentsParent": {
+    "instance": "alcoveCabinet",
+    "node": "painted_wooden_cabinet_drawer_01"
+   },
+   "moving": [
+    {
+     "ref": {
+      "instance": "alcoveCabinet",
+      "node": "painted_wooden_cabinet_drawer_01"
+     },
+     "path": "alcoveCabinet/painted_wooden_cabinet_drawer_01",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.280299,
+      1.046504,
+      0.235,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.280299,
+      1.046504,
+      0.475,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "alcoveCabinet.drawer_02": {
+   "id": "alcoveCabinet.drawer_02",
+   "kind": "drawer",
+   "duration": [
+    0.55,
+    0.45
+   ],
+   "sfx": {
+    "open": [
+     "drawer_open",
+     1,
+     1
+    ],
+    "close": [
+     "drawer_close",
+     1,
+     1
+    ]
+   },
+   "object": {
+    "instance": "alcoveCabinet",
+    "node": "painted_wooden_cabinet_drawer_02"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "level_node_3"
+   },
+   "contentsParent": {
+    "instance": "alcoveCabinet",
+    "node": "painted_wooden_cabinet_drawer_02"
+   },
+   "moving": [
+    {
+     "ref": {
+      "instance": "alcoveCabinet",
+      "node": "painted_wooden_cabinet_drawer_02"
+     },
+     "path": "alcoveCabinet/painted_wooden_cabinet_drawer_02",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0.274567,
+      1.046504,
+      0.235,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0.274567,
+      1.046504,
+      0.475,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "alcoveCabinet.door_01": {
+   "id": "alcoveCabinet.door_01",
+   "kind": "cabinetDoor",
+   "duration": [
+    0.75,
+    0.6
+   ],
+   "sfx": {
+    "open": [
+     "cabinet_open",
+     1,
+     1
+    ],
+    "close": [
+     "cabinet_close",
+     1,
+     1
+    ]
+   },
+   "object": {
+    "instance": "alcoveCabinet",
+    "node": "painted_wooden_cabinet_door_01"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "alcoveCabinet_door_01_contents"
+   },
+   "contentsParent": {
+    "instance": "alcoveCabinet"
+   },
+   "moving": [
+    {
+     "ref": {
+      "instance": "alcoveCabinet",
+      "node": "painted_wooden_cabinet_door_01"
+     },
+     "path": "alcoveCabinet/painted_wooden_cabinet_door_01",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.568228,
+      0.532444,
+      0.211471,
+      1
+     ],
+     "open": [
+      -0.27559,
+      0,
+      0.961275,
+      0,
+      0,
+      1,
+      0,
+      0,
+      -0.961275,
+      0,
+      -0.27559,
+      0,
+      -0.568228,
+      0.532444,
+      0.211471,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "alcoveCabinet.door_02": {
+   "id": "alcoveCabinet.door_02",
+   "kind": "cabinetDoor",
+   "duration": [
+    0.75,
+    0.6
+   ],
+   "sfx": {
+    "open": [
+     "cabinet_open",
+     1,
+     1
+    ],
+    "close": [
+     "cabinet_close",
+     1,
+     1
+    ]
+   },
+   "object": {
+    "instance": "alcoveCabinet",
+    "node": "painted_wooden_cabinet_door_02"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "alcoveCabinet_door_02_contents"
+   },
+   "contentsParent": {
+    "instance": "alcoveCabinet"
+   },
+   "moving": [
+    {
+     "ref": {
+      "instance": "alcoveCabinet",
+      "node": "painted_wooden_cabinet_door_02"
+     },
+     "path": "alcoveCabinet/painted_wooden_cabinet_door_02",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0.567788,
+      0.533416,
+      0.211471,
+      1
+     ],
+     "open": [
+      -0.27559,
+      0,
+      -0.961275,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0.961275,
+      0,
+      -0.27559,
+      0,
+      0.567788,
+      0.533416,
+      0.211471,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "powerBox.door": {
+   "id": "powerBox.door",
+   "kind": "cabinetDoor",
+   "duration": [
+    0.7,
+    0.55
+   ],
+   "sfx": {
+    "open": [
+     "cabinet_open",
+     0.9,
+     1
+    ],
+    "close": [
+     "cabinet_close",
+     0.9,
+     1
+    ]
+   },
+   "object": {
+    "instance": "powerBox",
+    "node": "power_box_01_door"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": null,
+   "moving": [
+    {
+     "ref": {
+      "instance": "powerBox",
+      "node": "power_box_01_door"
+     },
+     "path": "powerBox/power_box_01_door",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -0.16383,
+      0.000005,
+      0.043181,
+      1
+     ],
+     "open": [
+      -0.32329,
+      0,
+      0.9463,
+      0,
+      0,
+      1,
+      0,
+      0,
+      -0.9463,
+      0,
+      -0.32329,
+      0,
+      -0.16383,
+      0.000005,
+      0.043181,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "powerBox.lever": {
+   "id": "powerBox.lever",
+   "kind": "lever",
+   "duration": [
+    0.2,
+    0.2
+   ],
+   "sfx": {
+    "open": [
+     "breaker_flip",
+     1,
+     1
+    ],
+    "close": [
+     "breaker_flip",
+     1,
+     1
+    ]
+   },
+   "note": "open = ON (initial state); setOn(on) flips it and calls world.set_power(on)",
+   "object": {
+    "level": "powerBox_lever"
+   },
+   "locked": false,
+   "initiallyOpen": true,
+   "contents": null,
+   "moving": [
+    {
+     "ref": {
+      "level": "powerBox_lever_node"
+     },
+     "path": "powerBox/powerBox.lever/Group",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0.825336,
+      0.564642,
+      0,
+      0,
+      -0.564642,
+      0.825336,
+      0,
+      0.105,
+      0.05,
+      0.024166,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0.825336,
+      -0.564642,
+      0,
+      0,
+      0.564642,
+      0.825336,
+      0,
+      0.105,
+      0.05,
+      0.024166,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  },
+  "lockedBox.lid": {
+   "id": "lockedBox.lid",
+   "kind": "lid",
+   "duration": [
+    0.85,
+    0.5
+   ],
+   "sfx": {
+    "open": [
+     "box_open",
+     0.8,
+     1
+    ],
+    "close": [
+     "cabinet_close",
+     0.8,
+     1
+    ]
+   },
+   "ease": "open outBack(c1=1.3), close inOut",
+   "note": "opening also pops the padlock off (lockedBox.lock)",
+   "object": {
+    "level": "lockedBox_lid"
+   },
+   "locked": false,
+   "initiallyOpen": false,
+   "contents": {
+    "level": "lockedBox_contents"
+   },
+   "contentsParent": {
+    "instance": "lockedBox"
+   },
+   "moving": [
+    {
+     "ref": {
+      "level": "lockedBox_lid"
+     },
+     "path": "lockedBox/lockedBox.lid",
+     "closed": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0.066,
+      -0.0527,
+      1
+     ],
+     "open": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      -0.34215,
+      -0.939645,
+      0,
+      0,
+      0.939645,
+      -0.34215,
+      0,
+      0,
+      0.066,
+      -0.0527,
+      1
+     ],
+     "restored": true
+    }
+   ],
+   "primary": 0
+  }
+ },
+ "items": {
+  "flashlight": {
+   "ref": {
+    "instance": "flashlight"
+   },
+   "inside": "dresser.drawerTop",
+   "parent": {
+    "level": "dresser_drawerTop_contents"
+   },
+   "local": [
+    0.408487,
+    0,
+    -0.912764,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.912764,
+    0,
+    0.408487,
+    0,
+    -0.2,
+    0.07,
+    0.02,
+    1
+   ],
+   "transform": [
+    0.408487,
+    0,
+    -0.912764,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.912764,
+    0,
+    0.408487,
+    0,
+    -0.750911,
+    0.969109,
+    -2.418872,
+    1
+   ],
+   "name": "flashlight"
+  },
+  "battery1": {
+   "ref": {
+    "level": "battery1"
+   },
+   "inside": "endTable.drawer",
+   "parent": {
+    "level": "level_node"
+   },
+   "local": [
+    0.939373,
+    0,
+    -0.342898,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.342898,
+    0,
+    0.939373,
+    0,
+    0.06,
+    0,
+    0.03,
+    1
+   ],
+   "transform": [
+    -0.939373,
+    0,
+    0.342898,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.342898,
+    0,
+    -0.939373,
+    0,
+    -1.559394,
+    0.470052,
+    2.409139,
+    1
+   ],
+   "name": "battery1"
+  },
+  "battery2": {
+   "ref": {
+    "level": "battery2"
+   },
+   "inside": "alcoveCabinet.drawer_01",
+   "parent": {
+    "level": "level_node_4"
+   },
+   "local": [
+    0.825336,
+    0,
+    0.564642,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.564642,
+    0,
+    0.825336,
+    0,
+    -0.04,
+    0,
+    0.04,
+    1
+   ],
+   "transform": [
+    0.825336,
+    0,
+    0.564642,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.564642,
+    0,
+    0.825336,
+    0,
+    0.679701,
+    0.916845,
+    -4.175,
+    1
+   ],
+   "name": "battery2"
+  },
+  "key": {
+   "ref": {
+    "level": "key"
+   },
+   "inside": "lockedBox.lid",
+   "parent": {
+    "level": "lockedBox_contents"
+   },
+   "local": [
+    0.877583,
+    0,
+    -0.479426,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.479426,
+    0,
+    0.877583,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "transform": [
+    0.479426,
+    0,
+    0.877583,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.877583,
+    0,
+    0.479426,
+    0,
+    3.12,
+    0.956105,
+    0.0565,
+    1
+   ],
+   "name": "key"
+  },
+  "note1": {
+   "ref": {
+    "level": "note1"
+   },
+   "inside": null,
+   "parent": null,
+   "local": [
+    0.968912,
+    0,
+    -0.247404,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.247404,
+    0,
+    0.968912,
+    0,
+    0.05,
+    0.526439,
+    1,
+    1
+   ],
+   "transform": [
+    0.968912,
+    0,
+    -0.247404,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.247404,
+    0,
+    0.968912,
+    0,
+    0.05,
+    0.526439,
+    1,
+    1
+   ],
+   "name": "note1"
+  },
+  "note2": {
+   "ref": {
+    "level": "note2"
+   },
+   "inside": null,
+   "parent": null,
+   "local": [
+    0.980067,
+    0,
+    0.198669,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.198669,
+    0,
+    0.980067,
+    0,
+    -2.05,
+    0.548306,
+    0.3,
+    1
+   ],
+   "transform": [
+    0.980067,
+    0,
+    0.198669,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.198669,
+    0,
+    0.980067,
+    0,
+    -2.05,
+    0.548306,
+    0.3,
+    1
+   ],
+   "name": "note2"
+  },
+  "note3": {
+   "ref": {
+    "level": "note3"
+   },
+   "inside": "alcoveCabinet.door_01",
+   "parent": {
+    "level": "alcoveCabinet_door_01_contents"
+   },
+   "local": [
+    0.968912,
+    0,
+    -0.247404,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.247404,
+    0,
+    0.968912,
+    0,
+    0,
+    0,
+    0.02,
+    1
+   ],
+   "transform": [
+    0.968912,
+    0,
+    -0.247404,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.247404,
+    0,
+    0.968912,
+    0,
+    0.7,
+    0.168729,
+    -4.24,
+    1
+   ],
+   "name": "note3"
+  }
+ },
+ "clues": {
+  "duck": {
+   "instance": "duck"
+  },
+  "horse": {
+   "instance": "horse"
+  },
+  "clock": {
+   "instance": "grandfather"
+  },
+  "tv": {
+   "instance": "tv"
+  }
+ },
+ "tv": {
+  "object": {
+   "instance": "tv"
+  },
+  "screen": {
+   "level": "tv_screen"
+  },
+  "screenPosition": [
+   -0.55,
+   1.472043,
+   -2.376
+  ],
+  "isOn": false,
+  "screenSize": [
+   0.292,
+   0.212
+  ],
+  "curvature": "z = 0.1237 - 0.9 (x^2 + y^2) in screen-local space",
+  "color": [
+   1.35,
+   1.4,
+   1.5
+  ]
+ },
+ "hideSpots": [
+  {
+   "minX": -3.45,
+   "maxX": -2.62,
+   "minZ": -2.7,
+   "maxZ": -0.35,
+   "door": "door.closet",
+   "hidePos": {
+    "x": -3.05,
+    "y": 1.35,
+    "z": -2.05
+   },
+   "hideYaw": -1.5707963267948966,
+   "exitPos": {
+    "x": -2.05,
+    "z": -2.05
+   },
+   "id": "closet",
+   "doorSpec": {
+    "x": -2.55,
+    "centerZ": -2.05,
+    "width": 0.62,
+    "height": 1.9,
+    "hingeZ": -2.36,
+    "openAngle": 1.5
+   }
+  }
+ ],
+ "clueDecals": {
+  "duck": {
+   "parent": {
+    "instance": "duck"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    0.002,
+    0.016667,
+    1
+   ],
+   "transform": [
+    0.418024,
+    0,
+    -0.430414,
+    0,
+    0.430414,
+    0,
+    0.418024,
+    0,
+    0,
+    -0.6,
+    0,
+    0,
+    -1.342826,
+    0.008227,
+    0.956967,
+    1
+   ],
+   "size": [
+    0.091667,
+    0.091667
+   ],
+   "style": "marker",
+   "facing": "down (plane rotated +90 deg about X)",
+   "textures": "textures/decals/digit_marker_<d>.png",
+   "material": {
+    "roughness": 0.6,
+    "transparent": true,
+    "depthWrite": false,
+    "polygonOffset": [
+     -4,
+     0
+    ]
+   }
+  },
+  "horse": {
+   "parent": {
+    "instance": "horse"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    0.0012,
+    0,
+    1
+   ],
+   "transform": [
+    0.877583,
+    0,
+    -0.479426,
+    0,
+    0.479426,
+    0,
+    0.877583,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    2.15,
+    0.738276,
+    -2.63,
+    1
+   ],
+   "size": [
+    0.05,
+    0.04
+   ],
+   "style": "tape",
+   "facing": "down (plane rotated +90 deg about X)",
+   "textures": "textures/decals/digit_tape_<d>.png",
+   "material": {
+    "roughness": 0.6,
+    "transparent": true,
+    "depthWrite": false,
+    "polygonOffset": [
+     -4,
+     0
+    ]
+   }
+  }
+ },
+ "colliders": [
+  {
+   "min": [
+    -3.7,
+    0,
+    2.75
+   ],
+   "max": [
+    3.7,
+    2.5,
+    3.05
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    3.5,
+    -0.05,
+    -4.8
+   ],
+   "max": [
+    3.7,
+    2.75,
+    3.05
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.7,
+    -0.05,
+    -2.9
+   ],
+   "max": [
+    -3.5,
+    2.75,
+    3.05
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.7,
+    2.75,
+    -2.9
+   ],
+   "max": [
+    -3.5,
+    5.4,
+    1.3
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.7,
+    -0.05,
+    -2.9
+   ],
+   "max": [
+    0.9,
+    2.75,
+    -2.75
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    1.8,
+    -0.05,
+    -2.9
+   ],
+   "max": [
+    3.7,
+    2.75,
+    -2.75
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    0.9,
+    2.05,
+    -2.9
+   ],
+   "max": [
+    1.8,
+    2.75,
+    -2.75
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.61,
+    0,
+    -2.75
+   ],
+   "max": [
+    -2.49,
+    5.2,
+    1.64
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.7,
+    2.75,
+    -2.9
+   ],
+   "max": [
+    -3.45,
+    5.4,
+    -2.75
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.45,
+    4.78,
+    -2.9
+   ],
+   "max": [
+    -2.5,
+    5.4,
+    -2.75
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.5,
+    2.38,
+    1.15
+   ],
+   "max": [
+    -2.5,
+    5.4,
+    1.3
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    0.08,
+    -0.05,
+    -4.8
+   ],
+   "max": [
+    3.7,
+    2.9,
+    -4.6
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    0.08,
+    -0.05,
+    -4.8
+   ],
+   "max": [
+    0.2,
+    2.9,
+    -2.9
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    0.25,
+    0,
+    -3.26
+   ],
+   "max": [
+    0.37,
+    2.75,
+    -3.14
+   ],
+   "tag": "pipe",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.8,
+    2.75,
+    -4.6
+   ],
+   "max": [
+    -3.6,
+    5.2,
+    -2.9
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.45,
+    2.75,
+    -4.6
+   ],
+   "max": [
+    -2.25,
+    5.2,
+    -2.9
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.8,
+    2.75,
+    -4.6
+   ],
+   "max": [
+    -2.25,
+    5.2,
+    -4.4
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.6,
+    2.75,
+    -2.9
+   ],
+   "max": [
+    -3.45,
+    5.2,
+    -2.75
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.6,
+    2.75,
+    -2.9
+   ],
+   "max": [
+    -2.45,
+    5.2,
+    -2.75
+   ],
+   "tag": "wall",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.45,
+    2.75,
+    -2.9
+   ],
+   "max": [
+    -2.6,
+    4.78,
+    -2.75
+   ],
+   "tag": "door",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.5,
+    0,
+    -2.41
+   ],
+   "max": [
+    -1.88,
+    1.9,
+    -2.33
+   ],
+   "tag": "door",
+   "enabled": false
+  },
+  {
+   "min": [
+    -1.115589,
+    0.000628,
+    1.808799
+   ],
+   "max": [
+    1.615589,
+    1.118892,
+    2.733884
+   ],
+   "tag": "sofa",
+   "enabled": true
+  },
+  {
+   "min": [
+    -0.208094,
+    0,
+    0.729942
+   ],
+   "max": [
+    0.708094,
+    0.533086,
+    1.169904
+   ],
+   "tag": "coffeeTable",
+   "enabled": true
+  },
+  {
+   "min": [
+    -1.751153,
+    0,
+    2.220531
+   ],
+   "max": [
+    -1.246588,
+    0.615521,
+    2.729247
+   ],
+   "tag": "endTable",
+   "enabled": true
+  },
+  {
+   "min": [
+    -1.151777,
+    0,
+    -2.7291
+   ],
+   "max": [
+    0.049626,
+    1.212043,
+    -2.148441
+   ],
+   "tag": "dresser",
+   "enabled": true
+  },
+  {
+   "min": [
+    2.637188,
+    -0.000065,
+    -2.708207
+   ],
+   "max": [
+    3.262812,
+    2.190527,
+    -2.28159
+   ],
+   "tag": "grandfather",
+   "enabled": true
+  },
+  {
+   "min": [
+    1.894392,
+    -0.000963,
+    -2.75
+   ],
+   "max": [
+    2.405507,
+    1.124109,
+    -2.382905
+   ],
+   "tag": "shelves",
+   "enabled": true
+  },
+  {
+   "min": [
+    2.929114,
+    -0.000005,
+    -0.620819
+   ],
+   "max": [
+    3.51839,
+    0.949066,
+    0.922201
+   ],
+   "tag": "console",
+   "enabled": true
+  },
+  {
+   "min": [
+    2.821178,
+    0,
+    -1.384867
+   ],
+   "max": [
+    3.483276,
+    1.263771,
+    -0.745477
+   ],
+   "tag": "chairA",
+   "enabled": true
+  },
+  {
+   "min": [
+    2.821178,
+    0,
+    1.065133
+   ],
+   "max": [
+    3.483276,
+    1.263771,
+    1.704523
+   ],
+   "tag": "chairB",
+   "enabled": true
+  },
+  {
+   "min": [
+    1.954354,
+    -0.000361,
+    1.381842
+   ],
+   "max": [
+    3.044955,
+    0.994568,
+    2.444866
+   ],
+   "tag": "rockingChair",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.275,
+    -0.002356,
+    -0.025
+   ],
+   "max": [
+    -1.725,
+    0.548306,
+    0.425
+   ],
+   "tag": "kidTable",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.214333,
+    -0.000534,
+    0.577758
+   ],
+   "max": [
+    -1.903472,
+    0.688133,
+    0.966431
+   ],
+   "tag": "kidChair",
+   "enabled": true
+  },
+  {
+   "min": [
+    0.405295,
+    -0.000371,
+    -4.562392
+   ],
+   "max": [
+    1.59997,
+    1.181499,
+    -4.00235
+   ],
+   "tag": "alcoveCabinet",
+   "enabled": true
+  },
+  {
+   "min": [
+    3.243021,
+    0,
+    -4.201722
+   ],
+   "max": [
+    3.5,
+    2.08031,
+    -3.198278
+   ],
+   "tag": "alcoveShelf",
+   "enabled": true
+  },
+  {
+   "min": [
+    1.766676,
+    -0.006756,
+    -4.559242
+   ],
+   "max": [
+    2.248411,
+    0.335044,
+    -3.976777
+   ],
+   "tag": "boxA",
+   "enabled": true
+  },
+  {
+   "min": [
+    1.820686,
+    0,
+    -4.511116
+   ],
+   "max": [
+    2.264495,
+    0.61091,
+    -3.995009
+   ],
+   "tag": "boxB",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.423338,
+    0,
+    -0.86189
+   ],
+   "max": [
+    -2.236874,
+    0.470101,
+    -0.13811
+   ],
+   "tag": "prop",
+   "enabled": true
+  },
+  {
+   "min": [
+    -3.497624,
+    -0.003994,
+    2.572692
+   ],
+   "max": [
+    -3.343062,
+    0.912757,
+    2.727076
+   ],
+   "tag": "prop",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.497534,
+    0.000073,
+    0.989805
+   ],
+   "max": [
+    -2.190252,
+    0.202418,
+    1.297995
+   ],
+   "tag": "prop",
+   "enabled": true
+  },
+  {
+   "min": [
+    2.25,
+    -0.000016,
+    -4.588367
+   ],
+   "max": [
+    2.85,
+    0.456833,
+    -4.117556
+   ],
+   "tag": "prop",
+   "enabled": true
+  },
+  {
+   "min": [
+    3.014898,
+    0,
+    -4.58001
+   ],
+   "max": [
+    3.235715,
+    0.224651,
+    -4.18
+   ],
+   "tag": "prop",
+   "enabled": true
+  },
+  {
+   "min": [
+    0.299789,
+    -0.000016,
+    -3.458245
+   ],
+   "max": [
+    0.860211,
+    0.254073,
+    -2.981755
+   ],
+   "tag": "prop",
+   "enabled": true
+  },
+  {
+   "min": [
+    0.43252,
+    -0.000989,
+    -3.909805
+   ],
+   "max": [
+    0.817358,
+    0.577926,
+    -3.503731
+   ],
+   "tag": "prop",
+   "enabled": true
+  },
+  {
+   "min": [
+    3.004116,
+    0.000096,
+    -3.252857
+   ],
+   "max": [
+    3.238676,
+    0.599019,
+    -2.975593
+   ],
+   "tag": "prop",
+   "enabled": true
+  }
+ ],
+ "occluders": [
+  {
+   "name": "occ",
+   "transform": [
+    7.4,
+    0,
+    0,
+    0,
+    0,
+    1.85,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    0.875,
+    2.9,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    7.4,
+    0,
+    0,
+    0,
+    0,
+    1.85,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    0.875,
+    2.9,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    7.4,
+    0,
+    0,
+    0,
+    0,
+    0.45,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    2.525,
+    2.9,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    7.4,
+    0,
+    0,
+    0,
+    0,
+    0.45,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    2.525,
+    2.9,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    5.65,
+    0,
+    0,
+    0,
+    0,
+    0.5,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    -0.875,
+    2.05,
+    2.9,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    5.65,
+    0,
+    0,
+    0,
+    0,
+    0.5,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    -0.875,
+    2.05,
+    2.9,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.75,
+    0,
+    0,
+    0,
+    0,
+    0.5,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    3.325,
+    2.05,
+    2.9,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.75,
+    0,
+    0,
+    0,
+    0,
+    0.5,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    3.325,
+    2.05,
+    2.9,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    7.85,
+    0,
+    3.6,
+    1.35,
+    -0.875,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    7.85,
+    0,
+    3.6,
+    1.35,
+    -0.875,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    5.95,
+    0,
+    -3.6,
+    1.35,
+    0.075,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    5.95,
+    0,
+    -3.6,
+    1.35,
+    0.075,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.65,
+    0,
+    0,
+    0,
+    0,
+    4.2,
+    0,
+    -3.6,
+    4.075,
+    -0.8,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.65,
+    0,
+    0,
+    0,
+    0,
+    4.2,
+    0,
+    -3.6,
+    4.075,
+    -0.8,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    4.6,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -1.4,
+    1.35,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    4.6,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -1.4,
+    1.35,
+    -2.825,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    1.9,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    2.75,
+    1.35,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1.9,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    2.75,
+    1.35,
+    -2.825,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    0.7,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    1.35,
+    2.4,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    0.7,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    1.35,
+    2.4,
+    -2.825,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    2.5,
+    0,
+    0,
+    0,
+    0,
+    0.39,
+    0,
+    -2.55,
+    1.25,
+    -2.555,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    2.5,
+    0,
+    0,
+    0,
+    0,
+    0.39,
+    0,
+    -2.55,
+    1.25,
+    -2.555,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.6,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    -2.55,
+    2.2,
+    -2.05,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.6,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    -2.55,
+    2.2,
+    -2.05,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    2.5,
+    0,
+    0,
+    0,
+    0,
+    1.89,
+    0,
+    -2.55,
+    1.25,
+    -0.795,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    2.5,
+    0,
+    0,
+    0,
+    0,
+    1.89,
+    0,
+    -2.55,
+    1.25,
+    -0.795,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.9,
+    0,
+    0,
+    0,
+    0,
+    4.05,
+    0,
+    -2.525,
+    3.95,
+    -0.875,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.9,
+    0,
+    0,
+    0,
+    0,
+    4.05,
+    0,
+    -2.525,
+    3.95,
+    -0.875,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    1.319391,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.659696,
+    0.264167,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    1.319391,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.659696,
+    0.264167,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    1.146886,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.573443,
+    0.4925,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    1.146886,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.573443,
+    0.4925,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.974382,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.487191,
+    0.720833,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.974382,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.487191,
+    0.720833,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.801877,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.400939,
+    0.949167,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.801877,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.400939,
+    0.949167,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.629373,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.314686,
+    1.1775,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.629373,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.314686,
+    1.1775,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.456868,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.228434,
+    1.405833,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.456868,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.228434,
+    1.405833,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    2.65,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3.575,
+    4.075,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    2.65,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3.575,
+    4.075,
+    -2.825,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.95,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -2.975,
+    5.09,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.95,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -2.975,
+    5.09,
+    -2.825,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    3.02,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3,
+    3.89,
+    1.225,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    3.02,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3,
+    3.89,
+    1.225,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    1.25,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    4.2,
+    0,
+    -3.075,
+    5.3,
+    -0.8,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1.25,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    4.2,
+    0,
+    -3.075,
+    5.3,
+    -0.8,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    0,
+    0,
+    0.97,
+    0,
+    -3.05,
+    2.6,
+    -2.265,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    0,
+    0,
+    0.97,
+    0,
+    -3.05,
+    2.6,
+    -2.265,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    6.2,
+    0,
+    0,
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    5.95,
+    0,
+    0.6,
+    2.625,
+    0.075,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    6.2,
+    0,
+    0,
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    5.95,
+    0,
+    0.6,
+    2.625,
+    0.075,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    1.2,
+    0,
+    0,
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    1.75,
+    0,
+    -3.1,
+    2.625,
+    2.175,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1.2,
+    0,
+    0,
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    1.75,
+    0,
+    -3.1,
+    2.625,
+    2.175,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    3.62,
+    0,
+    0,
+    0,
+    0,
+    2.95,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    1.89,
+    1.425,
+    -4.7,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    3.62,
+    0,
+    0,
+    0,
+    0,
+    2.95,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    1.89,
+    1.425,
+    -4.7,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.12,
+    0,
+    0,
+    0,
+    0,
+    2.95,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    0.14,
+    1.425,
+    -3.85,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.12,
+    0,
+    0,
+    0,
+    0,
+    2.95,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    0.14,
+    1.425,
+    -3.85,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    3.62,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    1.89,
+    2.825,
+    -3.85,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    3.62,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    1.89,
+    2.825,
+    -3.85,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    1.7,
+    0,
+    -3.7,
+    3.975,
+    -3.75,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    1.7,
+    0,
+    -3.7,
+    3.975,
+    -3.75,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    1.7,
+    0,
+    -2.35,
+    3.975,
+    -3.75,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    1.7,
+    0,
+    -2.35,
+    3.975,
+    -3.75,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    1.55,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    -3.025,
+    3.975,
+    -4.5,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1.55,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    -3.025,
+    3.975,
+    -4.5,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3.525,
+    3.975,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3.525,
+    3.975,
+    -2.825,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -2.525,
+    3.975,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -2.525,
+    3.975,
+    -2.825,
+    1
+   ]
+  },
+  {
+   "name": "occ",
+   "transform": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    1.369643,
+    0,
+    0,
+    0,
+    0,
+    0.1,
+    0,
+    -3.05,
+    0.684821,
+    -0.4,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    1.369643,
+    0,
+    0,
+    0,
+    0,
+    0.1,
+    0,
+    -3.05,
+    0.684821,
+    -0.4,
+    1
+   ]
+  },
+  {
+   "name": "",
+   "transform": [
+    0.85,
+    0,
+    0,
+    0,
+    0,
+    2.03,
+    0,
+    0,
+    0,
+    0,
+    0.06,
+    0,
+    -3.025,
+    3.765,
+    -2.7725,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "door_upstairs"
+   },
+   "local": [
+    0.85,
+    0,
+    0,
+    0,
+    0,
+    2.03,
+    0,
+    0,
+    0,
+    0,
+    0.06,
+    0,
+    0.425,
+    1.015,
+    -0.0225,
+    1
+   ]
+  },
+  {
+   "name": "",
+   "transform": [
+    0.05,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    -2.516,
+    0.95,
+    -2.05,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "level": "door_closet"
+   },
+   "local": [
+    0.05,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    -0.016,
+    0.95,
+    0.31,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0.25,
+    0.24,
+    2.26,
+    1
+   ],
+   "box": {
+    "min": [
+     -1.3,
+     -0.16,
+     -0.41
+    ],
+    "max": [
+     1.3,
+     0.16,
+     0.41
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "sofa"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.24,
+    0.01,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0.25,
+    0.66,
+    2.6,
+    1
+   ],
+   "box": {
+    "min": [
+     -1.25,
+     -0.26,
+     -0.11
+    ],
+    "max": [
+     1.25,
+     0.26,
+     0.11
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "sofa"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.66,
+    -0.33,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -0.55,
+    0.62,
+    -2.49,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.57,
+     -0.56,
+     -0.22
+    ],
+    "max": [
+     0.57,
+     0.56,
+     0.22
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "dresser"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.62,
+    -0.05,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.95,
+    1.065,
+    -2.56,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.27,
+     -1.035,
+     -0.13
+    ],
+    "max": [
+     0.27,
+     1.035,
+     0.13
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "grandfather"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1.065,
+    -0.04,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.15,
+    0.56,
+    -2.685,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.24,
+     -0.54,
+     -0.055
+    ],
+    "max": [
+     0.24,
+     0.54,
+     0.055
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "shelves"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.56,
+    0.065,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.225,
+    0.88,
+    0.15,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.74,
+     -0.04,
+     -0.265
+    ],
+    "max": [
+     0.74,
+     0.04,
+     0.265
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "console"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.88,
+    -0.045,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0.595,
+    -4.465,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.57,
+     -0.545,
+     -0.085
+    ],
+    "max": [
+     0.57,
+     0.545,
+     0.085
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "alcoveCabinet"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.595,
+    -0.185,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.475,
+    1.035,
+    -3.7,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.48,
+     -1.005,
+     -0.025
+    ],
+    "max": [
+     0.48,
+     1.005,
+     0.025
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "alcoveShelf"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1.035,
+    0.025,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    0.980067,
+    0,
+    -0.198669,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.198669,
+    0,
+    0.980067,
+    0,
+    2.006953,
+    0.16,
+    -4.265698,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.17,
+     -0.16,
+     -0.235
+    ],
+    "max": [
+     0.17,
+     0.16,
+     0.235
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "boxA"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.16,
+    0.035,
+    1
+   ]
+  },
+  {
+   "name": "occluder",
+   "transform": [
+    0.812036,
+    0,
+    0.251192,
+    0,
+    0,
+    0.85,
+    0,
+    0,
+    -0.251192,
+    0,
+    0.812036,
+    0,
+    2.041208,
+    0.462123,
+    -4.251579,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.17,
+     -0.16,
+     -0.235
+    ],
+    "max": [
+     0.17,
+     0.16,
+     0.235
+    ]
+   },
+   "ref": null,
+   "parent": {
+    "instance": "boxB"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.16,
+    0.035,
+    1
+   ]
+  },
+  {
+   "name": "extra_oldTv",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.55,
+    0,
+    -4.33,
+    1
+   ],
+   "box": null,
+   "ref": {
+    "instance": "extra_oldTv"
+   }
+  },
+  {
+   "name": "extra_suitcase",
+   "transform": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    -3.31,
+    0,
+    -1.2,
+    1
+   ],
+   "box": null,
+   "ref": {
+    "instance": "extra_suitcase"
+   }
+  }
+ ],
+ "proxies": [
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    7.4,
+    0,
+    0,
+    0,
+    0,
+    1.85,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    0.875,
+    2.9,
+    1
+   ],
+   "transform": [
+    7.4,
+    0,
+    0,
+    0,
+    0,
+    1.85,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    0.875,
+    2.9,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    7.4,
+    0,
+    0,
+    0,
+    0,
+    0.45,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    2.525,
+    2.9,
+    1
+   ],
+   "transform": [
+    7.4,
+    0,
+    0,
+    0,
+    0,
+    0.45,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    2.525,
+    2.9,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    5.65,
+    0,
+    0,
+    0,
+    0,
+    0.5,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    -0.875,
+    2.05,
+    2.9,
+    1
+   ],
+   "transform": [
+    5.65,
+    0,
+    0,
+    0,
+    0,
+    0.5,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    -0.875,
+    2.05,
+    2.9,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.75,
+    0,
+    0,
+    0,
+    0,
+    0.5,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    3.325,
+    2.05,
+    2.9,
+    1
+   ],
+   "transform": [
+    0.75,
+    0,
+    0,
+    0,
+    0,
+    0.5,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    3.325,
+    2.05,
+    2.9,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    7.85,
+    0,
+    3.6,
+    1.35,
+    -0.875,
+    1
+   ],
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    7.85,
+    0,
+    3.6,
+    1.35,
+    -0.875,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    5.95,
+    0,
+    -3.6,
+    1.35,
+    0.075,
+    1
+   ],
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    5.95,
+    0,
+    -3.6,
+    1.35,
+    0.075,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.65,
+    0,
+    0,
+    0,
+    0,
+    4.2,
+    0,
+    -3.6,
+    4.075,
+    -0.8,
+    1
+   ],
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.65,
+    0,
+    0,
+    0,
+    0,
+    4.2,
+    0,
+    -3.6,
+    4.075,
+    -0.8,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    4.6,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -1.4,
+    1.35,
+    -2.825,
+    1
+   ],
+   "transform": [
+    4.6,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -1.4,
+    1.35,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1.9,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    2.75,
+    1.35,
+    -2.825,
+    1
+   ],
+   "transform": [
+    1.9,
+    0,
+    0,
+    0,
+    0,
+    2.8,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    2.75,
+    1.35,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    0.7,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    1.35,
+    2.4,
+    -2.825,
+    1
+   ],
+   "transform": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    0.7,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    1.35,
+    2.4,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    2.5,
+    0,
+    0,
+    0,
+    0,
+    0.39,
+    0,
+    -2.55,
+    1.25,
+    -2.555,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    2.5,
+    0,
+    0,
+    0,
+    0,
+    0.39,
+    0,
+    -2.55,
+    1.25,
+    -2.555,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.6,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    -2.55,
+    2.2,
+    -2.05,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.6,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    -2.55,
+    2.2,
+    -2.05,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    2.5,
+    0,
+    0,
+    0,
+    0,
+    1.89,
+    0,
+    -2.55,
+    1.25,
+    -0.795,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    2.5,
+    0,
+    0,
+    0,
+    0,
+    1.89,
+    0,
+    -2.55,
+    1.25,
+    -0.795,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.9,
+    0,
+    0,
+    0,
+    0,
+    4.05,
+    0,
+    -2.525,
+    3.95,
+    -0.875,
+    1
+   ],
+   "transform": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.9,
+    0,
+    0,
+    0,
+    0,
+    4.05,
+    0,
+    -2.525,
+    3.95,
+    -0.875,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    1.319391,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.659696,
+    0.264167,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    1.319391,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.659696,
+    0.264167,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    1.146886,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.573443,
+    0.4925,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    1.146886,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.573443,
+    0.4925,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.974382,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.487191,
+    0.720833,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.974382,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.487191,
+    0.720833,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.801877,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.400939,
+    0.949167,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.801877,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.400939,
+    0.949167,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.629373,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.314686,
+    1.1775,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.629373,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.314686,
+    1.1775,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.456868,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.228434,
+    1.405833,
+    1
+   ],
+   "transform": [
+    0.1,
+    0,
+    0,
+    0,
+    0,
+    0.456868,
+    0,
+    0,
+    0,
+    0,
+    0.228333,
+    0,
+    -2.55,
+    0.228434,
+    1.405833,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    2.65,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3.575,
+    4.075,
+    -2.825,
+    1
+   ],
+   "transform": [
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    2.65,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3.575,
+    4.075,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.95,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -2.975,
+    5.09,
+    -2.825,
+    1
+   ],
+   "transform": [
+    0.95,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -2.975,
+    5.09,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    3.02,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3,
+    3.89,
+    1.225,
+    1
+   ],
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    3.02,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3,
+    3.89,
+    1.225,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1.25,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    4.2,
+    0,
+    -3.075,
+    5.3,
+    -0.8,
+    1
+   ],
+   "transform": [
+    1.25,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    4.2,
+    0,
+    -3.075,
+    5.3,
+    -0.8,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    0,
+    0,
+    0.97,
+    0,
+    -3.05,
+    2.6,
+    -2.265,
+    1
+   ],
+   "transform": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    0.3,
+    0,
+    0,
+    0,
+    0,
+    0.97,
+    0,
+    -3.05,
+    2.6,
+    -2.265,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    6.2,
+    0,
+    0,
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    5.95,
+    0,
+    0.6,
+    2.625,
+    0.075,
+    1
+   ],
+   "transform": [
+    6.2,
+    0,
+    0,
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    5.95,
+    0,
+    0.6,
+    2.625,
+    0.075,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1.2,
+    0,
+    0,
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    1.75,
+    0,
+    -3.1,
+    2.625,
+    2.175,
+    1
+   ],
+   "transform": [
+    1.2,
+    0,
+    0,
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0,
+    0,
+    1.75,
+    0,
+    -3.1,
+    2.625,
+    2.175,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    3.62,
+    0,
+    0,
+    0,
+    0,
+    2.95,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    1.89,
+    1.425,
+    -4.7,
+    1
+   ],
+   "transform": [
+    3.62,
+    0,
+    0,
+    0,
+    0,
+    2.95,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    1.89,
+    1.425,
+    -4.7,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.12,
+    0,
+    0,
+    0,
+    0,
+    2.95,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    0.14,
+    1.425,
+    -3.85,
+    1
+   ],
+   "transform": [
+    0.12,
+    0,
+    0,
+    0,
+    0,
+    2.95,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    0.14,
+    1.425,
+    -3.85,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    3.62,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    1.89,
+    2.825,
+    -3.85,
+    1
+   ],
+   "transform": [
+    3.62,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    1.89,
+    2.825,
+    -3.85,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    1.7,
+    0,
+    -3.7,
+    3.975,
+    -3.75,
+    1
+   ],
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    1.7,
+    0,
+    -3.7,
+    3.975,
+    -3.75,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    1.7,
+    0,
+    -2.35,
+    3.975,
+    -3.75,
+    1
+   ],
+   "transform": [
+    0.2,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    1.7,
+    0,
+    -2.35,
+    3.975,
+    -3.75,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    1.55,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    -3.025,
+    3.975,
+    -4.5,
+    1
+   ],
+   "transform": [
+    1.55,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.2,
+    0,
+    -3.025,
+    3.975,
+    -4.5,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3.525,
+    3.975,
+    -2.825,
+    1
+   ],
+   "transform": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -3.525,
+    3.975,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -2.525,
+    3.975,
+    -2.825,
+    1
+   ],
+   "transform": [
+    0.15,
+    0,
+    0,
+    0,
+    0,
+    2.45,
+    0,
+    0,
+    0,
+    0,
+    0.15,
+    0,
+    -2.525,
+    3.975,
+    -2.825,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occ",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "occluders"
+   },
+   "local": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    1.369643,
+    0,
+    0,
+    0,
+    0,
+    0.1,
+    0,
+    -3.05,
+    0.684821,
+    -0.4,
+    1
+   ],
+   "transform": [
+    0.9,
+    0,
+    0,
+    0,
+    0,
+    1.369643,
+    0,
+    0,
+    0,
+    0,
+    0.1,
+    0,
+    -3.05,
+    0.684821,
+    -0.4,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "",
+   "owner": {
+    "handle": "door.upstairs"
+   },
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "door_upstairs"
+   },
+   "local": [
+    0.85,
+    0,
+    0,
+    0,
+    0,
+    2.03,
+    0,
+    0,
+    0,
+    0,
+    0.06,
+    0,
+    0.425,
+    1.015,
+    -0.0225,
+    1
+   ],
+   "transform": [
+    0.85,
+    0,
+    0,
+    0,
+    0,
+    2.03,
+    0,
+    0,
+    0,
+    0,
+    0.06,
+    0,
+    -3.025,
+    3.765,
+    -2.7725,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "",
+   "owner": {
+    "handle": "door.closet"
+   },
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "level": "door_closet"
+   },
+   "local": [
+    0.05,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    -0.016,
+    0.95,
+    0.31,
+    1
+   ],
+   "transform": [
+    0.05,
+    0,
+    0,
+    0,
+    0,
+    1.9,
+    0,
+    0,
+    0,
+    0,
+    0.62,
+    0,
+    -2.516,
+    0.95,
+    -2.05,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.5,
+     -0.5
+    ],
+    "max": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "sofa"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.24,
+    0.01,
+    1
+   ],
+   "transform": [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0.25,
+    0.24,
+    2.26,
+    1
+   ],
+   "box": {
+    "min": [
+     -1.3,
+     -0.16,
+     -0.41
+    ],
+    "max": [
+     1.3,
+     0.16,
+     0.41
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "sofa"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.66,
+    -0.33,
+    1
+   ],
+   "transform": [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0.25,
+    0.66,
+    2.6,
+    1
+   ],
+   "box": {
+    "min": [
+     -1.25,
+     -0.26,
+     -0.11
+    ],
+    "max": [
+     1.25,
+     0.26,
+     0.11
+    ]
+   }
+  },
+  {
+   "name": "battery.hit",
+   "owner": {
+    "handle": "endTable.drawer"
+   },
+   "occluder": false,
+   "interact": false,
+   "parent": {
+    "level": "battery1"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.02,
+    0,
+    1
+   ],
+   "transform": [
+    -0.939373,
+    0,
+    0.342898,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.342898,
+    0,
+    -0.939373,
+    0,
+    -1.559394,
+    0.490052,
+    2.409139,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.04,
+     -0.02,
+     -0.04
+    ],
+    "max": [
+     0.04,
+     0.02,
+     0.04
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "dresser"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.62,
+    -0.05,
+    1
+   ],
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -0.55,
+    0.62,
+    -2.49,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.57,
+     -0.56,
+     -0.22
+    ],
+    "max": [
+     0.57,
+     0.56,
+     0.22
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "grandfather"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1.065,
+    -0.04,
+    1
+   ],
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.95,
+    1.065,
+    -2.56,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.27,
+     -1.035,
+     -0.13
+    ],
+    "max": [
+     0.27,
+     1.035,
+     0.13
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "shelves"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.56,
+    0.065,
+    1
+   ],
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.15,
+    0.56,
+    -2.685,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.24,
+     -0.54,
+     -0.055
+    ],
+    "max": [
+     0.24,
+     0.54,
+     0.055
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "console"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.88,
+    -0.045,
+    1
+   ],
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.225,
+    0.88,
+    0.15,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.74,
+     -0.04,
+     -0.265
+    ],
+    "max": [
+     0.74,
+     0.04,
+     0.265
+    ]
+   }
+  },
+  {
+   "name": "lid.hit",
+   "owner": {
+    "handle": "lockedBox.lid"
+   },
+   "occluder": false,
+   "interact": false,
+   "parent": {
+    "level": "lockedBox_lid_node"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.054,
+    0.089845,
+    1
+   ],
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.119745,
+    1.007258,
+    0.15,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.205,
+     -0.058,
+     -0.089845
+    ],
+    "max": [
+     0.205,
+     0.058,
+     0.089845
+    ]
+   }
+  },
+  {
+   "name": "lock.hit",
+   "owner": {
+    "handle": "lockedBox.lock"
+   },
+   "occluder": false,
+   "interact": false,
+   "parent": {
+    "level": "lockedBox_lock_node"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.01,
+    0.002,
+    1
+   ],
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0.119712,
+    0.992809,
+    0,
+    0,
+    -0.992809,
+    0.119712,
+    0,
+    0,
+    3.017424,
+    0.985032,
+    0.15,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.022,
+     -0.036,
+     -0.012
+    ],
+    "max": [
+     0.022,
+     0.036,
+     0.012
+    ]
+   }
+  },
+  {
+   "name": "key.hit",
+   "owner": {
+    "item": "key"
+   },
+   "occluder": false,
+   "interact": false,
+   "parent": {
+    "level": "key"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.01,
+    0.0025,
+    1
+   ],
+   "transform": [
+    0.479426,
+    0,
+    0.877583,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.877583,
+    0,
+    0.479426,
+    0,
+    3.117806,
+    0.966105,
+    0.057699,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.065,
+     -0.01,
+     -0.0225
+    ],
+    "max": [
+     0.065,
+     0.01,
+     0.0225
+    ]
+   }
+  },
+  {
+   "name": "battery.hit",
+   "owner": {
+    "handle": "alcoveCabinet.drawer_01"
+   },
+   "occluder": false,
+   "interact": false,
+   "parent": {
+    "level": "battery2"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.02,
+    0,
+    1
+   ],
+   "transform": [
+    0.825336,
+    0,
+    0.564642,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.564642,
+    0,
+    0.825336,
+    0,
+    0.679701,
+    0.936845,
+    -4.175,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.04,
+     -0.02,
+     -0.04
+    ],
+    "max": [
+     0.04,
+     0.02,
+     0.04
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "alcoveCabinet"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.595,
+    -0.185,
+    1
+   ],
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0.595,
+    -4.465,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.57,
+     -0.545,
+     -0.085
+    ],
+    "max": [
+     0.57,
+     0.545,
+     0.085
+    ]
+   }
+  },
+  {
+   "name": "lever.hit",
+   "owner": {
+    "handle": "powerBox.lever"
+   },
+   "occluder": false,
+   "interact": false,
+   "parent": {
+    "level": "powerBox_lever"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0.105,
+    0.05,
+    0.027166,
+    1
+   ],
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.705,
+    1.5,
+    -4.525834,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.035,
+     -0.05,
+     -0.013
+    ],
+    "max": [
+     0.035,
+     0.05,
+     0.013
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "alcoveShelf"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1.035,
+    0.025,
+    1
+   ],
+   "transform": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    3.475,
+    1.035,
+    -3.7,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.48,
+     -1.005,
+     -0.025
+    ],
+    "max": [
+     0.48,
+     1.005,
+     0.025
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "boxA"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.16,
+    0.035,
+    1
+   ],
+   "transform": [
+    0.980067,
+    0,
+    -0.198669,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.198669,
+    0,
+    0.980067,
+    0,
+    2.006953,
+    0.16,
+    -4.265698,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.17,
+     -0.16,
+     -0.235
+    ],
+    "max": [
+     0.17,
+     0.16,
+     0.235
+    ]
+   }
+  },
+  {
+   "name": "occluder",
+   "owner": null,
+   "occluder": true,
+   "interact": false,
+   "parent": {
+    "instance": "boxB"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.16,
+    0.035,
+    1
+   ],
+   "transform": [
+    0.812036,
+    0,
+    0.251192,
+    0,
+    0,
+    0.85,
+    0,
+    0,
+    -0.251192,
+    0,
+    0.812036,
+    0,
+    2.041208,
+    0.462123,
+    -4.251579,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.17,
+     -0.16,
+     -0.235
+    ],
+    "max": [
+     0.17,
+     0.16,
+     0.235
+    ]
+   }
+  },
+  {
+   "name": "interact_window",
+   "owner": null,
+   "occluder": false,
+   "interact": true,
+   "parent": null,
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.45,
+    2.05,
+    2.71,
+    1
+   ],
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    2.45,
+    2.05,
+    2.71,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.5,
+     -0.25,
+     -0.03
+    ],
+    "max": [
+     0.5,
+     0.25,
+     0.03
+    ]
+   }
+  },
+  {
+   "name": "interact_bulb",
+   "owner": null,
+   "occluder": false,
+   "interact": true,
+   "parent": null,
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1.8,
+    2.3,
+    -3.6,
+    1
+   ],
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1.8,
+    2.3,
+    -3.6,
+    1
+   ],
+   "box": {
+    "min": [
+     -0.15,
+     -0.21,
+     -0.15
+    ],
+    "max": [
+     0.15,
+     0.21,
+     0.15
+    ]
+   }
+  }
+ ],
+ "lights": [
+  {
+   "name": "playerFlashlight",
+   "type": "SpotLight",
+   "owner": "player",
+   "path": "PerspectiveCamera/playerFlashlight",
+   "color": {
+    "srgb": "#fff0dc",
+    "linear": [
+     1,
+     0.871367,
+     0.715694
+    ]
+   },
+   "intensity": 0,
+   "position": [
+    -0.348643,
+    1.278401,
+    -1.819352
+   ],
+   "castShadow": true,
+   "visible": true,
+   "distance": 18,
+   "decay": 2,
+   "angle": 0.42,
+   "penumbra": 0.45,
+   "target": [
+    -0.780912,
+    1.585464,
+    -4.800519
+   ],
+   "shadow": {
+    "mapSize": [
+     1024,
+     1024
+    ],
+    "bias": -0.0004,
+    "normalBias": 0.025,
+    "radius": 1
+   }
+  },
+  {
+   "name": "extra_crt_light",
+   "type": "PointLight",
+   "owner": "world",
+   "path": "extra_oldTv/extra_crt_light",
+   "color": {
+    "srgb": "#bcd2ff",
+    "linear": [
+     0.502886,
+     0.64448,
+     1
+    ]
+   },
+   "intensity": 0,
+   "position": [
+    2.484,
+    0.26,
+    -3.91
+   ],
+   "castShadow": false,
+   "visible": true,
+   "distance": 3.2,
+   "decay": 2
+  },
+  {
+   "name": "ceilingLight",
+   "type": "PointLight",
+   "owner": "world",
+   "path": "lighting/ceilingLight",
+   "color": {
+    "srgb": "#ffd28e",
+    "linear": [
+     1,
+     0.642549,
+     0.268579
+    ]
+   },
+   "intensity": 9.35,
+   "position": [
+    0.25,
+    1.919,
+    0.35
+   ],
+   "castShadow": true,
+   "visible": true,
+   "distance": 0,
+   "decay": 2,
+   "shadow": {
+    "mapSize": [
+     1024,
+     1024
+    ],
+    "bias": -0.0012,
+    "normalBias": 0.025,
+    "radius": 3
+   }
+  },
+  {
+   "name": "moonLight",
+   "type": "SpotLight",
+   "owner": "world",
+   "path": "lighting/moonLight",
+   "color": {
+    "srgb": "#adc5ff",
+    "linear": [
+     0.42,
+     0.56,
+     1
+    ]
+   },
+   "intensity": 330,
+   "position": [
+    4.824054,
+    9.468918,
+    14.382864
+   ],
+   "castShadow": true,
+   "visible": true,
+   "distance": 0,
+   "decay": 2,
+   "angle": 0.068,
+   "penumbra": 0.35,
+   "target": [
+    1.794,
+    0,
+    -0.4644
+   ],
+   "shadow": {
+    "mapSize": [
+     1024,
+     1024
+    ],
+    "bias": -0.0004,
+    "normalBias": 0.012,
+    "radius": 2
+   }
+  },
+  {
+   "name": "doorLight",
+   "type": "PointLight",
+   "owner": "world",
+   "path": "lighting/doorLight",
+   "color": {
+    "srgb": "#ffd28e",
+    "linear": [
+     1,
+     0.642549,
+     0.268579
+    ]
+   },
+   "intensity": 0.264,
+   "position": [
+    -3.025,
+    2.95,
+    -2.99
+   ],
+   "castShadow": false,
+   "visible": true,
+   "distance": 1.6,
+   "decay": 2
+  },
+  {
+   "name": "tvLight",
+   "type": "SpotLight",
+   "owner": "world",
+   "path": "lighting/tvLight",
+   "color": {
+    "srgb": "#cee2ff",
+    "linear": [
+     0.62,
+     0.76,
+     1
+    ]
+   },
+   "intensity": 0.580075,
+   "position": [
+    -0.55,
+    1.472043,
+    -2.316
+   ],
+   "castShadow": false,
+   "visible": true,
+   "distance": 7,
+   "decay": 2,
+   "angle": 1.2,
+   "penumbra": 0.85,
+   "target": [
+    -0.55,
+    1.122043,
+    0.624
+   ]
+  },
+  {
+   "name": "ambientHemi",
+   "type": "HemisphereLight",
+   "owner": "world",
+   "path": "lighting/ambientHemi",
+   "color": {
+    "srgb": "#8090b0",
+    "linear": [
+     0.215861,
+     0.278894,
+     0.434154
+    ]
+   },
+   "intensity": 0.06,
+   "position": [
+    0,
+    1,
+    0
+   ],
+   "castShadow": false,
+   "visible": true,
+   "groundColor": {
+    "srgb": "#40302a",
+    "linear": [
+     0.051269,
+     0.029557,
+     0.023153
+    ]
+   }
+  },
+  {
+   "name": "gardienne_jumpscare_light",
+   "type": "PointLight",
+   "owner": "world",
+   "path": "gardienne_jumpscare_light",
+   "color": {
+    "srgb": "#dde4f0",
+    "linear": [
+     0.723055,
+     0.775822,
+     0.871367
+    ]
+   },
+   "intensity": 0,
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "castShadow": false,
+   "visible": true,
+   "distance": 3,
+   "decay": 2
+  },
+  {
+   "name": "flashlightBounce",
+   "type": "PointLight",
+   "owner": "world",
+   "path": "flashlightBounce",
+   "color": {
+    "srgb": "#f0d0aa",
+    "linear": [
+     0.871367,
+     0.630757,
+     0.401978
+    ]
+   },
+   "intensity": 0,
+   "position": [
+    0.25,
+    1.62,
+    1.5
+   ],
+   "castShadow": false,
+   "visible": true,
+   "distance": 7,
+   "decay": 2
+  }
+ ],
+ "environment": {
+  "background": {
+   "srgb": "#000000",
+   "linear": [
+    0,
+    0,
+    0
+   ]
+  },
+  "fog": null,
+  "toneMapping": 6,
+  "exposure": 1,
+  "quality": "high"
+ },
+ "anim": {
+  "fan": {
+   "blades": {
+    "instance": "fan",
+    "node": "ceiling_fan_blades"
+   },
+   "axis": "y",
+   "speed": 2.4,
+   "spinUpRate": 0.45,
+   "spinDownRate": 0.16,
+   "note": "speed += (target - speed) * min(1, dt * rate); blades.rotation.y += speed * dt"
+  },
+  "grandfatherClock": {
+   "formula": "hand.rotation.z (Euler XYZ, other axes kept) = (PI/2 - fraction * 2PI) - a0 ; hours: fraction = (h % 12) / 12, minutes: (m % 60) / 60; clue digit d: hours = d, minutes = 0",
+   "hour": {
+    "node": {
+     "instance": "grandfather",
+     "node": "vintage_grandfather_clock_01_HourHand"
+    },
+    "a0": 2.396759,
+    "euler": [
+     0,
+     0
+    ]
+   },
+   "minute": {
+    "node": {
+     "instance": "grandfather",
+     "node": "vintage_grandfather_clock_01_MinuteHand"
+    },
+    "a0": -2.31672,
+    "euler": [
+     0,
+     0
+    ]
+   }
+  },
+  "alarmClock": {
+   "formula": "node.quaternion = axisAngle(+Z, angle - a0) * base ; angle = PI/2 - fraction * 2PI (second hand ticks with an outBack ease over 0.09 s); starts at 03:07:12",
+   "hands": {
+    "h": {
+     "node": {
+      "instance": "alarmClock",
+      "node": "houd_hand"
+     },
+     "a0": -1.197471,
+     "base": [
+      0.398524,
+      0.584105,
+      0.584105,
+      0.398524
+     ]
+    },
+    "m": {
+     "node": {
+      "instance": "alarmClock",
+      "node": "minute_hand"
+     },
+     "a0": 2.63233,
+     "base": [
+      0.684203,
+      -0.178513,
+      -0.178513,
+      0.684203
+     ]
+    },
+    "s": {
+     "node": {
+      "instance": "alarmClock",
+      "node": "second_hand"
+     },
+     "a0": 1.15157,
+     "base": [
+      -0.144582,
+      -0.692168,
+      -0.144582,
+      0.692168
+     ]
+    }
+   }
+  },
+  "rockingChair": {
+   "root": {
+    "level": "rockingChair_root"
+   },
+   "pivot": {
+    "level": "rockingChair_root_node"
+   },
+   "radius": 0.95,
+   "formula": "th = amp * sin(2PI/1.75 * t), amp 0.11 (0.9 s ease-in, 2.2 s decay); pivot.rotation.x = th; pivot.position.z = R * th"
+  },
+  "padlock": {
+   "lock": {
+    "level": "lockedBox_lock"
+   },
+   "shackle": {
+    "level": "lockedBox_lock_node_mesh_6"
+   },
+   "shackleLift": 0.0095,
+   "wheels": [
+    {
+     "level": "lockedBox_lock_node_mesh_2"
+    },
+    {
+     "level": "lockedBox_lock_node_mesh_3"
+    },
+    {
+     "level": "lockedBox_lock_node_mesh_4"
+    },
+    {
+     "level": "lockedBox_lock_node_mesh_5"
+    }
+   ],
+   "wheelFormula": "wheel.rotation.x = ((digit + 0.5) / 10) * 2PI",
+   "rest": {
+    "local": [
+     1,
+     0,
+     0,
+     0,
+     0,
+     0.992809,
+     -0.119712,
+     0,
+     0,
+     0.119712,
+     0.992809,
+     0,
+     0,
+     0.068,
+     0.0967,
+     1
+    ]
+   },
+   "fallen": {
+    "position": [
+     0.05,
+     0.0075,
+     0.1121
+    ],
+    "euler": [
+     -1.5707963267948966,
+     0,
+     0.5
+    ],
+    "note": "local to the lock parent (box frame, real metres)"
+   }
+  },
+  "lever": {
+   "group": {
+    "level": "powerBox_lever"
+   },
+   "formula": "pivot.rotation.x = 0.6 - 1.2 * v (v 1 = ON)"
+  },
+  "smokeDetectorLed": {
+   "node": {
+    "level": "smokeDetector_mesh_2"
+   },
+   "emissive": "#ff1a0a",
+   "blink": "emissiveIntensity 6 for 0.09 s every 38-46 s"
+  },
+  "codeNote": {
+   "node": {
+    "level": "codeNote"
+   }
+  },
+  "mirror": {
+   "glass": {
+    "level": "extra_mirror_glass"
+   },
+   "root": {
+    "instance": "extra_mirror"
+   },
+   "center": [
+    0.47,
+    1.5765,
+    -2.7402
+   ],
+   "normal": [
+    0,
+    0,
+    1
+   ]
+  },
+  "oldCrt": {
+   "screen": {
+    "level": "extra_crt_screen"
+   },
+   "tv": {
+    "instance": "extra_oldTv"
+   },
+   "soundPos": [
+    2.484,
+    0.26,
+    -4.13
+   ],
+   "note": "flickers ~1.9 s when power comes back (ExtraProps.crtFlicker)"
+  },
+  "pullChain": {
+   "pivot": {
+    "level": "extra_socket_chain_pivot"
+   },
+   "formula": "rotation.z = sin(t*8.2)*kick + sin(t*1.3)*0.006; rotation.x = sin(t*7.7+1.3)*kick*0.55; kick decays exp(-0.35 t), min 0.012"
+  },
+  "ceilingBowl": {
+   "node": {
+    "level": "fanBowl"
+   },
+   "note": "emissive bowl of the ceiling fan light (lighting module drives it)"
+  },
+  "doorStrip": {
+   "node": {
+    "level": "doorStrip"
+   },
+   "note": "emissive light strip under the upstairs door"
+  },
+  "upperHall": {
+   "node": {
+    "level": "upperHall"
+   },
+   "note": "visible only while door.upstairs is open (t > 0.002)"
+  }
+ },
+ "warnings": [
+  "material hallWall: map re-sampled into the base UV space (2048x2048)",
+  "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
+  "material MeshStandardMaterial: normalMap re-sampled into the map UV space (2048x1024)",
+  "material MeshStandardMaterial: normalMap re-sampled into the base UV space (2048x2048)",
+  "override extra_stairPhotoA:Cube009_2: the web build replaced this primitive's geometry (e.g. generated UVs) — Godot keeps the original mesh",
+  "override extra_stairPhotoB:Cube009_2: the web build replaced this primitive's geometry (e.g. generated UVs) — Godot keeps the original mesh"
+ ]
+}

@@ -1,0 +1,2066 @@
+{
+ "version": 1,
+ "generator": "tools/export-godot.cjs",
+ "source": {
+  "url": "http://127.0.0.1:PORT/index.html?debug&noentity&quality=high",
+  "date": "2026-11-08T21:29:34.561Z",
+  "model": "src/entity/GardienneModel.js"
+ },
+ "file": "res://assets/generated/gardienne.glb",
+ "clips": {
+  "idle": {
+   "duration": 5.033333,
+   "frames": 152,
+   "fps": 30,
+   "loop": true,
+   "mode": "idle",
+   "stairs": 0,
+   "duck": 0,
+   "speed": 0,
+   "cycle": null,
+   "footsteps": [],
+   "loopBlend": 0.8
+  },
+  "walk": {
+   "duration": 2.533333,
+   "frames": 77,
+   "fps": 30,
+   "loop": true,
+   "mode": "walk",
+   "stairs": 0,
+   "duck": 0,
+   "speed": 0.947368,
+   "cycle": 1.266667,
+   "footsteps": [
+    {
+     "t": 0.6,
+     "side": "R"
+    },
+    {
+     "t": 1.2333,
+     "side": "L"
+    },
+    {
+     "t": 1.8667,
+     "side": "R"
+    },
+    {
+     "t": 2.5,
+     "side": "L"
+    }
+   ],
+   "loopBlend": 0.5
+  },
+  "walk_stairs": {
+   "duration": 2.866667,
+   "frames": 87,
+   "fps": 30,
+   "loop": true,
+   "mode": "walk",
+   "stairs": 1,
+   "duck": 0,
+   "speed": 0.778605,
+   "cycle": 0.955556,
+   "footsteps": [
+    {
+     "t": 0.2333,
+     "side": "L"
+    },
+    {
+     "t": 0.7,
+     "side": "R"
+    },
+    {
+     "t": 1.2,
+     "side": "L"
+    },
+    {
+     "t": 1.6667,
+     "side": "R"
+    },
+    {
+     "t": 2.1333,
+     "side": "L"
+    },
+    {
+     "t": 2.6333,
+     "side": "R"
+    }
+   ],
+   "loopBlend": 0.5
+  },
+  "walk_stairs_down": {
+   "duration": 2.866667,
+   "frames": 87,
+   "fps": 30,
+   "loop": true,
+   "mode": "walk",
+   "stairs": -1,
+   "duck": 0,
+   "speed": 0.778605,
+   "cycle": 0.955556,
+   "footsteps": [
+    {
+     "t": 0.2333,
+     "side": "L"
+    },
+    {
+     "t": 0.7,
+     "side": "R"
+    },
+    {
+     "t": 1.2,
+     "side": "L"
+    },
+    {
+     "t": 1.6667,
+     "side": "R"
+    },
+    {
+     "t": 2.1333,
+     "side": "L"
+    },
+    {
+     "t": 2.6333,
+     "side": "R"
+    }
+   ],
+   "loopBlend": 0.5
+  },
+  "duck_walk": {
+   "duration": 2.533333,
+   "frames": 77,
+   "fps": 30,
+   "loop": true,
+   "mode": "walk",
+   "stairs": 0,
+   "duck": 1,
+   "speed": 0.947368,
+   "cycle": 1.266667,
+   "footsteps": [
+    {
+     "t": 0.6,
+     "side": "R"
+    },
+    {
+     "t": 1.2333,
+     "side": "L"
+    },
+    {
+     "t": 1.8667,
+     "side": "R"
+    },
+    {
+     "t": 2.5,
+     "side": "L"
+    }
+   ],
+   "loopBlend": 0.5
+  },
+  "search": {
+   "duration": 4,
+   "frames": 121,
+   "fps": 30,
+   "loop": true,
+   "mode": "search",
+   "stairs": 0,
+   "duck": 0,
+   "speed": 0,
+   "cycle": null,
+   "footsteps": [],
+   "loopBlend": 0.8
+  },
+  "chase": {
+   "duration": 2.766667,
+   "frames": 84,
+   "fps": 30,
+   "loop": true,
+   "mode": "chase",
+   "stairs": 0,
+   "duck": 0,
+   "speed": 2.891566,
+   "cycle": 0.691667,
+   "footsteps": [
+    {
+     "t": 0,
+     "side": "L"
+    },
+    {
+     "t": 0.3333,
+     "side": "R"
+    },
+    {
+     "t": 0.7,
+     "side": "L"
+    },
+    {
+     "t": 1.0333,
+     "side": "R"
+    },
+    {
+     "t": 1.3667,
+     "side": "L"
+    },
+    {
+     "t": 1.7333,
+     "side": "R"
+    },
+    {
+     "t": 2.0667,
+     "side": "L"
+    },
+    {
+     "t": 2.4333,
+     "side": "R"
+    }
+   ],
+   "loopBlend": 0.4
+  },
+  "reach": {
+   "duration": 3,
+   "frames": 91,
+   "fps": 30,
+   "loop": true,
+   "mode": "reach",
+   "stairs": 0,
+   "duck": 0,
+   "speed": 0,
+   "cycle": null,
+   "footsteps": [],
+   "loopBlend": 0.8
+  },
+  "jumpscare": {
+   "duration": 1.8,
+   "frames": 55,
+   "fps": 30,
+   "loop": false,
+   "mode": "jumpscare",
+   "stairs": 0,
+   "duck": 0,
+   "speed": 0,
+   "cycle": null,
+   "footsteps": [],
+   "loopBlend": 0
+  }
+ },
+ "bones": [
+  {
+   "name": "root",
+   "parent": null,
+   "rest": {
+    "position": [
+     0,
+     0,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hips",
+   "parent": "root",
+   "rest": {
+    "position": [
+     0,
+     1.06,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "skirt",
+   "parent": "hips",
+   "rest": {
+    "position": [
+     0,
+     -0.04,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "spine1",
+   "parent": "hips",
+   "rest": {
+    "position": [
+     0,
+     0.12,
+     -0.008
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "spine2",
+   "parent": "spine1",
+   "rest": {
+    "position": [
+     0,
+     0.14,
+     -0.004
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "chest",
+   "parent": "spine2",
+   "rest": {
+    "position": [
+     0,
+     0.14,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "neck",
+   "parent": "chest",
+   "rest": {
+    "position": [
+     0,
+     0.155,
+     -0.006
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "head",
+   "parent": "neck",
+   "rest": {
+    "position": [
+     0,
+     0.185,
+     0.014
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "jaw",
+   "parent": "head",
+   "rest": {
+    "position": [
+     0,
+     0.038,
+     -0.012
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "mouth",
+   "parent": "head",
+   "rest": {
+    "position": [
+     0,
+     0.01,
+     0.079
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "lipU",
+   "parent": "head",
+   "rest": {
+    "position": [
+     0,
+     0.018,
+     0.089
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "clavL",
+   "parent": "chest",
+   "rest": {
+    "position": [
+     0.02,
+     0.125,
+     0.012
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "armL",
+   "parent": "clavL",
+   "rest": {
+    "position": [
+     0.145,
+     0,
+     -0.02
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "foreL",
+   "parent": "armL",
+   "rest": {
+    "position": [
+     0,
+     -0.36,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "handL",
+   "parent": "foreL",
+   "rest": {
+    "position": [
+     0,
+     -0.33,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "thighL",
+   "parent": "hips",
+   "rest": {
+    "position": [
+     0.085,
+     -0.04,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "shinL",
+   "parent": "thighL",
+   "rest": {
+    "position": [
+     0,
+     -0.47,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "footL",
+   "parent": "shinL",
+   "rest": {
+    "position": [
+     0,
+     -0.475,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "toeL",
+   "parent": "footL",
+   "rest": {
+    "position": [
+     0,
+     -0.055,
+     0.145
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "clavR",
+   "parent": "chest",
+   "rest": {
+    "position": [
+     -0.02,
+     0.125,
+     0.012
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "armR",
+   "parent": "clavR",
+   "rest": {
+    "position": [
+     -0.145,
+     0,
+     -0.02
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "foreR",
+   "parent": "armR",
+   "rest": {
+    "position": [
+     0,
+     -0.36,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "handR",
+   "parent": "foreR",
+   "rest": {
+    "position": [
+     0,
+     -0.33,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "thighR",
+   "parent": "hips",
+   "rest": {
+    "position": [
+     -0.085,
+     -0.04,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "shinR",
+   "parent": "thighR",
+   "rest": {
+    "position": [
+     0,
+     -0.47,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "footR",
+   "parent": "shinR",
+   "rest": {
+    "position": [
+     0,
+     -0.475,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "toeR",
+   "parent": "footR",
+   "rest": {
+    "position": [
+     0,
+     -0.055,
+     0.145
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "index0L",
+   "parent": "handL",
+   "rest": {
+    "position": [
+     0,
+     -0.102,
+     0.026
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "index1L",
+   "parent": "index0L",
+   "rest": {
+    "position": [
+     0,
+     -0.05192,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "index2L",
+   "parent": "index1L",
+   "rest": {
+    "position": [
+     0,
+     -0.03658,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "middle0L",
+   "parent": "handL",
+   "rest": {
+    "position": [
+     0,
+     -0.106,
+     0.009
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "middle1L",
+   "parent": "middle0L",
+   "rest": {
+    "position": [
+     0,
+     -0.05896,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "middle2L",
+   "parent": "middle1L",
+   "rest": {
+    "position": [
+     0,
+     -0.04154,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "ring0L",
+   "parent": "handL",
+   "rest": {
+    "position": [
+     0,
+     -0.103,
+     -0.008
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "ring1L",
+   "parent": "ring0L",
+   "rest": {
+    "position": [
+     0,
+     -0.05456,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "ring2L",
+   "parent": "ring1L",
+   "rest": {
+    "position": [
+     0,
+     -0.03844,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "pinky0L",
+   "parent": "handL",
+   "rest": {
+    "position": [
+     0,
+     -0.094,
+     -0.024
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "pinky1L",
+   "parent": "pinky0L",
+   "rest": {
+    "position": [
+     0,
+     -0.044,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "pinky2L",
+   "parent": "pinky1L",
+   "rest": {
+    "position": [
+     0,
+     -0.031,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "thumb0L",
+   "parent": "handL",
+   "rest": {
+    "position": [
+     -0.004,
+     -0.023,
+     0.032
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "thumb1L",
+   "parent": "thumb0L",
+   "rest": {
+    "position": [
+     -0.004358,
+     -0.028325,
+     0.021788
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "thumb2L",
+   "parent": "thumb1L",
+   "rest": {
+    "position": [
+     -0.003631,
+     -0.023604,
+     0.018157
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "index0R",
+   "parent": "handR",
+   "rest": {
+    "position": [
+     0,
+     -0.102,
+     0.026
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "index1R",
+   "parent": "index0R",
+   "rest": {
+    "position": [
+     0,
+     -0.05192,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "index2R",
+   "parent": "index1R",
+   "rest": {
+    "position": [
+     0,
+     -0.03658,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "middle0R",
+   "parent": "handR",
+   "rest": {
+    "position": [
+     0,
+     -0.106,
+     0.009
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "middle1R",
+   "parent": "middle0R",
+   "rest": {
+    "position": [
+     0,
+     -0.05896,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "middle2R",
+   "parent": "middle1R",
+   "rest": {
+    "position": [
+     0,
+     -0.04154,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "ring0R",
+   "parent": "handR",
+   "rest": {
+    "position": [
+     0,
+     -0.103,
+     -0.008
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "ring1R",
+   "parent": "ring0R",
+   "rest": {
+    "position": [
+     0,
+     -0.05456,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "ring2R",
+   "parent": "ring1R",
+   "rest": {
+    "position": [
+     0,
+     -0.03844,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "pinky0R",
+   "parent": "handR",
+   "rest": {
+    "position": [
+     0,
+     -0.094,
+     -0.024
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "pinky1R",
+   "parent": "pinky0R",
+   "rest": {
+    "position": [
+     0,
+     -0.044,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "pinky2R",
+   "parent": "pinky1R",
+   "rest": {
+    "position": [
+     0,
+     -0.031,
+     0
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "thumb0R",
+   "parent": "handR",
+   "rest": {
+    "position": [
+     0.004,
+     -0.023,
+     0.032
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "thumb1R",
+   "parent": "thumb0R",
+   "rest": {
+    "position": [
+     0.004358,
+     -0.028325,
+     0.021788
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "thumb2R",
+   "parent": "thumb1R",
+   "rest": {
+    "position": [
+     0.003631,
+     -0.023604,
+     0.018157
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFL0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     0.016484,
+     0.129233,
+     0.10253
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFL1",
+   "parent": "hairFL0",
+   "rest": {
+    "position": [
+     0.010383,
+     -0.128674,
+     0.014173
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFL2",
+   "parent": "hairFL1",
+   "rest": {
+    "position": [
+     -0.002351,
+     -0.133016,
+     -0.000683
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFL3",
+   "parent": "hairFL2",
+   "rest": {
+    "position": [
+     0.000971,
+     -0.132227,
+     0.004337
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFR0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     -0.015828,
+     0.130123,
+     0.100904
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFR1",
+   "parent": "hairFR0",
+   "rest": {
+    "position": [
+     -0.009706,
+     -0.124248,
+     0.010977
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFR2",
+   "parent": "hairFR1",
+   "rest": {
+    "position": [
+     0.000273,
+     -0.12734,
+     -0.00054
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFR3",
+   "parent": "hairFR2",
+   "rest": {
+    "position": [
+     -0.001158,
+     -0.126704,
+     0.001868
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFSL0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     0.065581,
+     0.117963,
+     0.059823
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFSL1",
+   "parent": "hairFSL0",
+   "rest": {
+    "position": [
+     0.001475,
+     -0.174456,
+     0.005687
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFSL2",
+   "parent": "hairFSL1",
+   "rest": {
+    "position": [
+     0.025236,
+     -0.165225,
+     0.016157
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFSL3",
+   "parent": "hairFSL2",
+   "rest": {
+    "position": [
+     0.014457,
+     -0.171214,
+     0.012545
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairSL0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     0.08626,
+     0.108392,
+     0.013499
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairSL1",
+   "parent": "hairSL0",
+   "rest": {
+    "position": [
+     0.003925,
+     -0.199817,
+     0.000098
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairSL2",
+   "parent": "hairSL1",
+   "rest": {
+    "position": [
+     0.079089,
+     -0.161565,
+     0.016856
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairSL3",
+   "parent": "hairSL2",
+   "rest": {
+    "position": [
+     0.015745,
+     -0.193996,
+     0.010577
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBL0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     0.067325,
+     0.080637,
+     -0.058761
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBL1",
+   "parent": "hairBL0",
+   "rest": {
+    "position": [
+     0.003719,
+     -0.205309,
+     -0.003236
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBL2",
+   "parent": "hairBL1",
+   "rest": {
+    "position": [
+     0.061256,
+     -0.174626,
+     -0.034489
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBL3",
+   "parent": "hairBL2",
+   "rest": {
+    "position": [
+     0.005288,
+     -0.204968,
+     -0.002485
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBC0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     -0.001549,
+     0.062362,
+     -0.094553
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBC1",
+   "parent": "hairBC0",
+   "rest": {
+    "position": [
+     0.000089,
+     -0.200751,
+     -0.007841
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBC2",
+   "parent": "hairBC1",
+   "rest": {
+    "position": [
+     0.000185,
+     -0.194185,
+     -0.032198
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBC3",
+   "parent": "hairBC2",
+   "rest": {
+    "position": [
+     -0.000888,
+     -0.202864,
+     -0.002029
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBR0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     -0.067957,
+     0.085543,
+     -0.058268
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBR1",
+   "parent": "hairBR0",
+   "rest": {
+    "position": [
+     -0.004754,
+     -0.206122,
+     -0.004598
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBR2",
+   "parent": "hairBR1",
+   "rest": {
+    "position": [
+     -0.062607,
+     -0.177188,
+     -0.033583
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairBR3",
+   "parent": "hairBR2",
+   "rest": {
+    "position": [
+     -0.004674,
+     -0.206535,
+     -0.003935
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairSR0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     -0.083983,
+     0.111016,
+     0.01389
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairSR1",
+   "parent": "hairSR0",
+   "rest": {
+    "position": [
+     -0.001713,
+     -0.197804,
+     -0.00176
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairSR2",
+   "parent": "hairSR1",
+   "rest": {
+    "position": [
+     -0.072781,
+     -0.157018,
+     0.019783
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairSR3",
+   "parent": "hairSR2",
+   "rest": {
+    "position": [
+     -0.030592,
+     -0.186227,
+     0.009905
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFSR0",
+   "parent": "head",
+   "rest": {
+    "position": [
+     -0.075249,
+     0.127863,
+     0.044405
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFSR1",
+   "parent": "hairFSR0",
+   "rest": {
+    "position": [
+     -0.007185,
+     -0.159852,
+     0.003962
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFSR2",
+   "parent": "hairFSR1",
+   "rest": {
+    "position": [
+     -0.006237,
+     -0.156067,
+     0.00331
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "name": "hairFSR3",
+   "parent": "hairFSR2",
+   "rest": {
+    "position": [
+     -0.048383,
+     -0.139435,
+     0.032257
+    ],
+    "quaternion": [
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  }
+ ],
+ "boneCount": 93,
+ "meshes": [
+  {
+   "name": "eye",
+   "skinned": false,
+   "parent": "head",
+   "castShadow": false,
+   "vertices": 425
+  },
+  {
+   "name": "",
+   "skinned": false,
+   "parent": "head",
+   "castShadow": false,
+   "vertices": 63
+  },
+  {
+   "name": "eye",
+   "skinned": false,
+   "parent": "head",
+   "castShadow": false,
+   "vertices": 425
+  },
+  {
+   "name": "",
+   "skinned": false,
+   "parent": "head",
+   "castShadow": false,
+   "vertices": 63
+  },
+  {
+   "name": "gardienne_body",
+   "skinned": true,
+   "parent": "Gardienne",
+   "castShadow": true,
+   "vertices": 20045
+  },
+  {
+   "name": "gardienne_head",
+   "skinned": true,
+   "parent": "Gardienne",
+   "castShadow": true,
+   "vertices": 7663
+  },
+  {
+   "name": "gardienne_teeth",
+   "skinned": true,
+   "parent": "Gardienne",
+   "castShadow": false,
+   "vertices": 1512
+  },
+  {
+   "name": "gardienne_gown",
+   "skinned": true,
+   "parent": "Gardienne",
+   "castShadow": true,
+   "vertices": 8834
+  },
+  {
+   "name": "gardienne_hair",
+   "skinned": true,
+   "parent": "Gardienne",
+   "castShadow": true,
+   "vertices": 25796
+  }
+ ],
+ "hairChains": [
+  {
+   "id": "FL",
+   "bones": [
+    "hairFL0",
+    "hairFL1",
+    "hairFL2",
+    "hairFL3"
+   ]
+  },
+  {
+   "id": "FR",
+   "bones": [
+    "hairFR0",
+    "hairFR1",
+    "hairFR2",
+    "hairFR3"
+   ]
+  },
+  {
+   "id": "FSL",
+   "bones": [
+    "hairFSL0",
+    "hairFSL1",
+    "hairFSL2",
+    "hairFSL3"
+   ]
+  },
+  {
+   "id": "SL",
+   "bones": [
+    "hairSL0",
+    "hairSL1",
+    "hairSL2",
+    "hairSL3"
+   ]
+  },
+  {
+   "id": "BL",
+   "bones": [
+    "hairBL0",
+    "hairBL1",
+    "hairBL2",
+    "hairBL3"
+   ]
+  },
+  {
+   "id": "BC",
+   "bones": [
+    "hairBC0",
+    "hairBC1",
+    "hairBC2",
+    "hairBC3"
+   ]
+  },
+  {
+   "id": "BR",
+   "bones": [
+    "hairBR0",
+    "hairBR1",
+    "hairBR2",
+    "hairBR3"
+   ]
+  },
+  {
+   "id": "SR",
+   "bones": [
+    "hairSR0",
+    "hairSR1",
+    "hairSR2",
+    "hairSR3"
+   ]
+  },
+  {
+   "id": "FSR",
+   "bones": [
+    "hairFSR0",
+    "hairFSR1",
+    "hairFSR2",
+    "hairFSR3"
+   ]
+  }
+ ],
+ "attach": {
+  "face": {
+   "bone": "head",
+   "offset": [
+    0,
+    0.06,
+    0.1
+   ]
+  },
+  "eyes": {
+   "bone": "head",
+   "offset": [
+    0,
+    0.09,
+    0.07
+   ]
+  },
+  "head": {
+   "bone": "head",
+   "offset": [
+    0,
+    0.07,
+    0
+   ]
+  }
+ },
+ "glint": {
+  "material": "gardienne_glint",
+  "formula": "emissive energy = 0.25 + eyeshine * 7 (eyeshine 0.08..1, damped 6/s)"
+ },
+ "materials": [
+  {
+   "name": "mat_MeshPhysicalMaterial",
+   "extras": {
+    "three": "MeshPhysicalMaterial"
+   }
+  },
+  {
+   "name": "mat_MeshStandardMaterial_59",
+   "extras": {
+    "three": "MeshStandardMaterial",
+    "emissive": {
+     "srgb": "#fff2dc",
+     "linear": [
+      1,
+      0.887923,
+      0.715694
+     ],
+     "intensity": 2.35
+    }
+   }
+  },
+  {
+   "name": "gardienne_skin",
+   "extras": {
+    "three": "MeshPhysicalMaterial",
+    "vertexColors": true
+   }
+  },
+  {
+   "name": "gardienne_face",
+   "extras": {
+    "three": "MeshPhysicalMaterial",
+    "vertexColors": true
+   }
+  },
+  {
+   "name": "mat_MeshPhysicalMaterial_2",
+   "extras": {
+    "three": "MeshPhysicalMaterial",
+    "vertexColors": true
+   }
+  },
+  {
+   "name": "gardienne_gown",
+   "extras": {
+    "three": "MeshPhysicalMaterial",
+    "vertexColors": true
+   }
+  },
+  {
+   "name": "gardienne_hair",
+   "extras": {
+    "three": "MeshPhysicalMaterial",
+    "vertexColors": true
+   }
+  }
+ ]
+}
