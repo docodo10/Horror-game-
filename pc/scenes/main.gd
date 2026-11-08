@@ -32,8 +32,12 @@ func _ready() -> void:
 	Quality.apply(Settings.get_value("quality", "high"))
 	ui.show_loading(1.0, "Prêt")
 	await get_tree().process_frame
-	var args := OS.get_cmdline_user_args()
-	if "--autostart" in args or args.any(func(a): return a.begins_with("--shot")):
+	# User args come after "--" (e.g. `godot --path pc -- --autostart`).
+	var autostart := false
+	for a in OS.get_cmdline_user_args():
+		if a == "--autostart" or a.begins_with("--shot"):
+			autostart = true
+	if autostart:
 		Game.start()
 	else:
 		Game.set_state("menu")
