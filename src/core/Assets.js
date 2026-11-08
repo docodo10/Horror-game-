@@ -54,6 +54,15 @@ export const MODELS = {
   painted_wooden_stool:     { size: [0.385, 0.579, 0.406], min: [-0.187, -0.001, -0.19] },
   wooden_broom:             { size: [0.49, 1.453, 0.113], min: [-0.245, -0.122, -0.056], nodes: ['wooden_broom_handle', 'wooden_broom_bristles', 'wooden_broom'] }, // stand at y=0.122
   vintage_suitcase:         { size: [1.608, 0.568, 0.239], min: [-0.803, 0, -0.129] }, // two cases side by side: hide one case's 4 nodes (vintage_suitcase_0N_*)
+  // ---- batch 3 (assets/NEW_ASSETS.md §B3.3; placed by src/world/Details.js from layout.DETAIL_PROPS) ----
+  steel_frame_shelves_02:     { size: [0.593, 2.142, 0.502], min: [-0.297, -0.001, -0.251] }, // board tops y .133/.639/1.145/1.651/2.130
+  mounted_fluorescent_lights: { size: [0.912, 0.035, 0.04], min: [-0.456, -0.035, -0.02] },   // origin = ceiling mount; tube glass emissive factor 0
+  hanging_industrial_lamp:    { size: [0.55, 0.969, 0.55], min: [-0.275, -0.954, -0.275] },   // origin = ceiling mount; emissive factor 1
+  wooden_ladder:              { size: [0.959, 1.335, 0.5], min: [-0.485, 0, -0.25], nodes: ['wooden_ladder_steps', 'wooden_ladder_supports'] }, // hinge (0,1.105,0); folded: supports rotation.z=-0.70
+  plastic_crate_01:           { size: [0.298, 0.264, 0.408], min: [-0.149, 0, -0.204] },
+  medical_box:                { size: [0.525, 0.098, 0.35], min: [-0.263, 0, -0.172], nodes: ['medical_box', 'medical_box_lid', 'medical_box_latch', 'medical_box_latch_rings', 'medical_box_handle'] }, // lid hinge (0,0.066,-0.169)
+  Lantern_01:                 { size: [0.122, 0.294, 0.097], min: [-0.061, 0, -0.048] },      // glass = alpha BLEND
+  metal_jerrycan:             { size: [0.35, 0.455, 0.172], min: [-0.17, 0, -0.089] },
 };
 
 
@@ -84,6 +93,24 @@ export const TEXTURE_SETS = {
   cardboard004:            'cardboard (boxes)',
   paper003:                'creased paper (use normal+rough under canvas text)',
   plastic013b:             'scratched white plastic (tint: toys, switch plates, detector)',
+  // ---- batch 3 (assets/NEW_ASSETS.md §B3: tile sizes, tints, decal recipe) ----
+  concrete_wall_007:    'raw cast concrete, formwork lines + stains (nook walls/ceiling, tile 2.2 m)',
+  tiles094:             'dirty small beige tiles (nook wainscot 0-1.1 m, tile 0.8 m)',
+  herringbone_parquet:  'herringbone parquet (upstairs hallway floor, tile 2.5 m, tint reddish)',
+  decrepit_wallpaper:   'stained peeling wallpaper (upstairs hallway walls, tile 2.5 m)',
+  peeling_painted_wall: 'peeling painted concrete, red source: tint (hallway wainscot, closet wall)',
+  brick_wall_001:       'old sooty red brick (hallway end wall, true tile 1.07 m)',
+  worn_cracked_plaster: 'alligator-crackled plaster (hallway ceiling, tint x1.5)',
+  decal_leak_streaks:   'DECAL (alpha.jpg): water/mildew streaks from the ceiling, top edge hard',
+  decal_rising_damp:    'DECAL (alpha.jpg): rising damp at the wall foot, bottom edge hard',
+  decal_pipe_leak:      'DECAL (alpha.jpg): fan-shaped seep under a pipe penetration',
+  decal_rust_drip:      'DECAL (alpha.jpg, 256x1024): rust run under a bolt/screw',
+  decal_dirt_patch:     'DECAL (alpha.jpg): floor dirt patch (tint warm)',
+  decal_grime:          'DECAL (alpha.jpg): smudgy wall grime patch',
+  decal_scuffs:         'DECAL (alpha.jpg): scuff streaks, white source: tint dark',
+  decal_hand_smudges:   'DECAL (alpha.jpg): greasy hand/finger smudges',
+  decal_water_ring:     'DECAL (alpha.jpg): ceiling water-stain tide rings (derived)',
+  decal_mold:           'DECAL (alpha.jpg): black/olive mould patch (derived)',
 };
 
 export class Assets {
