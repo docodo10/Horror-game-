@@ -8,13 +8,15 @@ import * as THREE from 'three';
  *   - body skin   one continuous-tube mesh per limb (seamless elbows/knees through skin weights), noise displaced,
  *                 bony landmarks (clavicles, ribs, neck tendons, knuckles, ankle bones), tiling pore/vein detail maps
  *   - head        deformed dense sphere: gaunt long face, deep eye sockets, cheekbones, thin hooked nose, a too-wide
- *                 mouth whose slit is rigged to a jaw + "mouth depth" bone so it really opens; unique painted
+ *                 mouth whose slit is rigged to a jaw + "mouth depth" bone (+ an upper-lip snarl bone, mouth corners
+ *                 dragged down with the jaw: an oval scream, not a grin) so it really opens; unique painted
  *                 colour/normal canvases (black tear streaks, cracked lips, temple veins, dark scalp)
  *   - teeth       yellowed, uneven, too many — upper row on the head bone, lower row on the jaw
  *   - gown        slip nightgown (fabric032 CC0 woven cotton via game.assets.pbr, procedural grime/stains in vertex
  *                 colours), vertical folds, ragged/torn hem (geometry + alpha tears), skinned to hips/thighs/sway bone
- *   - hair        several hundred wet clumped ribbons (alpha-tested fibre texture, anisotropic + clearcoat specular),
- *                 draped at build time against head/body colliders, then driven by 9 verlet-simulated bone chains
+ *   - hair        several hundred wet clumped ribbons (alpha-tested fibre texture, low matte specular), draped at
+ *                 build time against head/body colliders, then driven by 9 verlet-simulated bone chains; a few short
+ *                 stray wisps stay rigid on the face (break the hairline, remain across the face when the curtain parts)
  * Eyes: wet dark eyeballs deep in the sockets with tiny emissive pinpoint glints (eyeshine).
  *
  * Model space: feet at the origin, faces +Z, ~1.98 m tall when upright. `root` is the object to place in the world.
@@ -23,7 +25,8 @@ import * as THREE from 'three';
  * with jerky head tilts, fast predatory chase gait, door reach, jumpscare lunge (arms rising, head snap, jaw drop,
  * hair parting) and random "glitch" twitches (pose freezes, head snaps, spasms).
  * ctx = { speed, mode: 'idle'|'walk'|'search'|'chase'|'reach'|'jumpscare', stairs: -1|0|1, look: Vector3|null,
- *         jumpT: seconds since the jumpscare started (or -1), aggression: 0..2 }
+ *         jumpT: seconds since the jumpscare started (or -1), aggression: 0..2, eyeshine: 0..1,
+ *         duck: 0..1 (folds the upper body down under low headroom, e.g. the stairwell bulkhead) }
  * onFootstep(side 'L'|'R', worldPos) is called at each heel strike.
  */
 
@@ -288,6 +291,7 @@ const SKEL = [
   ['head', 'neck', 0, 1.8, -0.004],
   ['jaw', 'head', 0, 1.838, -0.016],
   ['mouth', 'head', 0, 1.81, 0.075],
+  ['lipU', 'head', 0, 1.818, 0.085],   // upper lip: lifts into a snarl as the jaw drops (oval scream, not a grin)
 ];
 for (const [S, sx] of [['L', 1], ['R', -1]]) {
   SKEL.push(
@@ -336,7 +340,7 @@ for (const [S, sx] of [['L', 1], ['R', -1]]) {
 const HEAD_C = new THREE.Vector3(0, 0.07, 0.005);
 const HEAD_R = new THREE.Vector3(0.074, 0.124, 0.096);
 const MOUTH_PHI = THREE.MathUtils.degToRad(118);
-const MOUTH_SPAN = THREE.MathUtils.degToRad(50);
+const MOUTH_SPAN = THREE.MathUtils.degToRad(46);
 const EYE_THETA = THREE.MathUtils.degToRad(26);
 const EYE_PHI = THREE.MathUtils.degToRad(80);
 
@@ -377,10 +381,10 @@ function headBumps() {
     add(headAnchor(11 * sx, 99), 0.003, 0.006);            // alae
   }
   add(headAnchor(0, 72), 0.0035, 0.011);                    // glabella
-  add(headAnchor(0, 80), 0.0045, 0.0075);                   // nose bridge
-  add(headAnchor(0, 88), 0.0072, 0.008);
-  add(headAnchor(0, 95), 0.0135, 0.0085);
-  add(headAnchor(0, 99), 0.009, 0.007);                     // nose tip (hooked down)
+  add(headAnchor(0, 80), 0.0058, 0.0068);                   // nose bridge
+  add(headAnchor(0, 87), 0.0088, 0.0068);
+  add(headAnchor(0, 94), 0.0152, 0.0078);
+  add(headAnchor(0, 99.5), 0.0105, 0.0066);                 // nose tip (hooked down)
   add(headAnchor(0, 104), -0.002, 0.007);                   // philtrum
   add(headAnchor(0, 116), 0.004, 0.028);                    // teeth arch / muzzle
   add(headAnchor(0, 140), 0.006, 0.016);                    // chin
@@ -486,25 +490,25 @@ export class GardienneModel {
       const col = new Uint8ClampedArray(W * H * 4);
       const r = mulberry32(99);
       const fibres = [];
-      for (let i = 0; i < 26; i++) {
+      for (let i = 0; i < 30; i++) {
         const c = r();
-        const x0 = 0.5 + (c - 0.5) * (r() < 0.75 ? 0.62 : 0.98);
-        fibres.push({ x0, w: 0.012 + r() * 0.02, ph: r() * TAU, fr: 1 + Math.floor(r() * 3), amp: 0.01 + r() * 0.04, b: 0.02 + r() * 0.07, a: 0.65 + r() * 0.35 });
+        const x0 = 0.5 + (c - 0.5) * (r() < 0.75 ? 0.66 : 0.98);
+        fibres.push({ x0, w: 0.008 + r() * 0.014, ph: r() * TAU, fr: 1 + Math.floor(r() * 3), amp: 0.01 + r() * 0.04, b: 0.01 + r() * r() * 0.16, a: 0.6 + r() * 0.4 });
       }
       for (let y = 0; y < H; y++) {
         const v = y / H;
         for (let x = 0; x < W; x++) {
           const u = x / W;
-          let a = 0, c = 0;
+          let a = 0, c = 0, best = 0;
           for (const f of fibres) {
             const fx = f.x0 + Math.sin(v * TAU * f.fr + f.ph) * f.amp;
             const d = Math.abs(u - fx);
             const k = Math.exp(-(d * d) / (f.w * f.w));
-            if (k > 0.02) { a = Math.max(a, k * f.a); c += k * f.b; }
+            if (k > 0.02) { a = Math.max(a, k * f.a); if (k > best) { best = k; c = f.b * k; } }
           }
           const edge = sstep(0.0, 0.12, u) * sstep(1.0, 0.88, u);
           const i = (y * W + x) * 4;
-          const cc = clamp(0.016 + c * 0.22, 0, 0.1);
+          const cc = clamp(0.035 + c * 0.3, 0, 0.17);
           col[i] = 255 * cc; col[i + 1] = 255 * cc * 0.93; col[i + 2] = 255 * cc * 0.88;
           col[i + 3] = 255 * clamp(a * 1.25 * edge, 0, 1);
         }
@@ -559,7 +563,7 @@ export class GardienneModel {
     const eyes = [headAnchor(26, 80), headAnchor(-26, 80)];
     const lerp3 = (c, t, k) => { c[0] += (t[0] - c[0]) * k; c[1] += (t[1] - c[1]) * k; c[2] += (t[2] - c[2]) * k; };
     const c = [0, 0, 0];
-    const SKIN = [0.38, 0.41, 0.36], SOCKET = [0.03, 0.022, 0.026], BRUISE = [0.26, 0.17, 0.22], LIP = [0.24, 0.16, 0.18];
+    const SKIN = [0.31, 0.335, 0.295], SOCKET = [0.03, 0.022, 0.026], BRUISE = [0.26, 0.17, 0.22], LIP = [0.24, 0.16, 0.18];
     const SCALP = [0.04, 0.035, 0.03], DIRT = [0.2, 0.17, 0.14], BLOT = [0.33, 0.32, 0.28], TEAR = [0.03, 0.025, 0.025];
     const CRACK = [0.07, 0.03, 0.035], SLIT = [0.02, 0.004, 0.006], SCAR = [0.09, 0.045, 0.05], NOSE = [0.36, 0.27, 0.27];
     const NOSTRIL = [0.05, 0.03, 0.03], VEIN = [0.22, 0.27, 0.3];
@@ -634,8 +638,8 @@ export class GardienneModel {
         lerp3(c, DIRT, sstep(0.55, 0.85, T.A.sample(u * 3, v * 3 + 0.5)) * 0.35);
         lerp3(c, DIRT, gauss(dphi * dphi, 0.16) * span * sstep(0.3, 0.7, T.B.sample(u * 6, v * 6)) * 0.5);
         // dark scalp under the hair
-        const hl = this._hairlinePhi(theta);
-        lerp3(c, SCALP, sstep(hl + 0.06, hl - 0.04, phi));
+        const hl = this._hairlinePhi(theta) + (T.B.sample(u * 9 + 0.3, 0.37) - 0.5) * 0.22 + (T.C.sample(u * 30, 0.61) - 0.5) * 0.08;
+        lerp3(c, SCALP, sstep(hl + 0.1, hl - 0.05, phi) * (0.75 + 0.25 * sstep(0.4, 0.6, T.C.sample(u * 40, v * 20))));
         const i = (y * W + x) * 4;
         col[i] = 255 * Math.sqrt(clamp(c[0], 0, 1)); col[i + 1] = 255 * Math.sqrt(clamp(c[1], 0, 1)); col[i + 2] = 255 * Math.sqrt(clamp(c[2], 0, 1));
         col[i + 3] = 255;
@@ -643,7 +647,7 @@ export class GardienneModel {
       }
     }
     this.texHead = dataTexture(col, W, H, { srgb: true, repeat: false });
-    this.texHeadN = dataTexture(heightToNormal(hgt, W, H, hi ? 0.9 : 0.55, false), W, H, { repeat: false });
+    this.texHeadN = dataTexture(heightToNormal(hgt, W, H, hi ? 1.35 : 0.8, false), W, H, { repeat: false });
   }
 
   _hairlinePhi(theta) {
@@ -666,11 +670,11 @@ export class GardienneModel {
     };
     this.matSkin = new THREE.MeshPhysicalMaterial({ ...skinParams, map: this.texSkin, normalMap: this.texSkinN, normalScale: new THREE.Vector2(0.6, 0.6) });
     this.matSkin.name = 'gardienne_skin';
-    this.matHead = new THREE.MeshPhysicalMaterial({ ...skinParams, normalScale: new THREE.Vector2(0.7, 0.7) });
+    this.matHead = new THREE.MeshPhysicalMaterial({ ...skinParams, roughness: 0.5, normalScale: new THREE.Vector2(0.9, 0.9) });
     this.matHead.name = 'gardienne_face';
     this.matHair = new THREE.MeshPhysicalMaterial({
       color: 0xffffff, vertexColors: true, map: this.texHair, alphaTest: 0.42, side: THREE.DoubleSide,
-      roughness: 0.48, metalness: 0, specularIntensity: 0.22, clearcoat: 0.18, clearcoatRoughness: 0.28,
+      roughness: 0.6, metalness: 0, specularIntensity: 0.08, clearcoat: 0.05, clearcoatRoughness: 0.4,
     });
     this.matHair.name = 'gardienne_hair';
     this.matTeeth = new THREE.MeshPhysicalMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.32, clearcoat: 0.7, clearcoatRoughness: 0.15 });
@@ -728,11 +732,12 @@ export class GardienneModel {
       { p: [0, 1.32, 0.0], rx: 0.104, rz: 0.081 },
       { p: [0, 1.42, 0.0], rx: 0.116, rz: 0.088 },
       { p: [0, 1.5, -0.005], rx: 0.122, rz: 0.086 },
-      { p: [0, 1.558, -0.01], rx: 0.148, rz: 0.074 },
-      { p: [0, 1.592, -0.015], rx: 0.162, rz: 0.062 },
-      { p: [0, 1.618, -0.018], rx: 0.108, rz: 0.054 },
-      { p: [0, 1.642, -0.018], rx: 0.055, rz: 0.048 },
-      { p: [0, 1.662, -0.018], rx: 0.043, rz: 0.042 },
+      { p: [0, 1.555, -0.01], rx: 0.15, rz: 0.075 },
+      { p: [0, 1.583, -0.014], rx: 0.158, rz: 0.066 },
+      { p: [0, 1.607, -0.017], rx: 0.134, rz: 0.058 },
+      { p: [0, 1.632, -0.018], rx: 0.094, rz: 0.052 },
+      { p: [0, 1.652, -0.018], rx: 0.058, rz: 0.047 },
+      { p: [0, 1.67, -0.018], rx: 0.044, rz: 0.042 },
       { p: [0, 1.71, -0.016], rx: 0.039, rz: 0.04 },
       { p: [0, 1.765, -0.014], rx: 0.036, rz: 0.038 },
       { p: [0, 1.83, -0.022], rx: 0.03, rz: 0.034 },
@@ -793,8 +798,8 @@ export class GardienneModel {
       const x = 0.165 * sx, z = -0.02;
       const elbow = new THREE.Vector3(x, 1.232, z - 0.022);
       tube([
-        { p: [x, 1.63, z], rx: 0.034, rz: 0.036 },
-        { p: [x, 1.585, z], rx: 0.037, rz: 0.039 },
+        { p: [x, 1.612, z], rx: 0.033, rz: 0.035 },
+        { p: [x, 1.578, z], rx: 0.037, rz: 0.039 },
         { p: [x, 1.5, z], rx: 0.032, rz: 0.033 },
         { p: [x, 1.4, z], rx: 0.027, rz: 0.029 },
         { p: [x, 1.3, z], rx: 0.025, rz: 0.026 },
@@ -906,9 +911,9 @@ export class GardienneModel {
         { p: [x, 0.62, 0.006], rx: 0.039, rz: 0.04 },
         { p: [x, 0.555, 0.006], rx: 0.042, rz: 0.044 },
         { p: [x, 0.5, 0.0], rx: 0.036, rz: 0.039 },
-        { p: [x, 0.4, -0.004], rx: 0.032, rz: 0.035 },
-        { p: [x, 0.26, -0.002], rx: 0.025, rz: 0.028 },
-        { p: [x, 0.12, 0.0], rx: 0.02, rz: 0.022 },
+        { p: [x, 0.4, -0.008], rx: 0.033, rz: 0.038 },
+        { p: [x, 0.26, -0.004], rx: 0.027, rz: 0.03 },
+        { p: [x, 0.12, 0.0], rx: 0.021, rz: 0.023 },
         { p: [x, 0.075, 0.0], rx: 0.023, rz: 0.025 },
         { p: [x, 0.045, -0.006], rx: 0.024, rz: 0.03 },
       ], {
@@ -931,8 +936,9 @@ export class GardienneModel {
         color: (P) => {
           let c = skinNoise(P);
           c = mix(c, [0.34, 0.28, 0.31], gauss(P.distanceToSquared(knee), 0.035) * 0.6);
-          const mud = sstep(0.28, 0.06, P.y + (fbm3(P.x * 30, P.y * 8, P.z * 30, 2, 41) - 0.5) * 0.12);
-          return mix(c, [0.1, 0.085, 0.065], mud * 0.85);
+          const mud = sstep(0.3, 0.05, P.y + (fbm3(P.x * 30, P.y * 8, P.z * 30, 2, 41) - 0.5) * 0.14);
+          c = mix(c, [0.31, 0.24, 0.27], sstep(0.6, 0.75, fbm3(P.x * 22, P.y * 9, P.z * 22, 2, 43)) * 0.45); // bruises
+          return mix(c, [0.17, 0.14, 0.11], mud * 0.7);
         },
       });
       // foot
@@ -948,8 +954,8 @@ export class GardienneModel {
         disp: (P) => (fbm3(P.x * 50, P.y * 50, P.z * 50, 2, 19) - 0.5) * 0.003 + 0.0025 * Math.max(0, Math.sin((P.x * sx - 0.05) * 160)) * sstep(0.02, 0.04, P.y) * sstep(0.02, 0.1, P.z),
         color: (P) => {
           const sole = sstep(0.024, 0.008, P.y + (fbm3(P.x * 60, P.z * 60, 1, 2, 47) - 0.5) * 0.01);
-          let c = mix(skinNoise(P), [0.12, 0.1, 0.08], 0.5 + 0.45 * fbm3(P.x * 40, P.y * 40, P.z * 40, 2, 43));
-          return mix(c, [0.03, 0.025, 0.02], sole);
+          let c = mix(skinNoise(P), [0.17, 0.14, 0.11], 0.3 + 0.4 * fbm3(P.x * 40, P.y * 40, P.z * 40, 2, 43));
+          return mix(c, [0.05, 0.04, 0.03], sole);
         },
       });
       // toes (long, knobbly)
@@ -965,7 +971,7 @@ export class GardienneModel {
         ], {
           segs: 9, step: 0.008, capStart: false, capEnd: true, capN: 3, tile: 0.05, front: [0, 1, 0],
           weights: () => [[bi('toe' + S), 1]],
-          color: (P) => (P.y > 0.013 && P.z > z0 + len * 0.75 ? [0.1, 0.085, 0.05] : mix([0.13, 0.105, 0.08], [0.03, 0.025, 0.02], sstep(0.012, 0.004, P.y))),
+          color: (P) => (P.y > 0.013 && P.z > z0 + len * 0.75 ? [0.14, 0.12, 0.07] : mix([0.2, 0.17, 0.14], [0.05, 0.04, 0.03], sstep(0.012, 0.004, P.y))),
         });
       }
     }
@@ -995,7 +1001,7 @@ export class GardienneModel {
     const eyeA = [headAnchor(26, 80), headAnchor(-26, 80)];
     const B = new GeoBuilder();
     const H = this.restW.head;
-    const iHead = this.bi('head'), iJaw = this.bi('jaw'), iMouth = this.bi('mouth');
+    const iHead = this.bi('head'), iJaw = this.bi('jaw'), iMouth = this.bi('mouth'), iLipU = this.bi('lipU');
     const P = new THREE.Vector3(), N = new THREE.Vector3();
     const grid = [];
     for (let i = 0; i <= NR; i++) {
@@ -1021,7 +1027,13 @@ export class GardienneModel {
         // weights
         let w;
         const aTh = Math.abs(theta);
-        if (di < 0) w = [[iHead, 1]];
+        if (di < 0) {
+          // upper lip centre follows the snarl bone; the mouth corners are dragged down with the jaw
+          const up = -di;
+          const lw = up <= 4 ? sstep(MOUTH_SPAN - 0.02, MOUTH_SPAN - 0.42, aTh) * (1 - (up - 1) / 4) : 0;
+          const cj = up <= 3 ? sstep(MOUTH_SPAN - 0.42, MOUTH_SPAN - 0.08, aTh) * sstep(MOUTH_SPAN + 0.42, MOUTH_SPAN + 0.02, aTh) * (1 - (up - 1) / 3) * 0.42 : 0;
+          w = [[iHead, Math.max(0, 1 - lw - cj)], [iLipU, lw], [iJaw, cj]];
+        }
         else if (di === 0) {
           const k = sstep(MOUTH_SPAN, MOUTH_SPAN - 0.12, aTh);
           w = [[iMouth, k], [iHead, (1 - k) * 0.55], [iJaw, (1 - k) * 0.45 * sstep(MOUTH_SPAN + 0.6, MOUTH_SPAN, aTh)]];
@@ -1070,20 +1082,20 @@ export class GardienneModel {
     const P = new THREE.Vector3(), Q = new THREE.Vector3(), C = new THREE.Vector3();
     const headW = this.restW.head;
     C.set(0, HEAD_C.y, 0).add(headW);
-    const rows = [{ ring: m - 1, dir: -1, bone: iHead, n: 24 }, { ring: m + 1, dir: 1, bone: iJaw, n: 22 }];
+    const rows = [{ ring: m - 1, dir: -1, bone: iHead, n: 17 }, { ring: m + 1, dir: 1, bone: iJaw, n: 15 }];
     for (const row of rows) {
       for (let k = 0; k < row.n; k++) {
-        if (r() < 0.08) continue; // missing teeth
-        const th = (k / (row.n - 1) - 0.5) * 2 * (MOUTH_SPAN - 0.12);
+        if (r() < 0.16) continue; // missing teeth
+        const th = (k / (row.n - 1) - 0.5) * 2 * (MOUTH_SPAN - 0.14) + (r() - 0.5) * 0.04;
         const j = Math.round(((th + Math.PI) / TAU) * NS);
         this._headVertex(row.ring, j, P);
         // inward (toward the head axis) a little
         Q.set(P.x - C.x, 0, P.z - C.z).normalize();
         P.addScaledVector(Q, -0.0075);
         P.y += row.dir * 0.0015;
-        const len = (0.008 + r() * 0.007) * (r() < 0.15 ? 0.55 : 1);
-        const wid = 0.0022 + r() * 0.0016;
-        const tilt = (r() - 0.5) * 0.25;
+        const len = (0.006 + r() * 0.006) * (r() < 0.22 ? 0.5 : 1);
+        const wid = 0.0026 + r() * 0.0018;
+        const tilt = (r() - 0.5) * 0.5;
         const tipP = P.clone().add(new THREE.Vector3(Math.sin(tilt) * len * 0.3, row.dir * len, (r() - 0.5) * 0.002));
         const base = P.clone().add(new THREE.Vector3(0, -row.dir * 0.004, 0));
         const yel = 0.55 + r() * 0.3, br = r() < 0.12 ? 0.45 : 1;
@@ -1091,7 +1103,7 @@ export class GardienneModel {
           { p: base.toArray(), rx: wid, rz: wid * 0.7 },
           { p: P.toArray(), rx: wid * 1.05, rz: wid * 0.75 },
           { p: P.clone().lerp(tipP, 0.6).toArray(), rx: wid * 0.95, rz: wid * 0.6 },
-          { p: tipP.toArray(), rx: wid * (r() < 0.3 ? 0.25 : 0.6), rz: wid * 0.35 },
+          { p: tipP.toArray(), rx: wid * (r() < 0.2 ? 0.4 : 0.85), rz: wid * 0.55 },
         ], {
           segs: 7, rings: 4, capStart: false, capEnd: true, capN: 2, tile: 0.02, front: [Q.x, 0, Q.z],
           weights: () => [[row.bone, 1]],
@@ -1099,7 +1111,8 @@ export class GardienneModel {
             const t = clamp(Math.abs(V.y - base.y) / len, 0, 1);
             const gum = sstep(0.3, 0.0, t);
             const tip = sstep(0.5, 1, t);
-            return [lerp(0.6 * yel * br, 0.2, gum) * (1 - tip * 0.25), lerp(0.48 * yel * br, 0.05, gum) * (1 - tip * 0.3), lerp(0.28 * yel * br, 0.05, gum) * (1 - tip * 0.4)];
+            const rot = sstep(0.0, 0.45, t) * (1 - sstep(0.45, 0.9, t)) * 0.35; // brown decay band near the gum line
+            return [lerp(0.46 * yel * br, 0.12, gum) * (1 - tip * 0.2 - rot), lerp(0.37 * yel * br, 0.035, gum) * (1 - tip * 0.25 - rot * 1.2), lerp(0.2 * yel * br, 0.03, gum) * (1 - tip * 0.35 - rot * 1.5)];
           },
         });
       }
@@ -1113,7 +1126,7 @@ export class GardienneModel {
     this.glints = [];
     const NS = this._headNS;
     const head = this.b.head, hw = this.restW.head;
-    const eyeGeo = new THREE.SphereGeometry(0.0105, 24, 16);
+    const eyeGeo = new THREE.SphereGeometry(0.0118, 24, 16);
     {
       // milky, bloodshot eyeball with a pale iris and a pinpoint pupil (front of the sphere = u 0.25, v 0.5)
       const W = 128, H = 64, col = new Uint8ClampedArray(W * H * 4);
@@ -1152,14 +1165,14 @@ export class GardienneModel {
         if (d < bd) { bd = d; best.copy(P); }
       }
       const center = best.clone();
-      center.z -= 0.0075;
+      center.z -= 0.0058;
       const eye = new THREE.Mesh(eyeGeo, this.matEye);
       eye.name = 'eye';
       eye.position.copy(center); // head-local
       eye.castShadow = false; eye.receiveShadow = true;
       head.add(eye);
       const glint = new THREE.Mesh(glintGeo, this.matGlint);
-      glint.position.set(center.x - 0.0018 * sx, center.y + 0.0014, center.z + 0.0095);
+      glint.position.set(center.x - 0.0018 * sx, center.y + 0.0014, center.z + 0.0108);
       glint.castShadow = false;
       head.add(glint);
       this.eyes.push(eye); this.glints.push(glint);
@@ -1185,19 +1198,28 @@ export class GardienneModel {
       { p: [0, 1.45, 0.0], rx: 0.136, rz: 0.104 },
       { p: [0, 1.38, 0.002], rx: 0.13, rz: 0.1 },
       { p: [0, 1.3, 0.004], rx: 0.131, rz: 0.1 },
-      { p: [0, 1.2, 0.004], rx: 0.143, rz: 0.106 },
-      { p: [0, 1.1, 0.004], rx: 0.158, rz: 0.12 },
-      { p: [0, 0.95, 0.006], rx: 0.172, rz: 0.135 },
-      { p: [0, 0.8, 0.008], rx: 0.188, rz: 0.15 },
-      { p: [0, 0.6, 0.01], rx: 0.21, rz: 0.172 },
-      { p: [0, 0.42, 0.01], rx: 0.23, rz: 0.19 },
-      { p: [0, HEM, 0.01], rx: 0.236, rz: 0.196 },
+      { p: [0, 1.2, 0.004], rx: 0.141, rz: 0.105 },
+      { p: [0, 1.1, 0.004], rx: 0.153, rz: 0.114 },
+      { p: [0, 0.95, 0.008], rx: 0.163, rz: 0.122 },
+      { p: [0, 0.8, 0.012], rx: 0.172, rz: 0.13 },
+      { p: [0, 0.6, 0.014], rx: 0.185, rz: 0.142 },
+      { p: [0, 0.42, 0.014], rx: 0.196, rz: 0.15 },
+      { p: [0, HEM, 0.014], rx: 0.2, rz: 0.152 },
     ];
     const yOfS = (s) => lerp(TOP, HEM, s);
-    const foldAmp = (y) => lerp(0.0025, 0.017, sstep(1.45, 0.4, y));
+    const foldAmp = (y) => lerp(0.003, 0.028, sstep(1.42, 0.45, y));
     const fold = (a, y) => {
       const k = y * 2.0;
-      return 0.55 * Math.sin(9 * a + foldPhase[0] + 1.3 * Math.sin(3 * a + k)) + 0.3 * Math.sin(15 * a + foldPhase[1] + k * 2) + 0.25 * Math.sin(5 * a + foldPhase[2]);
+      const f = 0.55 * Math.sin(9 * a + foldPhase[0] + 1.3 * Math.sin(3 * a + k)) + 0.3 * Math.sin(15 * a + foldPhase[1] + k * 2) + 0.25 * Math.sin(5 * a + foldPhase[2]) +
+        0.18 * Math.sin(23 * a + foldPhase[0] * 2 + k * 3);
+      return f < 0 ? f * 1.3 : f * 0.7; // hanging cloth: soft rounded crests, sharp creased valleys
+    };
+    // between the legs (front and back) the cotton falls in; over the thighs / knees it is pushed out
+    const legShape = (a, y) => {
+      let df = Math.abs(a - Math.PI / 2); df = Math.min(df, TAU - df);
+      let db = Math.abs(a - 3 * Math.PI / 2); db = Math.min(db, TAU - db);
+      const low = sstep(0.98, 0.62, y);
+      return low * (-0.024 * gauss(df * df, 0.2) - 0.016 * gauss(db * db, 0.24) + 0.008 * gauss((df - 0.62) ** 2, 0.3));
     };
     addTube(B, keys, {
       segs: this.lowQ ? 72 : 104, step: this.lowQ ? 0.022 : 0.015, tile: 0.2,
@@ -1222,7 +1244,7 @@ export class GardienneModel {
         const f = fold(a, y) * foldAmp(y);
         const n = (fbm3(P.x * 14, P.y * 14, P.z * 14, 3, 91) - 0.5) * lerp(0.004, 0.012, s);
         const drape = -0.006 * gauss((y - 1.24) ** 2, 0.05); // fabric falls in at the waist a little
-        return f + n + drape;
+        return f + n + drape + legShape(a, y);
       },
       post: (P, s, a, ri, nr) => {
         // neckline scoops (front & back) and armholes
@@ -1238,13 +1260,16 @@ export class GardienneModel {
       color: (P, s, a) => {
         const y = P.y;
         const n1 = fbm3(P.x * 6, P.y * 6, P.z * 6, 3, 101), n2 = fbm3(P.x * 22, P.y * 22, P.z * 22, 2, 103);
-        let c = [0.8, 0.74, 0.62];                                          // yellowed cotton
-        const stain = sstep(0.58, 0.72, n1);
-        c = [lerp(c[0], 0.6, stain * 0.6), lerp(c[1], 0.5, stain * 0.6), lerp(c[2], 0.37, stain * 0.6)];
-        const damp = sstep(0.6, 0.75, n2) * 0.25;
+        let c = [0.64, 0.585, 0.48];                                        // old yellowed cotton
+        const stain = sstep(0.52, 0.7, n1);
+        c = [lerp(c[0], 0.47, stain * 0.7), lerp(c[1], 0.38, stain * 0.7), lerp(c[2], 0.27, stain * 0.7)];
+        const damp = sstep(0.58, 0.75, n2) * 0.3;
         c = c.map((v) => v * (1 - damp));
-        const hem = sstep(0.75, 0.38, y + (n2 - 0.5) * 0.14);
-        c = [lerp(c[0], 0.38, hem * 0.75), lerp(c[1], 0.33, hem * 0.75), lerp(c[2], 0.26, hem * 0.75)];
+        // long drip / sweat streaks running down the cloth
+        const drip = sstep(0.62, 0.8, fbm3(P.x * 34, P.y * 2.2, P.z * 34, 2, 107)) * sstep(1.45, 1.1, y);
+        c = [lerp(c[0], 0.36, drip * 0.5), lerp(c[1], 0.31, drip * 0.5), lerp(c[2], 0.24, drip * 0.5)];
+        const hem = sstep(0.95, 0.38, y + (n2 - 0.5) * 0.2);
+        c = [lerp(c[0], 0.27, hem * 0.8), lerp(c[1], 0.235, hem * 0.8), lerp(c[2], 0.19, hem * 0.8)];
         // old rust-brown stain on the front of the chest
         const front = Math.sin(a);
         const rust = sstep(0.4, 0.8, front) * gauss((y - 1.33) ** 2 + (P.x + 0.03) ** 2 * 0.6, 0.07) * sstep(0.35, 0.6, n2);
@@ -1477,7 +1502,12 @@ export class GardienneModel {
           pts.push(q);
         }
         const layer = clamp(g.inflate / 0.019, 0, 1);
-        strandsPts.push({ g, pts, w0: (lowQ ? 0.009 : 0.0065) + r() * 0.007, tone: (r() < 0.05 ? 2.0 + r() * 1.2 : 0.7 + r() * 0.5) * (0.55 + 0.45 * layer) });
+        if (g.curtain && r() < 0.16) {
+          const cut = Math.max(4, Math.round(pts.length * (0.26 + r() * 0.14)));
+          strandsPts.push({ g, pts: pts.slice(0, cut), stray: true, w0: 0.0032 + r() * 0.002, tone: 0.8 + r() * 0.3 });
+          continue;
+        }
+        strandsPts.push({ g, pts, w0: (lowQ ? 0.009 : 0.0065) + r() * 0.007, tone: (r() < 0.05 ? 1.5 + r() * 0.5 : 0.7 + r() * 0.5) * (0.55 + 0.45 * layer) });
       }
     }
     const hairNormals = [];
@@ -1501,7 +1531,7 @@ export class GardienneModel {
         const s = k / (n - 1);
         const w = st.w0 * (1 - 0.85 * Math.pow(s, 1.6)) * (k === 0 ? 0.6 : 1);
         const fr = (k - g.dep) / Math.max(1, lastG - g.dep);
-        const wts = weightFor(g, k, fr);
+        const wts = st.stray ? [[iHead, 1]] : weightFor(g, k, fr);
         const tone = st.tone * (0.45 + 0.55 * sstep(0.0, 0.12, s * g.L)), c = [tone, tone, tone];
         const v = (k * (g.L / (g.pts.length - 1))) / 0.22;
         B.vert(p.x - side.x * w * 0.5, p.y - side.y * w * 0.5, p.z - side.z * w * 0.5, 0, v, c, wts);
@@ -1556,7 +1586,7 @@ export class GardienneModel {
       phase: 0, moveW: 0, chaseW: 0, searchW: 0, reachW: 0, stairs: 0, speed: 0,
       lookYaw: 0, lookPitch: 0, tiltT: 0, tilt: 0, tiltTarget: 0, scanT: 0, scanYaw: 0, scanPitch: 0,
       glitchT: 3 + Math.random() * 5, freeze: 0, snapT: 0, snapYaw: 0, snapRoll: 0, spasmT: 0,
-      bobV: 0, bob: 0, jaw: 0, part: 0, eyeshine: 0.15,
+      bobV: 0, bob: 0, jaw: 0, part: 0, eyeshine: 0.15, duck: 0,
       skirtX: 0, skirtZ: 0, skirtVX: 0, skirtVZ: 0,
       lastRootPos: new THREE.Vector3(), rootVel: new THREE.Vector3(), rootAcc: new THREE.Vector3(), init: false,
       twitch: new Float32Array(10), twitchT: 0,
@@ -1599,9 +1629,15 @@ export class GardienneModel {
   setExposure(k) {
     if (Math.abs(k - (this._expo ?? 1)) < 0.01) return;
     this._expo = k;
-    this.matSkin.color.setScalar(k); this.matHead.color.setScalar(k); this.matGown.color.setScalar(k);
-    this.matTeeth.color.setScalar(k); this.matEye.color.setScalar(k); this.matHair.color.setScalar(k);
-    this.matSkin.clearcoat = 0.12 * k; this.matHead.clearcoat = 0.12 * k;
+    // specular / clearcoat do not depend on the albedo: scale them too, or the hair turns into a white wig at
+    // point-blank flashlight range
+    const mats = [this.matSkin, this.matHead, this.matGown, this.matTeeth, this.matEye, this.matHair];
+    if (!this._specBase) this._specBase = mats.map((m) => [m.specularIntensity, m.clearcoat, m.sheen]);
+    mats.forEach((m, i) => {
+      const b = this._specBase[i];
+      m.color.setScalar(k);
+      m.specularIntensity = b[0] * k; m.clearcoat = b[1] * k; m.sheen = b[2] * k;
+    });
   }
 
   /** Instantly snap the hair simulation to the current pose (after teleports). */
@@ -1625,6 +1661,7 @@ export class GardienneModel {
     p.searchW = dampTo(p.searchW, mode === 'search' ? 1 : 0, 3, dt);
     p.reachW = dampTo(p.reachW, mode === 'reach' ? 1 : 0, 5, dt);
     p.stairs = dampTo(p.stairs, ctx.stairs ?? 0, 5, dt);
+    p.duck = dampTo(p.duck, ctx.duck ?? 0, 5, dt);
     const mw = p.moveW, cw = p.chaseW;
 
     // ---- gait phase + footsteps
@@ -1685,6 +1722,10 @@ export class GardienneModel {
     R.chest.set(lean * 0.24 - breath * 0.02, -0.1 * sw * mw - p.lookYaw * 0.12, -0.03 * cwv * mw + p.tilt * 0.08);
     R.neck.set(lerp(0.34, 0.1, cw) - p.lookPitch * 0.3, p.lookYaw * 0.35, p.tilt * 0.25);
     R.head.set(lerp(0.2, -0.62, cw) - p.lookPitch * 0.75 + p.searchW * 0.05, p.lookYaw * 0.55, p.tilt * 0.9);
+    if (p.duck > 0.002) {
+      const d = p.duck;
+      R.spine2.x += 0.2 * d; R.chest.x += 0.2 * d; R.neck.x += 0.22 * d; R.head.x -= 0.3 * d;
+    }
     R.skirt.set(p.skirtX, 0, p.skirtZ);
     R.jaw.set(0.02 + 0.01 * Math.sin(t * 0.7), 0, 0);
 
@@ -1696,7 +1737,8 @@ export class GardienneModel {
       const A = lerp(0.34, 0.62, cw) * mw * limp;
       const swing = Math.max(0, c);
       let hip = -A * s - legLean;
-      let knee = 0.07 + (lerp(0.55, 1.2, cw) * Math.pow(swing, 1.5) * limp + 0.08 * Math.max(0, -s)) * mw;
+      let knee = 0.11 + 0.18 * p.duck + (lerp(0.55, 1.2, cw) * Math.pow(swing, 1.5) * limp + 0.08 * Math.max(0, -s)) * mw;
+      hip -= 0.04 + 0.09 * p.duck;
       // stairs: lift the swing leg higher when going up, reach down when going down
       if (p.stairs > 0) { hip -= p.stairs * 0.45 * swing * mw; knee += p.stairs * 0.75 * swing * mw; }
       if (p.stairs < 0) { knee += -p.stairs * 0.3 * Math.max(0, -c) * mw; hip -= -p.stairs * 0.15 * swing * mw; }
@@ -1713,17 +1755,17 @@ export class GardienneModel {
       const ps = p.phase + off;
       const dangle = Math.sin(ps - 0.7) * 0.13 * mw;
       const chaseSwing = Math.sin(ps) * 0.75;
-      let ax = -spineLean * 0.92 + dangle;
+      let ax = -spineLean * 0.62 - 0.04 + dangle;
       ax = lerp(ax, -0.55 - spineLean * 0.3 + chaseSwing, cw);
-      let az = sx * (0.17 + 0.03 * Math.sin(t * 0.9 + off));
+      let az = sx * (0.115 + 0.02 * Math.sin(t * 0.9 + off));
       az = lerp(az, sx * 0.3, cw);
-      let ay = sx * 0.25;
-      let fx = -0.3 - 0.08 * Math.sin(ps - 1.2) * mw;
+      const ay = lerp(-sx * 0.38, sx * 0.1, cw);
+      let fx = -0.36 - 0.08 * Math.sin(ps - 1.2) * mw - 0.12 * p.searchW;
       fx = lerp(fx, -0.75 - 0.35 * Math.max(0, Math.sin(ps)), cw);
-      R['clav' + S].set(0, sx * -0.14, sx * (0.1 + 0.05 * cw));
+      R['clav' + S].set(0, sx * -0.2, sx * (-0.05 + 0.15 * cw));
       R['arm' + S].set(ax, ay, az);
-      R['fore' + S].set(fx, sx * 0.1, 0);
-      R['hand' + S].set(0.08 + 0.1 * cw, 0, sx * -0.08);
+      R['fore' + S].set(fx, sx * lerp(-0.25, 0.1, cw), 0);
+      R['hand' + S].set(0.2 - 0.1 * cw, sx * 0.15 * (1 - cw), sx * -0.1);
     }
     // reach (right arm toward a door / the player)
     if (p.reachW > 0.01) {
@@ -1795,9 +1837,9 @@ export class GardienneModel {
         }
       }
       for (const [S] of SIDES2) { R['thigh' + S].set(-0.25, 0, 0); R['shin' + S].set(0.35, 0, 0); R['foot' + S].set(-0.1, 0, 0); }
-      p.jaw = sstep(0.03, 0.2, jt) * (0.6 + 0.05 * Math.sin(t * 43));
-      p.part = sstep(0.0, 0.22, jt);
-      p.eyeshine = 1;
+      p.jaw = sstep(0.03, 0.22, jt) * (0.82 + 0.05 * Math.sin(t * 43));
+      p.part = sstep(0.0, 0.18, jt);
+      p.eyeshine = 0.3;
     } else {
       p.jaw = dampTo(p.jaw, mode === 'chase' ? 0.12 + 0.06 * Math.sin(t * 9) : 0, 6, dt);
       p.part = dampTo(p.part, 0, 2, dt);
@@ -1813,7 +1855,9 @@ export class GardienneModel {
     }
     // mouth slit recedes into the head as the jaw opens
     const mb = this.b.mouth, mr = this.restW.mouth, hr = this.restW.head;
-    mb.position.set(mr.x - hr.x, mr.y - hr.y - p.jaw * 0.03, mr.z - hr.z - p.jaw * 0.07);
+    mb.position.set(mr.x - hr.x, mr.y - hr.y - p.jaw * 0.034, mr.z - hr.z - p.jaw * 0.075);
+    const lu = this.b.lipU, lr = this.restW.lipU, snarl = clamp(p.jaw / 0.8, 0, 1.1);
+    lu.position.set(lr.x - hr.x, lr.y - hr.y + snarl * 0.0068, lr.z - hr.z + snarl * 0.0012);
     this._postPose(dt, ctx, true);
   }
 
@@ -1860,7 +1904,7 @@ export class GardienneModel {
     const p = this.pose;
     const steps = dt > 0.03 ? 2 : 1;
     const h = dt / steps;
-    const damp = Math.exp(-2.6 * h);
+    const damp = Math.exp(-(2.6 + 7 * p.part) * h);
     if (!this._hairInit) {
       for (const hs of this._hairState) {
         for (let k = 0; k < hs.p.length; k++) {
@@ -1879,20 +1923,18 @@ export class GardienneModel {
         ch.bones[0].position.copy(hs.anchor);
         head.localToWorld(P[0].copy(hs.anchor));
         Q[0].copy(P[0]);
-        // external force: gravity + gentle air drift + parting (jumpscare)
+        // external force: gravity + gentle air drift
         hs.noise += h;
         const nx = Math.sin(hs.noise * 1.3 + ch.idx[0]) * 0.25, nz = Math.cos(hs.noise * 1.1 + ch.idx[0] * 0.7) * 0.25;
         g.set(nx, -9.8, nz);
-        if (p.part > 0.01 && (ch.id === 'FL' || ch.id === 'FR' || ch.id === 'FSL' || ch.id === 'FSR')) {
-          const sgn = ch.id.endsWith('L') ? 1 : -1;
-          tmp.set(sgn * 5, -2, -5).applyQuaternion(hq);
-          g.addScaledVector(tmp, p.part);
-        }
-        const ks = 5 * (1 - 0.6 * p.part);
+        // jumpscare parting: the face curtain is pulled (stiffly) toward a parted shape beside the cheeks
+        const parting = hs.partDir !== 0 && p.part > 0.001;
+        const ks = parting ? 5 + 40 * p.part : 5 + 14 * p.part;
         for (let k = 1; k < P.length; k++) {
           // verlet + soft return to the rest shape (head space)
           tmp.copy(hs.restLocal[k]);
           tmp.x += hs.anchor.x - hs.restLocal[0].x; tmp.z += hs.anchor.z - hs.restLocal[0].z;
+          if (parting) { tmp.x += hs.partDir * p.part * 0.022 * k; tmp.z -= Math.abs(hs.partDir) * p.part * 0.012 * k; }
           head.localToWorld(tmp);
           tmp2.copy(P[k]);
           const vx = (P[k].x - Q[k].x) * damp, vy = (P[k].y - Q[k].y) * damp, vz = (P[k].z - Q[k].z) * damp;
@@ -1909,7 +1951,10 @@ export class GardienneModel {
             if (k === 1) P[k].sub(tmp);
             else { P[k].addScaledVector(tmp, -0.5); P[k - 1].addScaledVector(tmp, 0.5); }
           }
-          for (let k = 1; k < P.length; k++) this._collideHair(P[k]);
+          for (let k = 1; k < P.length; k++) {
+            this._collideHair(P[k]);
+            if (parting) this._clearFace(P[k], hs.partDir, p.part);
+          }
         }
       }
     }
@@ -1927,6 +1972,17 @@ export class GardienneModel {
         parentQ.copy(rq);
       }
     }
+  }
+
+  /** Jumpscare: keep the parted curtain chains out of a face-wide strip in front of the face (head space). */
+  _clearFace(pt, dir, part) {
+    const L = this._v.d, head = this._colliders[0];
+    L.copy(pt).applyMatrix4(head.inv);
+    if (L.z < -0.02 || L.y < -0.16 || L.y > 0.17) return;
+    const W = (0.05 + 0.045 * Math.abs(dir)) * part;
+    if (Math.abs(L.x) >= W) return;
+    L.x = Math.sign(dir) * W;
+    pt.copy(L.applyMatrix4(head.bone.matrixWorld));
   }
 
   _collideHair(pt) {

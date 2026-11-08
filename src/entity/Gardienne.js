@@ -20,7 +20,8 @@ import { GardienneModel } from './GardienneModel.js';
 //             aggression). After the first scripted visit she also patrols every 90–180 s (shorter when aggressive).
 //  waking     heavy steps cross the ceiling toward the stairwell door (ceiling_steps), feet shadows under the door,
 //             sometimes a knock (knock_wall) — then she opens the upstairs door (its `locked` flag is preserved).
-//  descending walks down the stairs (entity_step_stairs), door left open.
+//  descending walks down the stairs (entity_step_stairs), door left open; ducks under the drywall bulkhead at the
+//             bottom of the stairwell (collision span BODY_H, model ctx.duck).
 //  searching  goes to the noise, then 3–5 random nodes nearby; pauses with jerky listening head tilts, hums
 //             (lullaby_hum). If she saw the player hide in the closet she walks to it, opens it -> jumpscare.
 //  chasing    FOV 110°, range 12 m × player visibility, LOS via world.lineBlocked. Spots: freezes, croaks, charges at
@@ -33,9 +34,15 @@ const TAU = Math.PI * 2;
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const rand = (a, b) => a + Math.random() * (b - a);
 const dampTo = (cur, target, rate, dt) => cur + (target - cur) * (1 - Math.exp(-rate * dt));
+const sstep01 = (t) => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
 const angWrap = (a) => { while (a > Math.PI) a -= TAU; while (a < -Math.PI) a += TAU; return a; };
 
 const RADIUS = 0.3;
+// Collision height above her feet. She is 1.98 m tall but walks stooped (head ~1.85 m) and ducks under the drywall
+// bulkhead at the bottom of the stairwell (2.38 m): with a 1.9 m span she could never get past it on the stairs.
+const BODY_H = 1.72;
+// Drywall bulkhead across the stairs at the south edge of the stairwell opening (see Architecture: BZ0..BZ1, BY).
+const BULK_Z0 = L.STAIRS.ceilingOpeningMaxZ, BULK_Z1 = BULK_Z0 + 0.15, BULK_Y = L.ROOM.ceilingY - 0.12;
 const WALK_SPEED = 0.95;
 const STAIR_SPEED = 0.78;
 const CHASE_SPEED = 2.9;
@@ -82,7 +89,7 @@ export class Gardienne {
     this._prevPos = new THREE.Vector3().copy(this.position);
     this._velY = 0;
     this._moveSpeed = 0;
-    this._wpI = -1;
+    this._wpPos = new THREE.Vector3(1e9, 0, 0); // waypoint watched by the never-stuck watchdog
     this._bestD = Infinity;
     this._noImpT = 0;
     this._stuck = 0;
@@ -113,7 +120,7 @@ export class Gardienne {
     this._eye = new THREE.Vector3(); this._pEye = new THREE.Vector3(); this._pChest = new THREE.Vector3();
     this._face = new THREE.Vector3(); this._camPos = new THREE.Vector3(); this._camDir = new THREE.Vector3();
     this._m4 = new THREE.Matrix4(); this._q = new THREE.Quaternion(); this._up = new THREE.Vector3(0, 1, 0);
-    this._ctx = { mode: 'idle', speed: 0, stairs: 0, look: null, jumpT: -1, aggression: 0, eyeshine: 0.1 };
+    this._ctx = { mode: 'idle', speed: 0, stairs: 0, look: null, jumpT: -1, aggression: 0, eyeshine: 0.1, duck: 0 };
     this._lookV = new THREE.Vector3();
     this._humPos = new THREE.Vector3();
   }
@@ -135,7 +142,7 @@ export class Gardienne {
     }
     // Close fill light used only during the jumpscare (always present so the light count never changes -> no
     // shader recompilation hitch at the worst possible moment).
-    this.jsLight = new THREE.PointLight(0xc9d6ff, 0, 3, 2);
+    this.jsLight = new THREE.PointLight(0xdde4f0, 0, 3, 2);
     this.jsLight.castShadow = false;
     this.jsLight.name = 'gardienne_jumpscare_light';
     g.scene.add(this.jsLight);
@@ -526,7 +533,7 @@ export class Gardienne {
     const dy = Math.abs(pp.y - this.position.y);
     const dh = Math.hypot(pp.x - this.position.x, pp.z - this.position.z);
     if (this._seeing && dh < CATCH_DIST && dy < 0.9 && !player.hidden) { this._startJumpscare(false); return; }
-    const direct = dy < 0.35 && !this._onStairs() && !w.segmentBlocked(this.position.x, this.position.z, target.x, target.z, RADIUS * 0.9, this.position.y + 0.3, this.position.y + 1.9);
+    const direct = dy < 0.35 && !this._onStairs() && !w.segmentBlocked(this.position.x, this.position.z, target.x, target.z, RADIUS * 0.9, this.position.y + 0.3, this.position.y + BODY_H);
     if (direct) {
       this._path.length = 0;
       this._moveToward(target, this._speed, dt, 7);
@@ -581,16 +588,17 @@ export class Gardienne {
     const dir = this._camDir.set(this.position.x - this._camPos.x, 0, this.position.z - this._camPos.z);
     if (dir.lengthSq() < 1e-4) cam.getWorldDirection(dir).setY(0);
     dir.normalize();
-    const startDist = fromCloset ? 0.75 : clamp(Math.hypot(this.position.x - this._camPos.x, this.position.z - this._camPos.z), 0.6, 1.1);
+    const startDist = fromCloset ? 0.7 : clamp(Math.hypot(this.position.x - this._camPos.x, this.position.z - this._camPos.z), 0.6, 1.1);
     this._jump = {
-      t: 0, fromCloset, startDist, camPos: this._camPos.clone(), dir: dir.clone(), camQ: cam.quaternion.clone(),
-      yaw: Math.atan2(-dir.x, -dir.z), shook: false,
+      t: 0, frames: 0, fromCloset, startDist, camPos: this._camPos.clone(), camY0: this._camPos.y, dir: dir.clone(),
+      feetY: player?.position?.y ?? this.position.y,
+      camQ: cam.quaternion.clone(), yaw: Math.atan2(-dir.x, -dir.z),
     };
     this.yaw = this._jump.yaw;
     g.audio?.play?.('jumpscare', { volume: 1 });
-    g.renderer?.flash?.(0x7a0b05, 0.55, 0.35);
+    g.renderer?.flash?.(0x7a0b05, 0.35, 0.3);
     g.renderer?.shake?.(1, 1.3);
-    g.renderer?.setBlur?.(0.22);
+    g.renderer?.setBlur?.(0.16);
     this.root.visible = true;
     this.model?.resetSimulation();
   }
@@ -601,46 +609,72 @@ export class Gardienne {
     const g = this.game, cam = g.camera, m = this.model;
     j.t += dt;
     if (g.player && !this._caughtSent) { g.player.cameraOverride = true; g.player.enabled = false; }
-    // her body: facing the camera, lunging from startDist to 0.45 m (face distance)
-    const k = clamp(j.t / 0.14, 0, 1);
-    const faceDist = THREE.MathUtils.lerp(j.startDist, 0.45, 1 - (1 - k) * (1 - k));
+    // the player flinches upright (a crouched camera would stare at her chest)
+    if (!j.fromCloset) j.camPos.y = THREE.MathUtils.lerp(j.camY0, Math.max(j.camY0, j.feetY + 1.42), sstep01(j.t / 0.22));
+    // her body: facing the camera, lunging from startDist to point-blank, then hovering ~0.3 m from the lens
+    const k = clamp(j.t / 0.16, 0, 1);
+    const faceDist = j.t < 0.16
+      ? THREE.MathUtils.lerp(j.startDist, 0.24, 1 - (1 - k) ** 3)
+      : THREE.MathUtils.lerp(0.24, 0.31, sstep01((j.t - 0.16) / 0.5));
     this.yaw = j.yaw;
     this.root.rotation.y = this.yaw;
     if (m) {
       const ctx = this._ctx;
-      ctx.mode = 'jumpscare'; ctx.speed = 0; ctx.stairs = 0; ctx.look = null; ctx.jumpT = j.t; ctx.aggression = this.aggression; ctx.eyeshine = 1;
+      ctx.mode = 'jumpscare'; ctx.speed = 0; ctx.stairs = 0; ctx.look = null; ctx.jumpT = j.t; ctx.aggression = this.aggression;
+      ctx.eyeshine = 1; ctx.duck = 0;
       m.update(dt, ctx);
       m.getFaceWorld(this._face);
-      // desired face position: in front of the camera at eye height (slightly low, she looms over)
+      // desired face position: in front of the camera, eyes a little above the lens (she looms over)
       const want = this._v1.copy(j.camPos).addScaledVector(j.dir, faceDist);
-      want.y = j.camPos.y + 0.05 + Math.sin(j.t * 31) * 0.004;
+      want.y = j.camPos.y + 0.03 + Math.sin(j.t * 31) * 0.003;
       this.root.position.add(this._v2.subVectors(want, this._face));
       this.root.updateMatrixWorld(true);
       m.getFaceWorld(this._face);
-      // exposure compensation for the flashlight at point-blank range + cold fill light
-      const fl = g.player?.flashlight;
-      const flI = fl?.on ? (fl.light?.intensity ?? 30) : 0;
-      const d2 = Math.max(0.04, this._face.distanceToSquared(j.camPos));
-      const Ef = flI / d2;
-      m.setExposure(clamp(9 / Math.max(9, Ef + 9), 0.03, 1));
-      this.jsLight.position.copy(j.camPos).lerp(this._face, 0.35);
-      this.jsLight.position.y -= 0.12;
-      this.jsLight.intensity = (0.55 + 0.25 * Math.sin(j.t * 43) * Math.sin(j.t * 17)) * clamp(j.t / 0.05, 0, 1);
+      // the first frames move her a long way: restart the hair simulation from the final placement (no whip)
+      if (j.frames++ < 2) m.resetSimulation();
     }
     // camera: snaps to her face, trembling
     cam.position.copy(j.camPos);
-    cam.position.x += (Math.random() - 0.5) * 0.008; cam.position.y += (Math.random() - 0.5) * 0.008;
+    cam.position.x += (Math.random() - 0.5) * 0.006; cam.position.y += (Math.random() - 0.5) * 0.006;
     const target = m ? this._face : this._v1.copy(this.position).setY(this.position.y + 1.7);
     this._m4.lookAt(cam.position, target, this._up);
     this._q.setFromRotationMatrix(this._m4);
-    j.camQ.slerp(this._q, 1 - Math.exp(-28 * dt));
+    j.camQ.slerp(this._q, 1 - Math.exp(-30 * dt));
     cam.quaternion.copy(j.camQ);
     cam.updateMatrixWorld(true);
+    if (m) this._jumpLighting(j);
     this.fear = 1;
     if (j.t > 1.4 && !this._caughtSent) {
       this._caughtSent = true;
       g.events.emit('entity:caught', {});
     }
+  }
+
+  /** Cold under-light from the torch spill + camera-style exposure so her face reads at point-blank range. */
+  _jumpLighting(j) {
+    const g = this.game, cam = g.camera, m = this.model;
+    const face = this._face;
+    // cold fill from below-left of the lens: cross-lights the face with the torch (from below-right) so the
+    // sockets, cheekbones and the open jaw keep their shape instead of a flat white mask
+    this.jsLight.position.set(-0.13, -0.17, -0.03).applyMatrix4(cam.matrixWorld);
+    const flick = 0.85 + 0.15 * Math.sin(j.t * 43) * Math.sin(j.t * 17);
+    const jsI = 1.1 * flick * clamp(j.t / 0.05, 0, 1);
+    this.jsLight.intensity = jsI;
+    const ejs = jsI / Math.max(0.01, this.jsLight.position.distanceToSquared(face));
+    // flashlight irradiance actually reaching the face (spot cone + penumbra), not just its intensity
+    let ef = 0;
+    const fl = g.player?.flashlight, L = fl?.light;
+    if (fl?.on && L && L.intensity > 0) {
+      const o = this._v2.copy(L.position).applyMatrix4(cam.matrixWorld);
+      const d = this._v3.copy(L.target.position).applyMatrix4(cam.matrixWorld).sub(o).normalize();
+      const to = this._camDir.subVectors(face, o);
+      const d2 = Math.max(0.02, to.lengthSq());
+      const cos = to.dot(d) / Math.sqrt(d2);
+      const outer = Math.cos(L.angle ?? 0.42), inner = Math.cos((L.angle ?? 0.42) * (1 - (L.penumbra ?? 0.45)));
+      ef = L.intensity * sstep01((cos - outer) / Math.max(1e-4, inner - outer)) / d2;
+    }
+    const target = 4.2;
+    m.setExposure(clamp(target / Math.max(target, ef + ejs), 0.03, 1));
   }
 
   // ===================================================================================== perception
@@ -703,6 +737,11 @@ export class Gardienne {
       return;
     }
     if (this.state === 'chasing') return;
+    if (this.state === 'returning' && (this._sub?.phase === 'door' || this.position.y > L.UPPER.floorY - 0.3)) {
+      // already on the landing / in the hallway, closing the door: she comes back only for a real noise
+      if (lv >= 0.3) { this._lastNoise.copy(pos); this.suspicion = Math.min(SUSPICION_MAX, this.suspicion + lv * 0.5); }
+      return;
+    }
     // in the basement: does she hear it from where she is?
     const d = this.position.distanceTo(pos);
     const heard = lv * (1 / (1 + (d * d) / 10)) * agg;
@@ -732,24 +771,28 @@ export class Gardienne {
     const id = w.nearestNode(t);
     const n = id ? w.nav.nodes[id].pos : null;
     for (let i = 0; i < 25 && n; i++) {
-      if (!w.segmentBlocked(t.x, t.z, t.x, t.z, RADIUS, t.y + 0.3, t.y + 1.9)) break;
+      if (!w.segmentBlocked(t.x, t.z, t.x, t.z, RADIUS, t.y + 0.3, t.y + BODY_H)) break;
       t.lerp(n, 0.15);
     }
     return t;
   }
 
   _setPath(dest) {
-    const w = this.game.world;
-    this._path = w.path(this.position, dest);
+    const w = this.game.world, p = this.position;
+    const path = (this._path = w.path(p, dest));
     this._pathI = 0;
-    // skip a first node that is behind us when the next one is directly reachable on the same level
-    if (this._path.length > 1) {
-      const a = this._path[0], b = this._path[1];
-      if (Math.abs(b.y - this.position.y) < 0.25 && Math.abs(a.y - this.position.y) < 0.25 &&
-          !w.segmentBlocked(this.position.x, this.position.z, b.x, b.z, RADIUS * 0.9, this.position.y + 0.3, this.position.y + 1.9)) this._pathI = 1;
+    // A* starts at the nearest node, which is often the one she just walked past: drop leading waypoints that lie
+    // behind her when the next one is reachable in a straight line (no back-and-forth while chasing / repathing)
+    while (this._pathI < path.length - 1) {
+      const a = path[this._pathI], b = path[this._pathI + 1];
+      if (Math.abs(b.y - p.y) > 0.25 || Math.abs(a.y - p.y) > 0.25) break;
+      const behind = Math.hypot(b.x - p.x, b.z - p.z) < Math.hypot(b.x - a.x, b.z - a.z) + 0.15;
+      const r = behind ? RADIUS * 0.75 : RADIUS * 0.9;
+      if (!w.segmentBlocked(p.x, p.z, b.x, b.z, r, p.y + 0.3, p.y + BODY_H)) this._pathI++;
+      else break;
+      if (!behind) break;
     }
-    this._stuck = 0;
-    this._wpI = -1;
+    // the progress watchdog keeps running when a repath keeps the same waypoint (see _followPath)
   }
 
   /** Follow the current path. Returns true when the last waypoint is reached (or proved unreachable). */
@@ -768,10 +811,12 @@ export class Gardienne {
     // shortcut to the next waypoint when the straight line is free and on the same level
     const nx = path[this._pathI + 1];
     if (nx && Math.abs(nx.y - this.position.y) < 0.2 && Math.abs(path[this._pathI].y - this.position.y) < 0.2 && !this._onStairs() &&
-        !w.segmentBlocked(this.position.x, this.position.z, nx.x, nx.z, RADIUS * 0.95, this.position.y + 0.3, this.position.y + 1.9)) this._pathI++;
+        !w.segmentBlocked(this.position.x, this.position.z, nx.x, nx.z, RADIUS * 0.95, this.position.y + 0.3, this.position.y + BODY_H)) this._pathI++;
     const wp = path[this._pathI];
-    // never-stuck: watch progress toward the current waypoint
-    if (this._pathI !== this._wpI) { this._wpI = this._pathI; this._bestD = Infinity; this._noImpT = 0; this._stuck = 0; }
+    // never-stuck: watch progress toward the current waypoint (survives repaths that keep the same waypoint)
+    if (Math.abs(wp.x - this._wpPos.x) + Math.abs(wp.z - this._wpPos.z) > 0.03) {
+      this._wpPos.copy(wp); this._bestD = Infinity; this._noImpT = 0; this._stuck = 0;
+    }
     const d = Math.hypot(wp.x - this.position.x, wp.z - this.position.z);
     if (d < this._bestD - 0.05) { this._bestD = d; this._noImpT = 0; } else if (this._backoffT <= 0) this._noImpT += dt;
     if (this._noImpT > 1.1) {
@@ -790,7 +835,7 @@ export class Gardienne {
     const w = this.game.world, p = this.position;
     if (this._backoffT > 0) {
       this._backoffT -= dt;
-      w.moveCircle(p, this._backoff.x * dt, this._backoff.z * dt, RADIUS, p.y + 0.3, p.y + 1.9);
+      w.moveCircle(p, this._backoff.x * dt, this._backoff.z * dt, RADIUS, p.y + 0.3, p.y + BODY_H);
       p.y = w.groundHeightAt(p.x, p.z, p.y);
       return;
     }
@@ -804,7 +849,7 @@ export class Gardienne {
     const face = Math.cos(angWrap(want - this.yaw));
     const sp = speed * clamp(0.35 + 0.65 * face, 0.2, 1);
     const step = Math.min(d, sp * dt);
-    w.moveCircle(p, dx * step, dz * step, RADIUS, p.y + 0.3, p.y + 1.9);
+    w.moveCircle(p, dx * step, dz * step, RADIUS, p.y + 0.3, p.y + BODY_H);
     p.y = w.groundHeightAt(p.x, p.z, p.y);
   }
 
@@ -825,7 +870,7 @@ export class Gardienne {
     this._path = w.path(this.position, alt);
     if (goal) this._path.push(...w.path(alt, goal).slice(1));
     this._pathI = 0;
-    this._wpI = -1;
+    this._wpPos.set(1e9, 0, 0);
   }
 
   _turnToward(cur, want, rate, dt) {
@@ -868,7 +913,18 @@ export class Gardienne {
     } else ctx.look = null;
     ctx.jumpT = -1;
     ctx.eyeshine = this._eyeshine;
+    ctx.duck = this._duckAmount();
     m.update(dt, ctx);
+  }
+
+  /** 0..1: how far she must duck under the drywall bulkhead at the bottom of the stairwell (she is 1.98 m tall). */
+  _duckAmount() {
+    const p = this.position;
+    if (p.x > L.STAIRS.maxX + 0.2 || p.y < 0.05) return 0;
+    const hz = p.z + Math.cos(this.yaw) * 0.12; // her head is a little ahead of her feet
+    const dz = hz < BULK_Z0 ? BULK_Z0 - hz : hz > BULK_Z1 ? hz - BULK_Z1 : 0;
+    const near = clamp(1 - (dz - 0.1) / 0.55, 0, 1);
+    return near * clamp((this._dispY + 2.02 - BULK_Y) / 0.22, 0, 1);
   }
 
   _debugUpdate(dt) {
@@ -878,7 +934,7 @@ export class Gardienne {
     if (this.model) {
       const ctx = this._ctx;
       ctx.mode = h.mode; ctx.speed = h.mode === 'walk' ? 0.9 : h.mode === 'chase' ? 2.9 : 0; ctx.stairs = 0;
-      ctx.look = null; ctx.aggression = this.aggression; ctx.eyeshine = this._eyeshine;
+      ctx.look = null; ctx.aggression = this.aggression; ctx.eyeshine = this._eyeshine; ctx.duck = 0;
       if (h.mode === 'jumpscare') { h.jumpT += dt; ctx.jumpT = h.jumpT; } else ctx.jumpT = -1;
       this.model.update(dt, ctx);
     }
@@ -935,7 +991,6 @@ export class Gardienne {
     this._doorOpenedByMe = true;
     this._doorBusy = true;
     door.locked = false;
-    this.game.audio?.play?.('door_creak_open', { position: DOOR_BEHIND.clone(), volume: 0.6 });
     let p;
     try { p = door.open?.(); } catch (e) { p = null; }
     const done = () => {
