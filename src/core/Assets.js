@@ -94,6 +94,45 @@ export class Assets {
     this.texLoader = new THREE.TextureLoader();
     this.models = new Map();   // id -> THREE.Group (pristine)
     this.textures = new Map(); // path -> THREE.Texture
+    this._shrunk = new WeakSet();
+  }
+
+  /**
+   * GPU memory budget: every texture is downscaled at load time to at most this size (px). Full resolution
+   * (1024) on high/ultra; 512 on low/medium (phones), which divides texture memory by 4 (~1.3 GB -> ~0.35 GB).
+   * Debug override: ?texmax=256|512|1024.
+   */
+  get maxTextureSize() {
+    const o = Number(this.game.params?.texmax || new URLSearchParams(location.search).get('texmax'));
+    if (o > 0) return o;
+    const q = this.game.renderer?.quality;
+    return q === 'low' || q === 'medium' ? 512 : 4096;
+  }
+
+  /** Downscale a texture's image in place (before its first GPU upload). Keeps orientation and flipY. */
+  shrinkTexture(tex) {
+    if (!tex || this._shrunk.has(tex)) return tex;
+    const img = tex.image;
+    const max = this.maxTextureSize;
+    const w = img?.width, h = img?.height;
+    if (!w || !h || (w <= max && h <= max) || tex.isCanvasTexture || tex.isDataTexture) return tex;
+    const k = max / Math.max(w, h);
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+    const g = c.getContext('2d');
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(img, 0, 0, c.width, c.height);
+    try { img.close?.(); } catch (_) { /* ImageBitmap only */ }
+    tex.image = c;
+    tex.needsUpdate = true;
+    this._shrunk.add(tex);
+    return tex;
+  }
+
+  _shrinkMaterial(m) {
+    for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap', 'bumpMap', 'specularColorMap', 'sheenColorMap', 'clearcoatNormalMap']) {
+      if (m[k]) this.shrinkTexture(m[k]);
+    }
   }
 
   /** Preload every model in MODELS. onProgress(0..1). */
@@ -118,6 +157,7 @@ export class Assets {
         o.receiveShadow = true;
         const mats = Array.isArray(o.material) ? o.material : [o.material];
         for (const m of mats) {
+          this._shrinkMaterial(m);
           if (m.map) m.map.anisotropy = this.game.renderer?.maxAnisotropy ?? 4;
           m.envMapIntensity = 1.0;
         }
@@ -147,7 +187,7 @@ export class Assets {
   texture(path, { srgb = false, repeat = null, wrap = true } = {}) {
     const key = `${path}|${srgb}|${repeat ? repeat.join('x') : ''}`;
     if (this.textures.has(key)) return this.textures.get(key);
-    const t = this.texLoader.load(this.base + path);
+    const t = this.texLoader.load(this.base + path, (tx) => this.shrinkTexture(tx));
     if (srgb) t.colorSpace = THREE.SRGBColorSpace;
     if (wrap) { t.wrapS = t.wrapT = THREE.RepeatWrapping; }
     if (repeat) t.repeat.set(repeat[0], repeat[1]);
