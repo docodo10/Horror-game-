@@ -1,0 +1,36 @@
+Furniture / house foley SFX for "La Gardienne" — all sources CC0 1.0 (public domain dedication). No attribution required; credits given as courtesy.
+Processing (ffmpeg/numpy): trim, high-pass, light spectral denoise (afftdn), mono 44.1 kHz, peak-normalised to ~-1 dBFS, short fades, MP3 VBR q4.
+
+Red Library (USC Cinema / Sunset Editorial collection) — CC0 — https://archive.org/details/<item>
+  door_creak_open_1/2   Red_Library_Creaks  "R09-16 Long Door Squeak"
+  door_close_2          Red_Library_Doors   "R09-20 Light Door Shut"
+  door_locked_1/2       Red_Library_Doors   "R09-23 Door Open and Shut with Knob" (knob rattle on a door that doesn't open)
+  unlock_1              Red_Library_Doors   "R09-43 Unlocking Door from Inside"
+  unlock_2              Red_Library_Doors   "R09-44 Unlocking a Door"
+  drawer_open_1, drawer_close_1/2  Red_Library_Foley_Props_1 "R16-38 Drawers Open Shut"
+  drawer_open_2/3       Red_Library_Foley_Props_2 "R21-44 Bureau Drawer"
+  drawer_close_3        Red_Library_Foley_Props_3 "R22-43 Small Wood Drawer Close"
+  cabinet_open_1/2, cabinet_close_1/2  Red_Library_Machines_2 "R18-46 Cabinet Door Squeaks"
+  box_open              R18-46 Cabinet Door Squeaks (+2 st) layered with Red_Library_Foley_Props_2 "R22-34 Light Wood Creaks" (lid knock)
+  lock_fail             Red_Library_Doors   "R09-45 Chain Lock on Door"
+  key_pickup            Red_Library_Doors   "R09-42 Unlocking a Door with Key Jingle"
+  pickup_1/2            Red_Library_Foley_Props_1 "R17-24 Moving Small Object Around Room"
+  paper_1               Red_Library_Foley_Props_2 "R17-54 Turning Magazine Pages"
+  paper_2               Red_Library_Foley_Props_1 "R15-04 Newspaper Being Opened"
+  paper_3               Red_Library_Foley_Props_2 "R19-10 Sheet of Paper Movement and Crumple"
+  rocking_chair_4       Red_Library_Foley_Props_2 "R22-34 Light Wood Creaks"
+  closet_enter          Red_Library_Doors   "R29-49 Rattling Door Open and Close"
+  closet_exit           Red_Library_Creaks  "R09-33 Creaky Rattling Door"
+  house_creak_1/4       Red_Library_Creaks  "R29-31 Slow Wood Floor Creaks"
+  house_creak_2/3/6     Red_Library_Foley_Props_2 "R22-34 Light Wood Creaks"
+  house_creak_5         Red_Library_Creaks  "R23-02 Creaky Wooden Floor 2"
+  bump_1/2/3            Red_Library_Impacts "R28-55 Thumps on Large Hollow Wooden Surface"
+  window_tap            Red_Library_Doors "R09-26 Various Knocks" (knuckle) layered with OpenGameArt rubberduck "100 CC0 SFX" glass_04/glass_05 (glass ring)
+SSE Library (USC) — CC0 — https://archive.org/details/<item>
+  door_close_1          SSE_Library_DOORS "Wooden door opens and closes"
+  lock_success          SSE_Library_MECHANICAL "Lock opens; could be door, gun or other small"
+  lock_wheel_1/2/3      SSE_Library_MECHANICAL "Metal clicks; several takes" (single clicks, +3..+4 st)
+Kenney "RPG Audio" — CC0 — https://kenney.nl/assets/rpg-audio
+  rocking_chair_1/2/3   creak1/creak2/creak3 (-2..-3 st)
+  pickup_3              cloth1
+OpenGameArt rubberduck "100 CC0 SFX" — CC0 — https://opengameart.org/content/100-cc0-sfx  (glass layer of window_tap)
