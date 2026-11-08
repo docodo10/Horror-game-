@@ -185,6 +185,11 @@ async function PAGE_LIB() {
     r.usage.add(usage);
     return r.id;
   }
+  const imgKeys = new WeakMap(); let imgKeySeq = 0;
+  const imgKey = (img) => { if (!img || typeof img !== 'object') return 'none'; let k = imgKeys.get(img); if (!k) { k = 'k' + (imgKeySeq++); imgKeys.set(img, k); } return k; };
+  const canvasCache = new Map();
+  /** toCanvas() memoized per source image (composites built from the same inputs then share their cache keys). */
+  function srcCanvas(img) { const k = imgKey(img); if (!canvasCache.has(k)) canvasCache.set(k, toCanvas(img, 4096)); return canvasCache.get(k); }
   /** Draw any three image source into a canvas at its natural orientation (row 0 = top). */
   function toCanvas(img, maxSize = 4096) {
     let { w, h } = imgDims(img);
@@ -223,7 +228,7 @@ async function PAGE_LIB() {
       if (!c) { warn('image could not be read', r.name); list.push({ id: r.id, kind: 'missing', name: r.name, usage: [...r.usage] }); continue; }
       const alpha = canvasHasAlpha(c);
       const normal = r.usage.has('normal');
-      const png = alpha || (normal && c.width * c.height <= 1024 * 1024) || r.usage.has('png');
+      const png = alpha || (normal && c.width * c.height <= 512 * 512) || r.usage.has('png');
       const bytes = await encodeCanvas(c, png ? 'image/png' : 'image/jpeg', png ? undefined : (normal ? 0.95 : 0.92));
       const key = 'img:' + r.id;
       X.store(key, bytes);
@@ -245,12 +250,15 @@ async function PAGE_LIB() {
   const det2 = (m) => Math.abs(m.elements[0] * m.elements[4] - m.elements[1] * m.elements[3]);
   const colNorms = (m) => [Math.hypot(m.elements[0], m.elements[1]), Math.hypot(m.elements[3], m.elements[4])];
   const pow2 = (v) => 2 ** Math.round(Math.log2(Math.max(1, v)));
-  /** Re-sample texture `tex` into output UV space Tout (mesh uv -> output image coords) at W x H. */
-  function rebake(tex, Tout, W, H) {
-    const src = toCanvas(tex.image, 4096);
+  /** Re-sample texture `tex` at W x H through R (output image coords -> source image coords, both 0..1 = one tile). */
+  const rebakeCache = new Map();
+  function rebake(tex, R, W, H) {
+    const key = `${imgKey(tex.image)}|${Array.from(R.elements, (x) => x.toFixed(6)).join(',')}|${W}x${H}`;
+    if (rebakeCache.has(key)) return rebakeCache.get(key);
+    const src = srcCanvas(tex.image);
     if (!src) return null;
-    if (tex.wrapS !== THREE.RepeatWrapping || tex.wrapT !== THREE.RepeatWrapping) warn('rebake of a non-repeating texture', tex.name || tex.uuid);
-    const A = new THREE.Matrix3().makeScale(src.width, src.height).multiply(texUV(tex)).multiply(Tout.clone().invert()).multiply(new THREE.Matrix3().makeScale(1 / W, 1 / H));
+    if (tex.wrapS !== THREE.RepeatWrapping || tex.wrapT !== THREE.RepeatWrapping) warn('re-sampling a non-repeating texture', tex.name || imgKey(tex.image));
+    const A = new THREE.Matrix3().makeScale(src.width, src.height).multiply(R).multiply(new THREE.Matrix3().makeScale(1 / W, 1 / H));
     const e = A.clone().invert().elements;
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const g = c.getContext('2d', { willReadFrequently: true });
@@ -258,16 +266,22 @@ async function PAGE_LIB() {
     const pat = g.createPattern(src, 'repeat');
     pat.setTransform(new DOMMatrix([e[0], e[1], e[3], e[4], e[6], e[7]]));
     g.fillStyle = pat; g.fillRect(0, 0, W, H);
+    rebakeCache.set(key, c);
     return c;
   }
-  function rebakeSize(tex, Tout, base) {
+  /** Size of a re-sampled map: the source texel density (tiles x source size), power-of-two when that does not
+   *  upscale more than 25 %, at most `cap` (2048 for the hero character, else 1024 / twice the base map). */
+  function rebakeSize(tex, R, base, cap) {
     const { w, h } = imgDims(tex.image);
-    const [sx, sy] = colNorms(new THREE.Matrix3().copy(texUV(tex)).multiply(Tout.clone().invert()));
+    const [sx, sy] = colNorms(R);
     const bw = base ? imgDims(base.image).w : 512, bh = base ? imgDims(base.image).h : 512;
-    let W = pow2(Math.max(bw, w * sx)), H = pow2(Math.max(bh, h * sy));
-    const k = Math.min(1, 2048 / Math.max(W, H)); W = Math.max(64, Math.round(W * k)); H = Math.max(64, Math.round(H * k));
+    const fit = (v) => { const p = pow2(v); return p > v * 1.25 ? Math.round(v) : p; };
+    let W = fit(Math.max(bw, w * sx)), H = fit(Math.max(bh, h * sy));
+    const k = Math.min(1, cap / Math.max(W, H)); W = Math.max(64, Math.round(W * k)); H = Math.max(64, Math.round(H * k));
     return [W, H];
   }
+  const composites = new Map();
+  const memo = (key, fn) => { if (!composites.has(key)) composites.set(key, fn()); return composites.get(key); };
 
   // ---------------------------------------------------------------------------------------------- materials -> glTF
   const MAT = new Map(); // three material -> rec { id, def, uv, skip }
@@ -290,7 +304,7 @@ async function PAGE_LIB() {
     return null;
   }
 
-  function convertMaterial(m) {
+  function convertMaterial(m, hint, hero = false) {
     let rec = MAT.get(m);
     if (rec) return rec;
     rec = { id: 'mat' + (matSeq++), src: m };
@@ -315,18 +329,30 @@ async function PAGE_LIB() {
     rec.uv = Tout && !m3eq(Tout, IDENT) ? Tout : null;
     // per-slot canvas in the output space (null = use the image unchanged)
     const same = (t) => m3eq(texUV(t), Tout);
+    const periodic = (t) => t.wrapS === THREE.RepeatWrapping && t.wrapT === THREE.RepeatWrapping;
     const resampled = {};
     for (const k of Object.keys(T)) {
       if (same(T[k])) continue;
-      const rel = new THREE.Matrix3().copy(texUV(T[k])).multiply(Tout.clone().invert()).elements;
-      if (k === 'normalMap' && rel[0] * rel[4] - rel[1] * rel[3] < 0) warn(`material ${label}: normal map re-sampled through a mirrored UV mapping (green channel not corrected)`);
-      const [W, H] = rebakeSize(T[k], Tout, base);
-      resampled[k] = rebake(T[k], Tout, W, H);
+      const R = new THREE.Matrix3().copy(texUV(T[k])).multiply(Tout.clone().invert()); // output coords -> source coords
+      const e = R.elements;
+      if (k === 'normalMap' && e[0] * e[4] - e[1] * e[3] < 0) warn(`material ${label}: normal map re-sampled through a mirrored UV mapping (green channel not corrected)`);
+      let Rs = R;
+      if (Math.abs(e[1]) < 1e-6 && Math.abs(e[3]) < 1e-6 && periodic(T[k]) && periodic(base)) {
+        // both maps tile: a non-integer tile ratio would leave a seam at every base tile -> snap to whole tiles
+        const sx = Math.sign(e[0]) * Math.max(1, Math.round(Math.abs(e[0]))), sy = Math.sign(e[4]) * Math.max(1, Math.round(Math.abs(e[4])));
+        if (Math.abs(sx - e[0]) > 1e-3 || Math.abs(sy - e[4]) > 1e-3) warn(`material ${label}: ${k} tiling snapped from ${r4(e[0])} x ${r4(e[4])} to ${sx} x ${sy} per ${base === T.map ? 'map' : 'base'} tile (seamless)`);
+        Rs = new THREE.Matrix3().set(sx, 0, Math.round(e[6]), 0, sy, Math.round(e[7]), 0, 0, 1); // tile phase is irrelevant for detail maps
+        if (sx === 1 && sy === 1) continue; // same mapping as the base: use the image as is
+      }
+      const bd = imgDims(base.image);
+      const cap = hero ? 2048 : Math.min(2048, Math.max(1024, 2 * Math.max(bd.w, bd.h)));
+      const [W, H] = rebakeSize(T[k], Rs, base, cap);
+      resampled[k] = rebake(T[k], Rs, W, H);
       warn(`material ${label}: ${k} re-sampled into the ${base === T.map ? 'map' : 'base'} UV space (${W}x${H})`);
     }
-    const pix = (k) => resampled[k] || toCanvas(T[k].image, 4096);
+    const pix = (k) => resampled[k] || srcCanvas(T[k].image);
     const unlit = !!m.isMeshBasicMaterial;
-    const def = { name: uniqueName(matNames, m.name || ('mat_' + m.type)), pbrMetallicRoughness: {}, extensions: {}, extras: { three: m.type } };
+    const def = { name: uniqueName(matNames, (m.name || (hint ? hint + '_mat' : 'mat_' + m.type)).replace(/[^A-Za-z0-9_]/g, '_')), pbrMetallicRoughness: {}, extensions: {}, extras: { three: m.type } };
     const pbr = def.pbrMetallicRoughness;
     const c = m.color || new THREE.Color(1, 1, 1);
     pbr.baseColorFactor = [r6(c.r), r6(c.g), r6(c.b), r6(m.opacity ?? 1)];
@@ -337,6 +363,7 @@ async function PAGE_LIB() {
       if (T.alphaMap) {
         const a = pix('alphaMap');
         const col = T.map ? pix('map') : null;
+        const out = memo(`alpha|${imgKey(a)}|${imgKey(col)}`, () => {
         const W = Math.max(a.width, col ? col.width : 0), H = Math.max(a.height, col ? col.height : 0);
         const out = document.createElement('canvas'); out.width = W; out.height = H;
         const g = out.getContext('2d', { willReadFrequently: true });
@@ -349,6 +376,8 @@ async function PAGE_LIB() {
         const ad = ag.getImageData(0, 0, W, H).data;
         for (let i = 0; i < cd.data.length; i += 4) cd.data[i + 3] = Math.round((cd.data[i + 3] * ad[i + 1]) / 255); // three: alphaMap.g
         g.putImageData(cd, 0, 0);
+        return out;
+        });
         pbr.baseColorTexture = ref(canvasImage(out, 'colorAlpha', `${def.name}_basecolor`), base);
       } else if (resampled.map) pbr.baseColorTexture = ref(canvasImage(resampled.map, 'color', `${def.name}_basecolor`), base);
       else pbr.baseColorTexture = ref(imageOf(T.map, 'color', `${def.name}_basecolor`), T.map);
@@ -367,6 +396,7 @@ async function PAGE_LIB() {
           pbr.metallicRoughnessTexture = ref(imageOf(R, 'data', `${def.name}_orm`), R);
         } else { // pack: G = roughness (three reads .g), B = metalness (three reads .b)
           const rc = R ? pix('roughnessMap') : null, mc = Mt ? pix('metalnessMap') : null;
+          const out = memo(`orm|${imgKey(rc)}|${imgKey(mc)}`, () => {
           const W = Math.max(rc ? rc.width : 0, mc ? mc.width : 0), H = Math.max(rc ? rc.height : 0, mc ? mc.height : 0);
           const read = (cv) => { if (!cv) return null; const t = document.createElement('canvas'); t.width = W; t.height = H; const g = t.getContext('2d', { willReadFrequently: true }); g.imageSmoothingQuality = 'high'; g.drawImage(cv, 0, 0, W, H); return g.getImageData(0, 0, W, H).data; };
           const rd = read(rc), md = read(mc);
@@ -374,6 +404,8 @@ async function PAGE_LIB() {
           const g = out.getContext('2d'); const id = g.createImageData(W, H);
           for (let i = 0; i < id.data.length; i += 4) { id.data[i] = 0; id.data[i + 1] = rd ? rd[i + 1] : 255; id.data[i + 2] = md ? md[i + 2] : 255; id.data[i + 3] = 255; }
           g.putImageData(id, 0, 0);
+          return out;
+          });
           pbr.metallicRoughnessTexture = ref(canvasImage(out, 'data', `${def.name}_orm`), base);
         }
       }
@@ -478,7 +510,8 @@ async function PAGE_LIB() {
   /** Mesh -> exportable (geometry, placeholder materials) or a skip reason. */
   function exportMesh(o) {
     const mats = Array.isArray(o.material) ? o.material : [o.material];
-    const recs = mats.map(convertMaterial);
+    const hint = o.name || o.parent?.name || '';
+    const recs = mats.map((x) => convertMaterial(x, hint, !!o.isSkinnedMesh));
     const sk = recs.find((r) => r.skip);
     if (sk) return { skip: sk.skip };
     const uv = recs[0].uv;
@@ -618,9 +651,24 @@ async function PAGE_LIB() {
     extraKeep.forEach(keepObj);
 
     const names = new Set(); const levelName = new Map(); X.levelName = levelName;
+    // readable names for unnamed procedural nodes the meta refers to
+    const role = new Map();
+    for (const [id, h] of Object.entries(W.handles || {})) if (h.contents && !h.contents.name) role.set(h.contents, id + '.contents');
+    const lock = P?._lock;
+    if (lock) {
+      if (lock.userData.shackle) role.set(lock.userData.shackle, 'lockedBox.lock.shackle');
+      (lock.userData.wheels || []).forEach((w, i) => role.set(w, `lockedBox.lock.wheel${i}`));
+      if (lock.children[0] && !lock.children[0].name) role.set(lock.children[0], 'lockedBox.lock.body');
+    }
+    if (P?._boxFrame) role.set(P._boxFrame, 'lockedBox.frame');
+    const lidPivot = P?._lid?.object;
+    if (lidPivot) { const f = lidPivot.children.find((c) => !c.userData?.__gltf && !c.isMesh && !c.name); if (f) role.set(f, 'lockedBox.lid.frame'); }
+    const leverG = P?._lever?.handle?.object;
+    if (leverG) { const pv = leverG.children.find((c) => !c.isMesh && c.children.some((x) => x.isMesh)); if (pv && !pv.name) role.set(pv, 'powerBox.lever.pivot'); }
+    if (P?._rock?.pivot && !P._rock.pivot.name) role.set(P._rock.pivot, 'rockingChair.pivot');
     const HINT = /(^|_)(col|colonly|convcol|convcolonly|rigid|noimp|occ|occonly|navmesh|vehicle|wheel|loop|cycle|skip)$/i;
     const nameFor = (o, parentName) => {
-      let n = (o.name || '').replace(/[^A-Za-z0-9_]/g, '_');
+      let n = (o.name || role.get(o) || '').replace(/[^A-Za-z0-9_]/g, '_');
       if (!n) n = `${parentName || 'level'}_${o.isMesh ? 'mesh' : 'node'}`;
       if (HINT.test(n.replace(/\d+$/, ''))) n += '_x';
       return uniqueName(names, n);
@@ -671,7 +719,7 @@ async function PAGE_LIB() {
       c.name = name;
       if (o.matrixAutoUpdate === false) o.matrix.decompose(c.position, c.quaternion, c.scale);
       else { c.position.copy(o.position); c.quaternion.copy(o.quaternion); c.scale.copy(o.scale); }
-      if (o.visible === false) hidden.push(name);
+      if (o.visible === false && o !== E?.mirror?.glass) hidden.push(name);
       for (const ch of o.children) if (S.procNodes.has(ch)) { const cc = build(ch, name); if (cc) c.add(cc); }
       return c;
     };
@@ -980,7 +1028,13 @@ async function PAGE_LIB() {
     const PT = await import('/src/world/ProcTextures.js');
     await PT.waitFonts(6000);
     const list = [];
-    const put = async (name, canvas) => { const bytes = await encodeCanvas(canvas, 'image/png'); X.store('ui:' + name, bytes); list.push({ name, key: 'ui:' + name, w: canvas.width, h: canvas.height, bytes: bytes.byteLength }); };
+    // PNG when the image has transparency (newspaper cut-out, digit decals, TV digit masks), JPEG otherwise
+    const put = async (name, canvas, forcePng = false) => {
+      const png = forcePng || canvasHasAlpha(canvas);
+      const file = png ? name : name.replace(/\.png$/, '.jpg');
+      const bytes = await encodeCanvas(canvas, png ? 'image/png' : 'image/jpeg', png ? undefined : 0.92);
+      X.store('ui:' + file, bytes); list.push({ name: file, key: 'ui:' + file, w: canvas.width, h: canvas.height, alpha: png, bytes: bytes.byteLength });
+    };
     const imgOf = (t) => (t?.texture ? t.texture.image : t?.image);
     await put('notes/note1.png', imgOf(PT.note1Texture()));
     await put('notes/note2_child_drawing.png', imgOf(PT.note2Texture()));
@@ -995,7 +1049,7 @@ async function PAGE_LIB() {
       const c = document.createElement('canvas'); c.width = 176; c.height = 132;
       const g = c.getContext('2d'); g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.font = `bold ${Math.round(132 * 0.72)}px ${PT.FONT.sans}`; g.fillText(String(d), 88, 132 * 0.54);
-      await put(`decals/tv_digit_${d}.png`, c);
+      await put(`decals/tv_digit_${d}.png`, c, true);
     }
     const fonts = document.fonts ? [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family} ${f.weight}`) : [];
     return { list, fonts };
@@ -1112,6 +1166,8 @@ async function PAGE_LIB() {
     }
     Math.random = origRandom;
     restore();
+    (model.eyes || []).forEach((m, i) => { m.name = i === 0 ? 'eye_L' : 'eye_R'; });
+    (model.glints || []).forEach((m, i) => { m.name = i === 0 ? 'glint_L' : 'glint_R'; });
     // materials -> placeholders + glTF defs (UV transforms baked into copies of the skinned geometries)
     const meshes = []; root.traverse((o) => { if (o.isMesh) meshes.push(o); });
     const matIds = new Set();
@@ -1319,7 +1375,7 @@ function makeResolver(instModels) {
       const model = instModels.get(r.instance);
       const p = model ? modelNodePaths(model).paths[r.n] : null;
       const o = { instance: r.instance, node: p ?? `#${r.n}` };
-      if (r.surface !== undefined) o.surface = r.surface;
+      if (r.surface !== undefined && r.surface !== null) o.surface = r.surface;
       return o;
     }
     return r;
@@ -1328,9 +1384,9 @@ function makeResolver(instModels) {
 function deepResolve(v, resolve) {
   if (Array.isArray(v)) return v.map((x) => deepResolve(x, resolve));
   if (v && typeof v === 'object') {
-    if (v.instance !== undefined && v.n !== undefined) return resolve(v);
     const o = {};
-    for (const [k, x] of Object.entries(v)) o[k] = deepResolve(x, resolve);
+    if (v.instance !== undefined && v.n !== undefined) Object.assign(o, resolve({ instance: v.instance, n: v.n, surface: v.surface }));
+    for (const [k, x] of Object.entries(v)) if (!(k in o) && k !== 'n' && !(k === 'surface' && x === undefined)) o[k] = deepResolve(x, resolve);
     return o;
   }
   return v;

@@ -3,7 +3,7 @@
  "generator": "tools/export-godot.cjs",
  "source": {
   "url": "http://127.0.0.1:PORT/index.html?debug&noentity&quality=high",
-  "date": "2026-11-08T21:29:34.561Z",
+  "date": "2026-11-08T21:35:12.770Z",
   "model": "src/entity/GardienneModel.js"
  },
  "file": "res://assets/generated/gardienne.glb",
@@ -1829,28 +1829,28 @@
  "boneCount": 93,
  "meshes": [
   {
-   "name": "eye",
+   "name": "eye_L",
    "skinned": false,
    "parent": "head",
    "castShadow": false,
    "vertices": 425
   },
   {
-   "name": "",
+   "name": "glint_L",
    "skinned": false,
    "parent": "head",
    "castShadow": false,
    "vertices": 63
   },
   {
-   "name": "eye",
+   "name": "eye_R",
    "skinned": false,
    "parent": "head",
    "castShadow": false,
    "vertices": 425
   },
   {
-   "name": "",
+   "name": "glint_R",
    "skinned": false,
    "parent": "head",
    "castShadow": false,
@@ -2007,13 +2007,13 @@
  },
  "materials": [
   {
-   "name": "mat_MeshPhysicalMaterial",
+   "name": "eye_L_mat",
    "extras": {
     "three": "MeshPhysicalMaterial"
    }
   },
   {
-   "name": "mat_MeshStandardMaterial_59",
+   "name": "glint_L_mat",
    "extras": {
     "three": "MeshStandardMaterial",
     "emissive": {
@@ -2042,7 +2042,7 @@
    }
   },
   {
-   "name": "mat_MeshPhysicalMaterial_2",
+   "name": "gardienne_teeth_mat",
    "extras": {
     "three": "MeshPhysicalMaterial",
     "vertexColors": true

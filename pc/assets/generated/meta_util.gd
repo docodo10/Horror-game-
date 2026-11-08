@@ -81,6 +81,7 @@ static func assemble(parent: Node3D, meta: Dictionary, opts: Dictionary = {}) ->
 				(m as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 			ctx.shadow_casters = casters
 	# 3. model instances (placed at their world transform first; parents are fixed in step 6)
+	var parent_inv := parent.global_transform.affine_inverse() if parent.is_inside_tree() else Transform3D.IDENTITY
 	for im in meta.get("instances", []):
 		var ips := load(String(im.scene)) as PackedScene
 		if ips == null:
@@ -89,7 +90,7 @@ static func assemble(parent: Node3D, meta: Dictionary, opts: Dictionary = {}) ->
 		var inst := ips.instantiate() as Node3D
 		inst.name = String(im.name)
 		parent.add_child(inst)
-		inst.global_transform = parent.global_transform * mat16(im.transform)
+		inst.transform = parent_inv * mat16(im.transform)  # parent assumed at the world origin when not in the tree yet
 		ctx.instances[im.name] = inst
 		if im.get("visible", true) == false:
 			inst.visible = false

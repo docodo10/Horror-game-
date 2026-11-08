@@ -3,11 +3,19 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://dktx55u0ap75u"
+path="res://.godot/imported/level.glb-de672157aed8371c478c708f75714f93.scn"
+
+[deps]
+
+source_file="res://assets/generated/level.glb"
+dest_files=["res://.godot/imported/level.glb-de672157aed8371c478c708f75714f93.scn"]
 
 [params]
 
 nodes/root_type=""
 nodes/root_name=""
+nodes/root_script=null
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
 nodes/import_as_skeleton_bones=false

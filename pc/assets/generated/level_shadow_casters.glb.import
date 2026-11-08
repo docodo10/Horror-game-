@@ -3,11 +3,19 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
+uid="uid://cbm2yohbcyged"
+path="res://.godot/imported/level_shadow_casters.glb-1cb0799c52e3c97d06a320cdce1d0aa1.scn"
+
+[deps]
+
+source_file="res://assets/generated/level_shadow_casters.glb"
+dest_files=["res://.godot/imported/level_shadow_casters.glb-1cb0799c52e3c97d06a320cdce1d0aa1.scn"]
 
 [params]
 
 nodes/root_type=""
 nodes/root_name=""
+nodes/root_script=null
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
 nodes/import_as_skeleton_bones=false

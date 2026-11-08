@@ -3,7 +3,7 @@
  "generator": "tools/export-godot.cjs",
  "source": {
   "url": "http://127.0.0.1:PORT/index.html?debug&noentity&quality=high",
-  "date": "2026-11-08T21:29:34.561Z",
+  "date": "2026-11-08T21:35:12.770Z",
   "three": "0.170.0",
   "quality": "high"
  },
@@ -23,16 +23,16 @@
   "roots": [
    "architecture",
    "kidsRug",
-   "level_node",
+   "endTable_drawer_contents",
    "dresser_drawerBottom_contents",
    "dresser_drawerMid_contents",
    "dresser_drawerTop_contents",
    "tv_screen",
    "lockedBox_lid",
-   "level_node_2",
+   "lockedBox_frame",
    "lockedBox_contents",
-   "level_node_3",
-   "level_node_4",
+   "alcoveCabinet_drawer_02_contents",
+   "alcoveCabinet_drawer_01_contents",
    "alcoveCabinet_door_01_contents",
    "alcoveCabinet_door_02_contents",
    "powerBox_lever",
@@ -87,7 +87,6 @@
   "hidden": [
    "upperHall",
    "tv_screen",
-   "extra_mirror_glass",
    "extra_crt_screen"
   ],
   "noCastShadow": [
@@ -132,14 +131,14 @@
    "battery1_mesh_2",
    "tv_screen",
    "codeNote",
-   "lockedBox_lid_node_mesh",
-   "level_node_2_mesh",
-   "lockedBox_lock_node_mesh",
-   "lockedBox_lock_node_mesh_2",
-   "lockedBox_lock_node_mesh_3",
-   "lockedBox_lock_node_mesh_4",
-   "lockedBox_lock_node_mesh_5",
-   "lockedBox_lock_node_mesh_6",
+   "lockedBox_lid_frame_mesh",
+   "lockedBox_frame_mesh",
+   "lockedBox_lock_body_mesh",
+   "lockedBox_lock_wheel0_x",
+   "lockedBox_lock_wheel1_x",
+   "lockedBox_lock_wheel2_x",
+   "lockedBox_lock_wheel3_x",
+   "lockedBox_lock_shackle",
    "key_mesh",
    "key_mesh_2",
    "key_mesh_3",
@@ -148,7 +147,7 @@
    "note3",
    "powerBox_lever_mesh",
    "powerBox_lever_mesh_2",
-   "powerBox_lever_node_mesh",
+   "powerBox_lever_pivot_mesh",
    "powerBox_lever_mesh_3",
    "note1",
    "note2",
@@ -674,12 +673,12 @@
     {
      "node": "vintage_grandfather_clock_01_HourHand",
      "local": [
-      -0.219435,
-      0.975627,
+      -0.954635,
+      0.297777,
       0,
       0,
-      -0.975627,
-      -0.219435,
+      -0.297777,
+      -0.954635,
       0,
       0,
       0,
@@ -1123,14 +1122,14 @@
      "node": "houd_hand",
      "local": [
       -0.998026,
-      0.062807,
+      0.062805,
       0,
       0,
       0,
       0,
       1,
       0,
-      0.062807,
+      0.062805,
       0.998026,
       0,
       0,
@@ -1143,16 +1142,16 @@
     {
      "node": "minute_hand",
      "local": [
-      -0.685545,
-      -0.72803,
+      -0.685531,
+      -0.728044,
       0,
       0,
       0,
       0,
       1,
       0,
-      -0.72803,
-      0.685545,
+      -0.728044,
+      0.685531,
       0,
       0,
       0,
@@ -1246,17 +1245,17 @@
     {
      "node": "ceiling_fan_blades",
      "local": [
-      0.81615,
+      0.700028,
       0,
-      -0.57784,
+      -0.714116,
       0,
       0,
       1,
       0,
       0,
-      0.57784,
+      0.714116,
       0,
-      0.81615,
+      0.700028,
       0,
       0,
       0,
@@ -1633,7 +1632,7 @@
     1
    ],
    "parent": {
-    "level": "rockingChair_root_node"
+    "level": "rockingChair_pivot"
    },
    "local": [
     1,
@@ -2568,7 +2567,7 @@
  ],
  "attachments": [
   {
-   "level": "level_node",
+   "level": "endTable_drawer_contents",
    "parent": {
     "instance": "endTable",
     "node": "painted_wooden_nightstand_drawer"
@@ -2722,7 +2721,7 @@
    "path": "lockedBox/lockedBox.lid"
   },
   {
-   "level": "level_node_2",
+   "level": "lockedBox_frame",
    "parent": {
     "instance": "lockedBox"
    },
@@ -2772,7 +2771,7 @@
    "path": "lockedBox/lockedBox.contents"
   },
   {
-   "level": "level_node_3",
+   "level": "alcoveCabinet_drawer_02_contents",
    "parent": {
     "instance": "alcoveCabinet",
     "node": "painted_wooden_cabinet_drawer_02"
@@ -2798,7 +2797,7 @@
    "path": "alcoveCabinet/painted_wooden_cabinet_drawer_02/Group"
   },
   {
-   "level": "level_node_4",
+   "level": "alcoveCabinet_drawer_01_contents",
    "parent": {
     "instance": "alcoveCabinet",
     "node": "painted_wooden_cabinet_drawer_01"
@@ -2954,17 +2953,17 @@
     "instance": "extra_socket"
    },
    "local": [
-    0.999659,
-    -0.026112,
-    0.000518,
+    0.999826,
+    0.018674,
+    -0.000288,
     0,
-    0.026117,
-    0.999462,
-    -0.019843,
+    -0.018676,
+    0.999707,
+    -0.015401,
     0,
     0,
-    0.01985,
-    0.999803,
+    0.015403,
+    0.999881,
     0,
     -0.023,
     -0.019,
@@ -3002,11 +3001,55 @@
  "reparent": [
   {
    "instance": "lockedBox",
-   "node": "CheeseBox_01_lid"
+   "node": "CheeseBox_01_lid",
+   "parent": {
+    "level": "lockedBox_lid"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.064,
+    0.0527,
+    1
+   ],
+   "path": "lockedBox/lockedBox.lid/CheeseBox_01_lid"
   },
   {
    "instance": "extra_socket",
-   "node": "pull_chain_light_socket_chain"
+   "node": "pull_chain_light_socket_chain",
+   "parent": {
+    "level": "extra_socket_chain_pivot"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0.023,
+    0.019,
+    0,
+    1
+   ],
+   "path": "extra_socket/extra_socket_chain_pivot/pull_chain_light_socket_chain"
   }
  ],
  "handles": {
@@ -3078,7 +3121,7 @@
     },
     {
      "ref": {
-      "level": "lockedBox_lock_node_mesh_6"
+      "level": "lockedBox_lock_shackle"
      },
      "path": "lockedBox/Group/lockedBox.lock/Group/Mesh",
      "closed": [
@@ -3534,7 +3577,7 @@
    "locked": false,
    "initiallyOpen": false,
    "contents": {
-    "level": "level_node"
+    "level": "endTable_drawer_contents"
    },
    "contentsParent": {
     "instance": "endTable",
@@ -3614,7 +3657,7 @@
    "locked": false,
    "initiallyOpen": false,
    "contents": {
-    "level": "level_node_4"
+    "level": "alcoveCabinet_drawer_01_contents"
    },
    "contentsParent": {
     "instance": "alcoveCabinet",
@@ -3694,7 +3737,7 @@
    "locked": false,
    "initiallyOpen": false,
    "contents": {
-    "level": "level_node_3"
+    "level": "alcoveCabinet_drawer_02_contents"
    },
    "contentsParent": {
     "instance": "alcoveCabinet",
@@ -4009,7 +4052,7 @@
    "moving": [
     {
      "ref": {
-      "level": "powerBox_lever_node"
+      "level": "powerBox_lever_pivot"
      },
      "path": "powerBox/powerBox.lever/Group",
      "closed": [
@@ -4186,7 +4229,7 @@
    },
    "inside": "endTable.drawer",
    "parent": {
-    "level": "level_node"
+    "level": "endTable_drawer_contents"
    },
    "local": [
     0.939373,
@@ -4232,7 +4275,7 @@
    },
    "inside": "alcoveCabinet.drawer_01",
    "parent": {
-    "level": "level_node_4"
+    "level": "alcoveCabinet_drawer_01_contents"
    },
    "local": [
     0.825336,
@@ -10539,7 +10582,7 @@
    "occluder": false,
    "interact": false,
    "parent": {
-    "level": "lockedBox_lid_node"
+    "level": "lockedBox_lid_frame"
    },
    "local": [
     1,
@@ -10598,7 +10641,7 @@
    "occluder": false,
    "interact": false,
    "parent": {
-    "level": "lockedBox_lock_node"
+    "level": "lockedBox_lock_body"
    },
    "local": [
     1,
@@ -11181,9 +11224,9 @@
    },
    "intensity": 0,
    "position": [
-    -0.348643,
-    1.278401,
-    -1.819352
+    -0.348542,
+    1.278632,
+    -1.819306
    ],
    "castShadow": true,
    "visible": true,
@@ -11192,9 +11235,9 @@
    "angle": 0.42,
    "penumbra": 0.45,
    "target": [
-    -0.780912,
-    1.585464,
-    -4.800519
+    -0.781133,
+    1.584528,
+    -4.800546
    ],
    "shadow": {
     "mapSize": [
@@ -11340,7 +11383,7 @@
      1
     ]
    },
-   "intensity": 0.580075,
+   "intensity": 0.554249,
    "position": [
     -0.55,
     1.472043,
@@ -11537,7 +11580,7 @@
     "level": "rockingChair_root"
    },
    "pivot": {
-    "level": "rockingChair_root_node"
+    "level": "rockingChair_pivot"
    },
    "radius": 0.95,
    "formula": "th = amp * sin(2PI/1.75 * t), amp 0.11 (0.9 s ease-in, 2.2 s decay); pivot.rotation.x = th; pivot.position.z = R * th"
@@ -11547,21 +11590,21 @@
     "level": "lockedBox_lock"
    },
    "shackle": {
-    "level": "lockedBox_lock_node_mesh_6"
+    "level": "lockedBox_lock_shackle"
    },
    "shackleLift": 0.0095,
    "wheels": [
     {
-     "level": "lockedBox_lock_node_mesh_2"
+     "level": "lockedBox_lock_wheel0_x"
     },
     {
-     "level": "lockedBox_lock_node_mesh_3"
+     "level": "lockedBox_lock_wheel1_x"
     },
     {
-     "level": "lockedBox_lock_node_mesh_4"
+     "level": "lockedBox_lock_wheel2_x"
     },
     {
-     "level": "lockedBox_lock_node_mesh_5"
+     "level": "lockedBox_lock_wheel3_x"
     }
    ],
    "wheelFormula": "wheel.rotation.x = ((digit + 0.5) / 10) * 2PI",
@@ -11675,14 +11718,21 @@
   }
  },
  "warnings": [
-  "material hallWall: map re-sampled into the base UV space (2048x2048)",
+  "material hallWall: map tiling snapped from 2.8302 x 2.8302 to 3 x 3 per base tile (seamless)",
+  "material hallWall: map re-sampled into the base UV space (1536x1536)",
+  "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: normalMap re-sampled into the map UV space (1024x1024)",
+  "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: aoMap re-sampled into the map UV space (1024x1024)",
-  "material MeshStandardMaterial: normalMap re-sampled into the map UV space (2048x1024)",
+  "material MeshStandardMaterial: normalMap re-sampled into the map UV space (2048x1468)",
   "material MeshStandardMaterial: normalMap re-sampled into the base UV space (2048x2048)",
   "override extra_stairPhotoA:Cube009_2: the web build replaced this primitive's geometry (e.g. generated UVs) — Godot keeps the original mesh",
   "override extra_stairPhotoB:Cube009_2: the web build replaced this primitive's geometry (e.g. generated UVs) — Godot keeps the original mesh"

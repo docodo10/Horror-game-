@@ -10,12 +10,31 @@ const GEN := "res://assets/generated/"
 
 var problems: Array[String] = []
 
+var _root: Node3D
+var _done := false
+
 func _initialize() -> void:
-	var root := Node3D.new()
-	root.name = "ExportCheck"
-	get_root().add_child(root)
+	_root = Node3D.new()
+	_root.name = "ExportCheck"
+	get_root().add_child(_root)
+
+func _process(_dt: float) -> bool:
+	if _done:
+		return true
+	_done = true
+	_run(_root)
+	return false
+
+var _level_done := false
+var _gardienne_done := false
+
+func _run(root: Node3D) -> void:
 	_check_level(root)
+	if not _level_done:
+		problems.append("level check aborted (script error above)")
 	_check_gardienne(root)
+	if not _gardienne_done:
+		problems.append("gardienne check aborted (script error above)")
 	if problems.is_empty():
 		print("EXPORT CHECK OK")
 	else:
@@ -121,6 +140,7 @@ func _check_level(root: Node3D) -> void:
 	print("instances: worst world position error %.6f m (%s)" % [worst, worst_name])
 	if worst > 0.001:
 		problems.append("instance %s placed %.4f m away from its exported transform" % [worst_name, worst])
+	_level_done = true
 	print("lights (reference): %d, colliders: %d, occluders: %d, proxies: %d, warnings in meta: %d" % [
 		meta.get("lights", []).size(), meta.get("colliders", []).size(), meta.get("occluders", []).size(), meta.get("proxies", []).size(), meta.get("warnings", []).size()])
 
@@ -179,3 +199,4 @@ func _check_gardienne(root: Node3D) -> void:
 			problems.append("gardienne: %s loop_mode %d (expected loop=%s)" % [c, a.loop_mode, want_loop])
 		if absf(a.length - float(gm.clips[c].duration)) > 0.04:
 			problems.append("gardienne: %s length %.3f (meta %.3f)" % [c, a.length, gm.clips[c].duration])
+	_gardienne_done = true
