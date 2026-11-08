@@ -140,3 +140,38 @@ Mouse + keyboard + gamepad navigation.
   or multi-view: `-- --shots=/abs/prefix --views=spawn,stairs,kids,nook,tv,console,landing`.
 * You may write your own SceneTree test scripts (`godot --headless --path pc -s res://scripts/<module>/tests/x.gd`).
 * Export: `godot --headless --path pc --export-release "Windows Desktop" build/windows/LaGardienne.exe` (lead does it).
+
+## 6. Integration requests from finished modules (READ if you own world / entity / player / ui)
+Gameplay is merged (see `pc/scripts/game/README.md` for the full world conventions). What it calls on other modules:
+
+**world**
+* A CollisionObject3D on LAYER_INTERACT under every handle node, item, clue and the TV node. Bodies elsewhere need
+  metadata `interact_id` = the entry id (or the plain handle/item/clue id). Full-box furniture colliders on LAYER_WORLD are fine.
+* `handles["powerBox.lever"]`: `is_on` + awaitable `set_on(on)` that plays `breaker_flip` and calls `world.set_power(on)`;
+  the lever follows `set_power` silently (so it trips at the blowout, like web Props).
+* Optional `handles["lockedBox.lock"].set_digits(code)` (gameplay calls it with every code tried).
+* `tv`: a Node3D (or object with a `node` property) exposing `is_on`, `set_on(on)`, `set_digit(d)`, `screen_position`.
+  Gameplay plays tv_on/tv_off itself — the world TV must not also play tv_off.
+* `rock_chair(seconds)`; `hide_spots = [{id:"closet", door: <closet Handle>, hide_pos, hide_yaw, exit_pos}]`;
+  `set_clue_digits({duck, horse, clock, tv})`; `lighting.flicker(d, depth)` and `lighting.blowout()`
+  (gameplay calls set_power(false) itself afterwards).
+* Flavour props are found by node name — use the web names (photoFrame, alarmClock, cassette, rockingChair, extra_gnome,
+  extra_mirror, extra_oldTv, extra_boombox, extra_toolbox, extra_laundry, extra_bat, extra_football, extra_gamepad,
+  extra_mousetrap, extra_stairPhotoA, extra_stairPhotoB) or expose `world.props` keyed by those names.
+
+**entity**
+* `summon(pos, "breaker")` sets `active = true` during the visit and false once she is back upstairs (the code stage
+  starts on that transition; 12 s fallback if she never becomes active, 3 s if state is "disabled").
+* Gameplay calls `set_aggression(2)` after the key, suppresses hints while `state == "chasing"`, and blocks interaction
+  while `state == "jumpscare"`.
+
+**player**
+* Awaitable `enter_hide(spot)` / `exit_hide()`; `flashlight` dictionary {has, on, battery}; `hidden`; `camera_override`
+  (interaction blocked while true and not hidden); `global_position` at the feet (win check: y > 2 in the upper hall);
+  `give_flashlight()`, `set_flashlight_on(true)`.
+
+**ui**
+* `set_prompt(text, {key: "E" | "A", hold: 0..1})` ("A" = last input was a gamepad); awaitable `show_keypad(title, 4)`
+  returns "" when cancelled; `show_note({id, title, text, style})` with style note | child | newspaper; optional
+  `set_inventory(items, notes)` (inventory entries carry an SVG `icon` with stroke="currentColor").
+* Modals go through `Game.modal(func(): return await Game.ui.show_keypad(...))`.
