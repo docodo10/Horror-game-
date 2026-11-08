@@ -25,15 +25,20 @@ var _views: PackedStringArray
 var _vi := 0
 var _wait := 8
 
+var _root: Node3D
+var _built := false
+
 func _initialize() -> void:
 	for a in OS.get_cmdline_user_args():
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		_args[kv[0]] = kv[1] if kv.size() > 1 else "1"
 	_views = String(_args.get("views", "spawn")).split(",")
 	_wait = int(_args.get("frames", "8"))
-	var root := Node3D.new()
-	root.name = "Preview"
-	get_root().add_child(root)
+	_root = Node3D.new()
+	_root.name = "Preview"
+	get_root().add_child(_root)
+
+func _build(root: Node3D) -> void:
 	var meta := MetaUtil.load_json("res://assets/generated/level_meta.json")
 	var ctx := MetaUtil.assemble(root, meta)
 	for e in ctx.errors:
@@ -98,10 +103,17 @@ func _set_view(v: String) -> void:
 	_cam.rotation = Vector3(deg_to_rad(c[4]), deg_to_rad(c[3]), 0.0)
 
 func _process(_dt: float) -> bool:
+	if not _built:
+		_built = true
+		_build(_root)
+		return false
 	_frames += 1
 	if _frames < _wait:
 		return false
 	var img := get_root().get_texture().get_image()
+	if img == null:
+		printerr("_preview.gd needs a real renderer (run it under xvfb with --rendering-driver vulkan, not --headless)")
+		return true
 	var out := "%s_%s.png" % [_args.get("out", "/tmp/preview"), _views[_vi]]
 	img.save_png(out)
 	print("saved ", out)
