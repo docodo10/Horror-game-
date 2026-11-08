@@ -31,21 +31,33 @@ const server = http.createServer((req, res) => {
 });
 
 // Machine-wide mutex: only one headless browser at a time (software WebGL uses 3-5 GB of RAM per page; several
-// agents testing at once get OOM-killed). mkdir is atomic; stale locks (> 25 min) are broken. NO_LOCK=1 skips it.
+// agents testing at once get OOM-killed). mkdir is atomic. The lock is broken only when its holder process is dead
+// (or never wrote its pid); the holder touches the lock every minute so older copies of this script, which break
+// locks whose mtime is > 25 min old, never break a live one. NO_LOCK=1 skips it.
 const os = require('os');
 const LOCK = path.join(os.tmpdir(), 'lagardienne-browser.lock');
+function lockIsStale() {
+  let pid = '';
+  try { pid = fs.readFileSync(path.join(LOCK, 'pid'), 'utf8').trim(); } catch (_) {}
+  if (!pid) {
+    // mkdir done but pid not written yet: give the holder 2 minutes.
+    try { return Date.now() - fs.statSync(LOCK).mtimeMs > 2 * 60e3; } catch (_) { return false; }
+  }
+  try { process.kill(Number(pid), 0); return false; } catch (e) { return e.code === 'ESRCH'; }
+}
 async function acquireLock() {
   if (process.env.NO_LOCK) return;
   const t0 = Date.now();
   for (;;) {
     try { fs.mkdirSync(LOCK); fs.writeFileSync(path.join(LOCK, 'pid'), String(process.pid)); break; }
     catch (_) {
-      try { if (Date.now() - fs.statSync(LOCK).mtimeMs > 25 * 60e3) { fs.rmSync(LOCK, { recursive: true, force: true }); continue; } } catch (_) {}
-      if (Date.now() - t0 > 60 * 60e3) throw new Error('browser lock timeout');
+      if (lockIsStale()) { fs.rmSync(LOCK, { recursive: true, force: true }); continue; }
+      if (Date.now() - t0 > 3 * 3600e3) throw new Error('browser lock timeout');
       await new Promise((r) => setTimeout(r, 2000));
     }
   }
   console.log(`[harness] lock acquired after ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+  setInterval(() => { try { const n = new Date(); fs.utimesSync(LOCK, n, n); } catch (_) {} }, 60e3).unref();
   const release = () => { try { if (fs.readFileSync(path.join(LOCK, 'pid'), 'utf8') === String(process.pid)) fs.rmSync(LOCK, { recursive: true, force: true }); } catch (_) {} };
   process.on('exit', release);
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { release(); process.exit(130); });
