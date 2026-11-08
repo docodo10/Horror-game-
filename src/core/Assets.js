@@ -150,7 +150,9 @@ export class Assets {
 
   async loadModel(id) {
     if (this.models.has(id)) return this.models.get(id);
-    const gltf = await this.loader.loadAsync(`${this.base}models/${id}.glb`);
+    // Hosts that refuse .glb can serve the same bytes under another binary extension (see tools/build-artifact.mjs).
+    const ext = (typeof window !== 'undefined' && window.LG_MODEL_EXT) || '.glb';
+    const gltf = await this.loader.loadAsync(`${this.base}models/${id}${ext}`);
     const root = gltf.scene;
     root.name = id;
     root.traverse((o) => {
