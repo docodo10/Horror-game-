@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>La Gardienne</title>
+<meta name="description" content="Jeu d'horreur 3D à la première personne — Chapitre 1 : Le sous-sol.">
+<meta name="theme-color" content="#0b0907">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rock+Salt&family=Special+Elite&family=Caveat:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+  /* Layout: full-bleed WebGL canvas; touch controls and HUD are fixed overlays on top. Single dark visual world. */
+  :root {
+    --ink: #0b0907;          /* page / letterbox black, slightly warm */
+    --paper: #e9dfc9;        /* aged paper, main UI text */
+    --dim: #9b907c;          /* secondary text */
+    --crayon: #c2412d;       /* child's red crayon, danger + accents */
+    --nightlight: #e8c66a;   /* warm nightlight yellow, focus + highlights */
+    --glass: rgba(11, 9, 7, 0.72);
+    --font-title: 'Rock Salt', 'Comic Sans MS', cursive;
+    --font-ui: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-type: 'Special Elite', 'Courier New', monospace;
+    --font-hand: 'Caveat', 'Bradley Hand', cursive;
+    --z-canvas: 0; --z-touch: 10; --z-ui: 20; --z-modal: 30; --z-fatal: 50;
+    color-scheme: dark;
+  }
+  html, body { margin: 0; height: 100%; background: var(--ink); color: var(--paper); overflow: hidden; font-family: var(--font-ui); }
+  body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: none; overscroll-behavior: none; }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: var(--z-canvas); background: var(--ink); outline: none; }
+  #touch { position: fixed; inset: 0; z-index: var(--z-touch); pointer-events: none; }
+  #ui { position: fixed; inset: 0; z-index: var(--z-ui); pointer-events: none; }
+  #ui > * { pointer-events: auto; }
+  #fatal { position: fixed; inset: 0; z-index: var(--z-fatal); display: none; flex-direction: column; gap: 12px; align-items: center; justify-content: center; padding: 24px; background: var(--ink); color: var(--paper); font-family: var(--font-type); text-align: center; }
+  #fatal pre { max-width: 90vw; max-height: 50vh; overflow: auto; font-size: 11px; color: var(--dim); white-space: pre-wrap; text-align: left; }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+  <canvas id="game" tabindex="0" aria-label="Jeu La Gardienne"></canvas>
+  <div id="touch"></div>
+  <div id="ui"></div>
+  <div id="fatal" role="alert"><div>Le jeu n'a pas pu démarrer. Ton navigateur doit supporter WebGL 2.</div><pre></pre></div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
