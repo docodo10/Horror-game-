@@ -17,6 +17,8 @@ No build step: plain ES modules + import map (`three` and `three/addons/` from j
 | render | `src/render/Renderer.js`, `src/render/PostFX.js` (new) |
 | architecture | `src/world/Architecture.js`, `src/world/Lighting.js` |
 | props | `src/world/Props.js`, `src/world/ProcTextures.js` (new) |
+| extras | `src/world/ExtraProps.js` (batch-2 set dressing from `layout.EXTRA_PROPS`, mirror reflection, glass) |
+| qa | `tools/playtest.cjs`, `tools/shots/*.json` (automated playthrough + screenshot sets) |
 | player | `src/core/Input.js`, `src/player/Player.js` |
 | gameplay | `src/game/Interaction.js`, `src/game/Inventory.js`, `src/game/Puzzles.js` |
 | entity | `src/entity/Gardienne.js`, `src/entity/GardienneModel.js` (new) |

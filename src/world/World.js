@@ -3,6 +3,7 @@ import * as L from '../config/layout.js';
 import { Architecture } from './Architecture.js';
 import { Lighting } from './Lighting.js';
 import { Props } from './Props.js';
+import { ExtraProps } from './ExtraProps.js';
 
 /**
  * World = level container. Composes Architecture (shell, stairs, doors, window, closet, alcove),
@@ -35,6 +36,7 @@ export class World {
 
     this.architecture = new Architecture(game, this);
     this.props = new Props(game, this);
+    this.extras = new ExtraProps(game, this);
     this.lighting = new Lighting(game, this);
 
     this._ray = new THREE.Raycaster();
@@ -44,6 +46,7 @@ export class World {
   async init() {
     await this.architecture.build();
     await this.props.build();
+    await this.extras.build();
     await this.lighting.build();
     await this.lighting.bakeEnvironment();
     this.scene.updateMatrixWorld(true);
@@ -52,6 +55,7 @@ export class World {
   update(dt) {
     this.architecture.update?.(dt);
     this.props.update?.(dt);
+    this.extras.update?.(dt);
     this.lighting.update?.(dt);
   }
 
@@ -59,6 +63,7 @@ export class World {
   reset(kind) {
     this.architecture.reset?.(kind);
     this.props.reset?.(kind);
+    this.extras.reset?.(kind);
     this.lighting.reset?.(kind);
   }
 
@@ -67,6 +72,7 @@ export class World {
     this.power = on;
     this.lighting.setPower(on);
     this.props.setPower?.(on);
+    this.extras.setPower?.(on);
     this.game.events.emit('power', { on });
   }
 
