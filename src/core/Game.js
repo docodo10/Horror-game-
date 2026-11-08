@@ -204,7 +204,9 @@ export class Game {
       this.puzzles.update(dt);
       this.entity.update(dt);
     } else if (s === 'menu' || s === 'loading') {
-      this.player.updateIdleCamera?.(dt); // slow cinematic drift behind the menu
+      // Diegetic TV menu: the UI owns the camera while it frames the CRT; otherwise slow idle drift.
+      if (this.ui.menuCameraActive) this.ui.updateMenuCamera?.(dt);
+      else this.player.updateIdleCamera?.(dt);
     }
     this.world.update(dt);
 

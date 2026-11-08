@@ -15,6 +15,8 @@ const params = {
   cam: q.get('cam'),
   power: q.get('power'),
   noentity: q.has('noentity'),
+  stage: q.get('stage'),
+  code: q.get('code'),
   expose: true,
 };
 
