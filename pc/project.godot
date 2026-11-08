@@ -28,6 +28,14 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/vsync/vsync_mode=1
 
+[layer_names]
+
+3d_physics/layer_1="world"
+3d_physics/layer_2="interact"
+3d_physics/layer_3="player"
+3d_physics/layer_4="entity"
+3d_physics/layer_5="sight"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
