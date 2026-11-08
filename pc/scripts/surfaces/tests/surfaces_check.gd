@@ -37,7 +37,7 @@ func _initialize() -> void:
 		if q == "low":
 			_check(wall == null or wall.get_active_material(0) == orig_mat, "low restores the exporter material")
 			_check(holder == null or not holder.visible, "low hides the decals")
-			for n in ["decal", "architecture_mesh"]:
+			for n in ["decal", "propsDecals", "architecture_mesh"]:
 				var hn := root.find_child(n, true, false) as Node3D
 				_check(hn == null or hn.visible, "low shows the web overlay %s again" % n)
 		else:
@@ -45,7 +45,7 @@ func _initialize() -> void:
 			_check(wall != null and wall.get_active_material(0) is ShaderMaterial, "%s: arch_wall uses the wall shader" % q)
 			_check(holder != null and holder.get_child_count() >= 60, "%s: decals built (%d)" % [q, holder.get_child_count() if holder else 0])
 			_check(int(st.decals) > 0 and (q != "medium" or int(st.decals) < holder.get_child_count()), "%s: decal tiers" % q)
-			_check(st.hidden.has("decal") and st.hidden.has("architecture_mesh"), "%s: web decal quads hidden" % q)
+			_check((st.hidden.has("decal") or st.hidden.has("propsDecals")) and st.hidden.has("architecture_mesh"), "%s: web decal quads hidden" % q)
 			_check(int(st.get("models", 0)) >= 12, "%s: hero furniture got its 2K maps (%d surfaces)" % [q, st.get("models", 0)])
 	# idempotency: one decal holder, no duplicate children after many applies
 	_check(root.find_children("SurfacesDecals", "", true, false).size() == 1, "single decal holder")

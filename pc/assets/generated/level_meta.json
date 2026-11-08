@@ -3,7 +3,7 @@
  "generator": "tools/export-godot.cjs",
  "source": {
   "url": "http://127.0.0.1:PORT/index.html?debug&noentity&quality=high",
-  "date": "2026-11-08T21:53:31.686Z",
+  "date": "2026-11-08T23:39:53.808Z",
   "three": "0.170.0",
   "quality": "high"
  },
@@ -48,16 +48,13 @@
    "stairPhotos_frames1",
    "stairPhotos_frames2",
    "stairPhotos",
-   "outlet_tv",
    "outlet_east",
-   "outlet_south",
-   "outlet_nook",
-   "prop",
    "tvCable",
    "lightSwitch",
    "smokeDetector",
    "thermostat",
    "vent",
+   "outlets",
    "toyBlocks",
    "crayons",
    "crayonBox",
@@ -66,27 +63,47 @@
    "floorDrawing",
    "shirt",
    "sock",
+   "prop",
    "prop_2",
    "prop_3",
-   "prop_4",
    "vhsTapes",
    "remote",
-   "decal",
-   "decal_2",
-   "decal_3",
-   "decal_4",
-   "decal_5",
-   "decal_6",
+   "propsDecals",
    "extra_mirror_glass",
    "extra_crt_screen",
    "extra_socket_chain_pivot",
+   "metal_toolbox",
    "extra_laundry_cloth",
+   "wooden_broom_bristles",
+   "wooden_broom_handle",
    "extra_laundry_floor",
+   "details_shelves",
+   "details_boxes",
+   "details_nookTiles",
+   "decals_basement",
+   "details_wallGrime",
+   "details_carpetWear",
+   "outlet_knee",
+   "details_clutter",
+   "details_papers",
+   "details_sock",
+   "details_dust",
    "lighting"
   ],
   "hidden": [
    "upperHall",
+   "upperHall_mesh_4",
+   "endTable_drawer_contents",
+   "dresser_drawerBottom_contents",
+   "dresser_drawerMid_contents",
+   "dresser_drawerTop_contents",
    "tv_screen",
+   "lockedBox_contents",
+   "alcoveCabinet_drawer_02_contents",
+   "alcoveCabinet_drawer_01_contents",
+   "alcoveCabinet_door_01_contents",
+   "alcoveCabinet_door_02_contents",
+   "powerBox_lever",
    "extra_crt_screen"
   ],
   "noCastShadow": [
@@ -103,15 +120,16 @@
    "arch_hallFabric",
    "arch_hallBrass",
    "arch_hallWood",
+   "details_hallWainscot",
+   "details_hallRail",
+   "details_hallBrick",
+   "decals_hall",
    "architecture_mesh",
+   "arch_windowGlass",
    "architecture_mesh_2",
    "architecture_mesh_3",
-   "architecture_mesh_4",
-   "architecture_mesh_5",
-   "architecture_mesh_6",
-   "architecture_mesh_7",
-   "architecture_mesh_8",
    "arch_carpet",
+   "arch_brass",
    "arch_nookFloor",
    "arch_closetFloor",
    "arch_ceil",
@@ -123,9 +141,14 @@
    "arch_closetBlock",
    "arch_nookBlock",
    "arch_nookDrywall",
+   "arch_copper",
+   "arch_galv",
    "arch_ground",
    "arch_snow",
    "arch_grass",
+   "arch_webs",
+   "doorHardware_2",
+   "closetHardware",
    "kidsRug",
    "battery1_mesh",
    "battery1_mesh_2",
@@ -134,10 +157,10 @@
    "lockedBox_lid_frame_mesh",
    "lockedBox_frame_mesh",
    "lockedBox_lock_body_mesh",
-   "lockedBox_lock_dial0",
-   "lockedBox_lock_dial1",
-   "lockedBox_lock_dial2",
-   "lockedBox_lock_dial3",
+   "lock_wheel0_x",
+   "lock_wheel1_x",
+   "lock_wheel2_x",
+   "lock_wheel3_x",
    "lockedBox_lock_shackle",
    "key_mesh",
    "key_mesh_2",
@@ -156,37 +179,46 @@
    "drawing_mer",
    "drawing_arcenciel",
    "wallScribbles",
+   "stairPhotos_frames0",
+   "stairPhotos_frames1",
+   "stairPhotos_frames2",
    "stairPhotos",
-   "outlet_tv",
    "outlet_east",
-   "outlet_south",
-   "outlet_nook",
-   "prop",
    "tvCable",
    "lightSwitch",
    "lightSwitch_mesh",
    "smokeDetector_mesh",
    "smokeDetector_mesh_2",
+   "thermostat",
    "thermostat_mesh",
    "vent_mesh",
    "vent_mesh_2",
+   "outlets",
    "toyBlocks",
    "crayons",
    "crayonBox",
+   "ball",
    "toyCar",
    "floorDrawing",
    "shirt",
    "sock",
+   "prop",
+   "prop_2",
+   "prop_3",
+   "vhsTapes",
    "remote",
    "remote_mesh",
-   "decal",
-   "decal_2",
-   "decal_3",
-   "decal_4",
-   "decal_5",
-   "decal_6",
+   "propsDecals",
    "extra_mirror_glass",
    "extra_crt_screen",
+   "extra_laundry_floor",
+   "details_nookTiles",
+   "decals_basement",
+   "details_wallGrime",
+   "details_carpetWear",
+   "outlet_knee",
+   "details_papers",
+   "details_dust",
    "fanBowl",
    "doorStrip"
   ],
@@ -204,12 +236,13 @@
    "arch_hallFabric",
    "arch_hallBrass",
    "arch_hallWood",
+   "details_hallWainscot",
+   "details_hallRail",
+   "details_hallBrick",
+   "decals_hall",
+   "arch_windowGlass",
    "architecture_mesh_2",
-   "architecture_mesh_3",
-   "architecture_mesh_4",
-   "architecture_mesh_5",
-   "architecture_mesh_6",
-   "architecture_mesh_8",
+   "arch_webs",
    "closetHardware",
    "tv_screen",
    "lightSwitch_mesh",
@@ -221,6 +254,15 @@
   ],
   "materialHints": [
    {
+    "node": "decals_hall",
+    "renderOrder": 2,
+    "polygonOffset": [
+     -4,
+     -4
+    ],
+    "depthWrite": false
+   },
+   {
     "node": "architecture_mesh",
     "polygonOffset": [
      -2,
@@ -229,27 +271,12 @@
     "depthWrite": false
    },
    {
-    "node": "architecture_mesh_2",
-    "renderOrder": 3,
-    "depthWrite": false
-   },
-   {
-    "node": "architecture_mesh_3",
+    "node": "arch_windowGlass",
     "renderOrder": 2,
     "depthWrite": false
    },
    {
-    "node": "architecture_mesh_4",
-    "renderOrder": 2,
-    "depthWrite": false
-   },
-   {
-    "node": "architecture_mesh_5",
-    "renderOrder": 3,
-    "depthWrite": false
-   },
-   {
-    "node": "architecture_mesh_8",
+    "node": "arch_webs",
     "renderOrder": 3,
     "depthWrite": false
    },
@@ -276,47 +303,7 @@
     ]
    },
    {
-    "node": "decal",
-    "polygonOffset": [
-     -3,
-     0
-    ],
-    "depthWrite": false
-   },
-   {
-    "node": "decal_2",
-    "polygonOffset": [
-     -3,
-     0
-    ],
-    "depthWrite": false
-   },
-   {
-    "node": "decal_3",
-    "polygonOffset": [
-     -3,
-     0
-    ],
-    "depthWrite": false
-   },
-   {
-    "node": "decal_4",
-    "polygonOffset": [
-     -3,
-     0
-    ],
-    "depthWrite": false
-   },
-   {
-    "node": "decal_5",
-    "polygonOffset": [
-     -3,
-     0
-    ],
-    "depthWrite": false
-   },
-   {
-    "node": "decal_6",
+    "node": "propsDecals",
     "polygonOffset": [
      -3,
      0
@@ -331,6 +318,33 @@
      -2
     ],
     "blending": "additive",
+    "depthWrite": false
+   },
+   {
+    "node": "decals_basement",
+    "renderOrder": 2,
+    "polygonOffset": [
+     -4,
+     -4
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "details_wallGrime",
+    "renderOrder": 1,
+    "polygonOffset": [
+     -2,
+     -2
+    ],
+    "depthWrite": false
+   },
+   {
+    "node": "details_carpetWear",
+    "renderOrder": 1,
+    "polygonOffset": [
+     -2,
+     -2
+    ],
     "depthWrite": false
    }
   ],
@@ -372,13 +386,203 @@
    }
   ],
   "stats": {
-   "meshes": 125,
-   "tris": 61347,
-   "nodes": 157,
-   "materials": 108
+   "meshes": 132,
+   "tris": 122462,
+   "nodes": 164,
+   "materials": 119
   }
  },
  "instances": [
+  {
+   "name": "extra_suitcaseHall",
+   "model": "vintage_suitcase",
+   "path": "architecture/upperHall/extra_suitcaseHall",
+   "transform": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    -3.47,
+    2.75,
+    -4.356,
+    1
+   ],
+   "parent": {
+    "level": "upperHall"
+   },
+   "local": [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    -3.47,
+    2.75,
+    -4.356,
+    1
+   ],
+   "hiddenNodes": [
+    "vintage_suitcase_01_bottom",
+    "vintage_suitcase_01_clasp",
+    "vintage_suitcase_01_handle",
+    "vintage_suitcase_01_top"
+   ],
+   "mergedNodes": [
+    "vintage_suitcase_02_bottom",
+    "vintage_suitcase_02_clasp",
+    "vintage_suitcase_02_handle",
+    "vintage_suitcase_02_top"
+   ],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/vintage_suitcase.glb"
+  },
+  {
+   "name": "detail_hallLamp",
+   "model": "hanging_industrial_lamp",
+   "path": "architecture/upperHall/detail_hallLamp",
+   "transform": [
+    0.552637,
+    0,
+    -0.233651,
+    0,
+    0,
+    0.6,
+    0,
+    0,
+    0.233651,
+    0,
+    0.552637,
+    0,
+    -3,
+    5.2,
+    -4,
+    1
+   ],
+   "parent": {
+    "level": "upperHall"
+   },
+   "local": [
+    0.552637,
+    0,
+    -0.233651,
+    0,
+    0,
+    0.6,
+    0,
+    0,
+    0.233651,
+    0,
+    0.552637,
+    0,
+    -3,
+    5.2,
+    -4,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "hanging_industrial_lamp",
+     "surface": 0,
+     "material": "hanging_industrial_lamp",
+     "set": {
+      "envMapIntensity": 0.6,
+      "emissiveIntensity": 7,
+      "emissive": {
+       "srgb": "#ffd9a8",
+       "linear": [
+        1,
+        0.693872,
+        0.391572
+       ]
+      }
+     }
+    },
+    {
+     "node": "hanging_industrial_lamp",
+     "surface": 1,
+     "material": "hanging_industrial_lamp_glass",
+     "set": {
+      "envMapIntensity": 0.6
+     }
+    }
+   ],
+   "noCastShadow": [
+    "hanging_industrial_lamp"
+   ],
+   "castShadow": false,
+   "scene": "res://assets/models/hanging_industrial_lamp.glb"
+  },
+  {
+   "name": "detail_hallLantern",
+   "model": "Lantern_01",
+   "path": "architecture/upperHall/detail_hallLantern",
+   "transform": [
+    0.825336,
+    0,
+    0.564642,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.564642,
+    0,
+    0.825336,
+    0,
+    -2.62,
+    2.75,
+    -4.22,
+    1
+   ],
+   "parent": {
+    "level": "upperHall"
+   },
+   "local": [
+    0.825336,
+    0,
+    0.564642,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.564642,
+    0,
+    0.825336,
+    0,
+    -2.62,
+    2.75,
+    -4.22,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "noCastShadow": [
+    "Lantern_01",
+    "Lantern_01_glass"
+   ],
+   "castShadow": false,
+   "scene": "res://assets/models/Lantern_01.glb"
+  },
   {
    "name": "sofa",
    "model": "sofa_03",
@@ -430,6 +634,10 @@
     1
    ],
    "hiddenNodes": [],
+   "mergedNodes": [
+    "throw_pillows_01_pillow02",
+    "throw_pillows_01_pillow01"
+   ],
    "nodeTransforms": [],
    "materialOverrides": [],
    "scene": "res://assets/models/throw_pillows_01.glb",
@@ -683,12 +891,12 @@
     {
      "node": "vintage_grandfather_clock_01_HourHand",
      "local": [
-      0.7352,
-      0.67785,
-      0,
-      0,
       -0.67785,
       0.7352,
+      0,
+      0,
+      -0.7352,
+      -0.67785,
       0,
       0,
       0,
@@ -972,6 +1180,11 @@
    "hiddenNodes": [],
    "nodeTransforms": [],
    "materialOverrides": [],
+   "noCastShadow": [
+    "hanging_picture_frame_03_glass",
+    "hanging_picture_frame_03"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/hanging_picture_frame_03.glb",
    "parent": null
   },
@@ -1000,6 +1213,11 @@
    "hiddenNodes": [],
    "nodeTransforms": [],
    "materialOverrides": [],
+   "noCastShadow": [
+    "fancy_picture_frame_01",
+    "fancy_picture_frame_01_canvas"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/fancy_picture_frame_01.glb",
    "parent": null
   },
@@ -1132,14 +1350,14 @@
      "node": "houd_hand",
      "local": [
       -0.998026,
-      0.062804,
+      0.062806,
       0,
       0,
       0,
       0,
       1,
       0,
-      0.062804,
+      0.062806,
       0.998026,
       0,
       0,
@@ -1152,16 +1370,16 @@
     {
      "node": "minute_hand",
      "local": [
-      -0.685518,
-      -0.728056,
+      -0.685535,
+      -0.72804,
       0,
       0,
       0,
       0,
       1,
       0,
-      -0.728056,
-      0.685518,
+      -0.72804,
+      0.685534,
       0,
       0,
       0,
@@ -1255,17 +1473,17 @@
     {
      "node": "ceiling_fan_blades",
      "local": [
-      0.424995,
+      0.225091,
       0,
-      -0.905196,
+      -0.974338,
       0,
       0,
       1,
       0,
       0,
-      0.905196,
+      0.974338,
       0,
-      0.424995,
+      0.225091,
       0,
       0,
       0,
@@ -1276,8 +1494,10 @@
    ],
    "materialOverrides": [],
    "noCastShadow": [
+    "ceiling_fan",
     "ceiling_fan_blades"
    ],
+   "castShadow": false,
    "scene": "res://assets/models/ceiling_fan.glb",
    "parent": null
   },
@@ -1477,21 +1697,21 @@
    "model": "cardboard_box_01",
    "path": "boxA",
    "transform": [
-    0.980067,
+    -0.049979,
     0,
-    -0.198669,
+    -0.99875,
     0,
     0,
     1,
     0,
     0,
-    0.198669,
+    0.99875,
     0,
-    0.980067,
+    -0.049979,
     0,
-    2,
-    0,
-    -4.3,
+    1.92,
+    0.140256,
+    -4.34,
     1
    ],
    "hiddenNodes": [],
@@ -1505,21 +1725,21 @@
    "model": "cardboard_box_01",
    "path": "boxB",
    "transform": [
-    0.812036,
+    0.067927,
     0,
-    0.251192,
+    0.847281,
     0,
     0,
     0.85,
     0,
     0,
-    -0.251192,
+    -0.847281,
     0,
-    0.812036,
+    0.067927,
     0,
-    2.05,
-    0.326123,
-    -4.28,
+    1.92,
+    0.645243,
+    -4.33,
     1
    ],
    "hiddenNodes": [],
@@ -1566,15 +1786,15 @@
     0,
     0,
     0,
-    1,
+    -1,
     0,
     0,
     0,
     0,
-    1,
+    -1,
     0,
     1.8,
-    2.28,
+    2.445,
     -3.6,
     1
    ],
@@ -1720,6 +1940,10 @@
    "hiddenNodes": [],
    "nodeTransforms": [],
    "materialOverrides": [],
+   "noCastShadow": [
+    "gamepad"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/gamepad.glb",
    "parent": null
   },
@@ -1769,7 +1993,7 @@
     0.764842,
     0,
     -2.35,
-    0,
+    0.007,
     1.15,
     1
    ],
@@ -1837,6 +2061,10 @@
      }
     }
    ],
+   "noCastShadow": [
+    "ornate_mirror_01"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/ornate_mirror_01.glb",
    "parent": null
   },
@@ -1943,6 +2171,10 @@
      }
     }
    ],
+   "noCastShadow": [
+    "hanging_picture_frame_02"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/hanging_picture_frame_02.glb",
    "parent": null
   },
@@ -2049,6 +2281,10 @@
      }
     }
    ],
+   "noCastShadow": [
+    "hanging_picture_frame_02"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/hanging_picture_frame_02.glb",
    "parent": null
   },
@@ -2122,6 +2358,11 @@
      }
     }
    ],
+   "noCastShadow": [
+    "pull_chain_light_socket",
+    "pull_chain_light_socket_chain"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/pull_chain_light_socket.glb",
    "parent": null
   },
@@ -2147,86 +2388,13 @@
     -4.38,
     1
    ],
-   "hiddenNodes": [],
-   "nodeTransforms": [
-    {
-     "node": "metal_toolbox_lid",
-     "local": [
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      -0.000009,
-      0.119594,
-      -0.103134,
-      1
-     ]
-    }
+   "hiddenNodes": [
+    "metal_toolbox",
+    "metal_toolbox_tray",
+    "metal_toolbox_lid"
    ],
-   "materialOverrides": [
-    {
-     "node": "metal_toolbox",
-     "surface": 0,
-     "material": "metal_toolbox",
-     "set": {
-      "roughness": 0.85,
-      "envMapIntensity": 1.6
-     }
-    },
-    {
-     "node": "metal_toolbox_tray",
-     "surface": 0,
-     "material": "metal_toolbox",
-     "set": {
-      "roughness": 0.85,
-      "envMapIntensity": 1.6
-     }
-    },
-    {
-     "node": "metal_toolbox_lid",
-     "surface": 0,
-     "material": "metal_toolbox",
-     "set": {
-      "roughness": 0.85,
-      "envMapIntensity": 1.6
-     }
-    },
-    {
-     "node": "metal_toolbox_lid/metal_toolbox_handle",
-     "surface": 0,
-     "material": "metal_toolbox",
-     "set": {
-      "roughness": 0.85,
-      "envMapIntensity": 1.6
-     }
-    },
-    {
-     "node": "metal_toolbox_lid/metal_toolbox_handle_latch_l",
-     "surface": 0,
-     "material": "metal_toolbox",
-     "set": {
-      "roughness": 0.85,
-      "envMapIntensity": 1.6
-     }
-    },
-    {
-     "node": "metal_toolbox_lid/metal_toolbox_handle_latch_r",
-     "surface": 0,
-     "material": "metal_toolbox",
-     "set": {
-      "roughness": 0.85,
-      "envMapIntensity": 1.6
-     }
-    }
-   ],
+   "nodeTransforms": [],
+   "materialOverrides": [],
    "scene": "res://assets/models/metal_toolbox.glb",
    "parent": null
   },
@@ -2235,21 +2403,21 @@
    "model": "plastic_crate_02",
    "path": "extra_laundry",
    "transform": [
-    0.988771,
+    -0.039989,
     0,
-    -0.149438,
+    -0.9992,
     0,
     0,
     1,
     0,
     0,
-    0.149438,
+    0.9992,
     0,
-    0.988771,
+    -0.039989,
     0,
-    0.58,
-    0,
-    -3.22,
+    0.636,
+    0.133516,
+    -3.165,
     1
    ],
    "hiddenNodes": [],
@@ -2321,32 +2489,12 @@
     -3.72,
     1
    ],
-   "hiddenNodes": [],
-   "nodeTransforms": [],
-   "materialOverrides": [
-    {
-     "node": "wooden_broom_bristles",
-     "surface": 0,
-     "material": "wooden_broom_bristles",
-     "set": {
-      "alphaTest": 0.42,
-      "transparent": false,
-      "depthWrite": true,
-      "alphaToCoverage": true
-     }
-    },
-    {
-     "node": "wooden_broom",
-     "surface": 1,
-     "material": "wooden_broom_bristles",
-     "set": {
-      "alphaTest": 0.42,
-      "transparent": false,
-      "depthWrite": true,
-      "alphaToCoverage": true
-     }
-    }
+   "hiddenNodes": [
+    "wooden_broom_bristles",
+    "wooden_broom_handle"
    ],
+   "nodeTransforms": [],
+   "materialOverrides": [],
    "scene": "res://assets/models/wooden_broom.glb",
    "parent": null
   },
@@ -2375,6 +2523,10 @@
    "hiddenNodes": [],
    "nodeTransforms": [],
    "materialOverrides": [],
+   "noCastShadow": [
+    "bleach_bottle"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/bleach_bottle.glb",
    "parent": null
   },
@@ -2403,6 +2555,10 @@
    "hiddenNodes": [],
    "nodeTransforms": [],
    "materialOverrides": [],
+   "noCastShadow": [
+    "plastic_bottle_gallon"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/plastic_bottle_gallon.glb",
    "parent": null
   },
@@ -2440,6 +2596,10 @@
      }
     }
    ],
+   "noCastShadow": [
+    "can_rusted"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/can_rusted.glb",
    "parent": null
   },
@@ -2497,14 +2657,18 @@
     0,
     0.955336,
     0,
-    1.68,
+    1.7,
     0,
-    -4.5,
+    -4.03,
     1
    ],
    "hiddenNodes": [],
    "nodeTransforms": [],
    "materialOverrides": [],
+   "noCastShadow": [
+    "mousetrap"
+   ],
+   "castShadow": false,
    "scene": "res://assets/models/mousetrap.glb",
    "parent": null
   },
@@ -2536,34 +2700,7 @@
     "vintage_suitcase_02_handle",
     "vintage_suitcase_02_top"
    ],
-   "nodeTransforms": [],
-   "materialOverrides": [],
-   "scene": "res://assets/models/vintage_suitcase.glb",
-   "parent": null
-  },
-  {
-   "name": "extra_suitcaseHall",
-   "model": "vintage_suitcase",
-   "path": "extra_suitcaseHall",
-   "transform": [
-    0,
-    0,
-    -1,
-    0,
-    0,
-    1,
-    0,
-    0,
-    1,
-    0,
-    0,
-    0,
-    -3.47,
-    2.75,
-    -4.356,
-    1
-   ],
-   "hiddenNodes": [
+   "mergedNodes": [
     "vintage_suitcase_01_bottom",
     "vintage_suitcase_01_clasp",
     "vintage_suitcase_01_handle",
@@ -2572,6 +2709,178 @@
    "nodeTransforms": [],
    "materialOverrides": [],
    "scene": "res://assets/models/vintage_suitcase.glb",
+   "parent": null
+  },
+  {
+   "name": "detail_shelfWcan",
+   "model": "metal_jerrycan",
+   "path": "detail_shelfWcan",
+   "transform": [
+    -0.998201,
+    0,
+    0.059964,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.059964,
+    0,
+    -0.998201,
+    0,
+    0.64,
+    0.639486,
+    -3.17,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/metal_jerrycan.glb",
+   "parent": null
+  },
+  {
+   "name": "detail_medkit",
+   "model": "medical_box",
+   "path": "detail_medkit",
+   "transform": [
+    0.029996,
+    0,
+    -0.99955,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.99955,
+    0,
+    0.029996,
+    0,
+    0.63,
+    1.1455,
+    -3.176,
+    1
+   ],
+   "hiddenNodes": [],
+   "mergedNodes": [
+    "medical_box_latch",
+    "medical_box_latch_rings",
+    "medical_box_lid",
+    "medical_box",
+    "medical_box_handle"
+   ],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/medical_box.glb",
+   "parent": null
+  },
+  {
+   "name": "detail_milkCrate",
+   "model": "plastic_crate_01",
+   "path": "detail_milkCrate",
+   "transform": [
+    -0.079915,
+    0,
+    -0.996802,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0.996802,
+    0,
+    -0.079915,
+    0,
+    0.6,
+    1.6515,
+    -3.16,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/plastic_crate_01.glb",
+   "parent": null
+  },
+  {
+   "name": "detail_tubeLight",
+   "model": "mounted_fluorescent_lights",
+   "path": "detail_tubeLight",
+   "transform": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1.95,
+    2.51,
+    -3.85,
+    1
+   ],
+   "hiddenNodes": [],
+   "nodeTransforms": [],
+   "materialOverrides": [
+    {
+     "node": "mounted_fluorescent_lights_b",
+     "surface": 1,
+     "material": "mounted_fluorescent_lights_glass",
+     "set": {
+      "emissiveIntensity": 9.760649,
+      "emissive": {
+       "srgb": "#f7fffa",
+       "linear": [
+        0.93,
+        1,
+        0.96
+       ]
+      }
+     }
+    }
+   ],
+   "noCastShadow": [
+    "mounted_fluorescent_lights_b"
+   ],
+   "castShadow": false,
+   "scene": "res://assets/models/mounted_fluorescent_lights.glb",
+   "parent": null
+  },
+  {
+   "name": "detail_ladder",
+   "model": "wooden_ladder",
+   "path": "detail_ladder",
+   "transform": [
+    0,
+    0.247404,
+    0.968912,
+    0,
+    0,
+    0.968912,
+    -0.247404,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    2.13,
+    0.1255,
+    -2.709,
+    1
+   ],
+   "hiddenNodes": [],
+   "mergedNodes": [
+    "wooden_ladder_supports",
+    "wooden_ladder_steps"
+   ],
+   "nodeTransforms": [],
+   "materialOverrides": [],
+   "scene": "res://assets/models/wooden_ladder.glb",
    "parent": null
   }
  ],
@@ -2963,17 +3272,17 @@
     "instance": "extra_socket"
    },
    "local": [
-    0.999275,
-    0.038075,
-    0.000687,
+    0.999585,
+    -0.028796,
+    -0.000372,
     0,
-    -0.038081,
-    0.999112,
-    0.018032,
+    0.028798,
+    0.999502,
+    0.012918,
     0,
     0,
-    -0.018045,
-    0.999837,
+    -0.012923,
+    0.999916,
     0,
     -0.023,
     -0.019,
@@ -2981,6 +3290,31 @@
     1
    ],
    "path": "extra_socket/extra_socket_chain_pivot"
+  },
+  {
+   "level": "metal_toolbox",
+   "parent": {
+    "instance": "extra_toolbox"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "path": "extra_toolbox/metal_toolbox"
   },
   {
    "level": "extra_laundry_cloth",
@@ -3006,6 +3340,56 @@
     1
    ],
    "path": "extra_laundry/extra_laundry_cloth"
+  },
+  {
+   "level": "wooden_broom_bristles",
+   "parent": {
+    "instance": "extra_broom"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "path": "extra_broom/wooden_broom_bristles"
+  },
+  {
+   "level": "wooden_broom_handle",
+   "parent": {
+    "instance": "extra_broom"
+   },
+   "local": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "path": "extra_broom/wooden_broom_handle"
   }
  ],
  "reparent": [
@@ -5181,28 +5565,28 @@
   },
   {
    "min": [
-    1.766676,
-    -0.006756,
-    -4.559242
+    1.685476,
+    0.126244,
+    -4.548808
    ],
    "max": [
-    2.248411,
-    0.335044,
-    -3.976777
+    2.220041,
+    0.468044,
+    -4.136549
    ],
    "tag": "boxA",
    "enabled": true
   },
   {
    "min": [
-    1.820686,
+    1.66055,
     0,
-    -4.511116
+    -4.508342
    ],
    "max": [
-    2.264495,
-    0.61091,
-    -3.995009
+    2.123922,
+    0.751508,
+    -4.145436
    ],
    "tag": "boxB",
    "enabled": true
@@ -5238,12 +5622,12 @@
   {
    "min": [
     -2.497534,
-    0.000073,
+    0.007073,
     0.989805
    ],
    "max": [
     -2.190252,
-    0.202418,
+    0.209418,
     1.297995
    ],
    "tag": "prop",
@@ -5279,20 +5663,6 @@
   },
   {
    "min": [
-    0.299789,
-    -0.000016,
-    -3.458245
-   ],
-   "max": [
-    0.860211,
-    0.254073,
-    -2.981755
-   ],
-   "tag": "prop",
-   "enabled": true
-  },
-  {
-   "min": [
     0.43252,
     -0.000989,
     -3.909805
@@ -5317,6 +5687,62 @@
     -2.975593
    ],
    "tag": "prop",
+   "enabled": true
+  },
+  {
+   "min": [
+    0.374947,
+    -0.001068,
+    -3.416189
+   ],
+   "max": [
+    0.897053,
+    2.140543,
+    -2.913811
+   ],
+   "tag": "shelf",
+   "enabled": true
+  },
+  {
+   "min": [
+    1.623349,
+    -0.001068,
+    -4.587189
+   ],
+   "max": [
+    2.216652,
+    2.140543,
+    -4.084811
+   ],
+   "tag": "shelf",
+   "enabled": true
+  },
+  {
+   "min": [
+    1.88,
+    0,
+    -3.1788
+   ],
+   "max": [
+    2.38,
+    1.441036,
+    -2.905488
+   ],
+   "tag": "ladder",
+   "enabled": true
+  },
+  {
+   "min": [
+    -2.43,
+    0,
+    0.79
+   ],
+   "max": [
+    -2.19,
+    0.13,
+    1.01
+   ],
+   "tag": "toy",
    "enabled": true
   }
  ],
@@ -7854,21 +8280,21 @@
   {
    "name": "occluder",
    "transform": [
-    0.980067,
+    -0.049979,
     0,
-    -0.198669,
+    -0.99875,
     0,
     0,
     1,
     0,
     0,
-    0.198669,
+    0.99875,
     0,
-    0.980067,
+    -0.049979,
     0,
-    2.006953,
-    0.16,
-    -4.265698,
+    1.954956,
+    0.300256,
+    -4.341749,
     1
    ],
    "box": {
@@ -7909,21 +8335,21 @@
   {
    "name": "occluder",
    "transform": [
-    0.812036,
+    0.067927,
     0,
-    0.251192,
+    0.847281,
     0,
     0,
     0.85,
     0,
     0,
-    -0.251192,
+    -0.847281,
     0,
-    0.812036,
+    0.067927,
     0,
-    2.041208,
-    0.462123,
-    -4.251579,
+    1.890345,
+    0.781243,
+    -4.327623,
     1
    ],
    "box": {
@@ -11020,21 +11446,21 @@
     1
    ],
    "transform": [
-    0.980067,
+    -0.049979,
     0,
-    -0.198669,
+    -0.99875,
     0,
     0,
     1,
     0,
     0,
-    0.198669,
+    0.99875,
     0,
-    0.980067,
+    -0.049979,
     0,
-    2.006953,
-    0.16,
-    -4.265698,
+    1.954956,
+    0.300256,
+    -4.341749,
     1
    ],
    "box": {
@@ -11077,21 +11503,21 @@
     1
    ],
    "transform": [
-    0.812036,
+    0.067927,
     0,
-    0.251192,
+    0.847281,
     0,
     0,
     0.85,
     0,
     0,
-    -0.251192,
+    -0.847281,
     0,
-    0.812036,
+    0.067927,
     0,
-    2.041208,
-    0.462123,
-    -4.251579,
+    1.890345,
+    0.781243,
+    -4.327623,
     1
    ],
    "box": {
@@ -11234,9 +11660,9 @@
    },
    "intensity": 0,
    "position": [
-    -0.34825,
-    1.279344,
-    -1.819157
+    -0.348068,
+    1.279843,
+    -1.819046
    ],
    "castShadow": true,
    "visible": true,
@@ -11245,9 +11671,9 @@
    "angle": 0.42,
    "penumbra": 0.45,
    "target": [
-    -0.781694,
-    1.581641,
-    -4.80064
+    -0.78197,
+    1.579619,
+    -4.800717
    ],
    "shadow": {
     "mapSize": [
@@ -11284,6 +11710,37 @@
    "decay": 2
   },
   {
+   "name": "tubeLight",
+   "type": "SpotLight",
+   "owner": "world",
+   "path": "tubeLight",
+   "color": {
+    "srgb": "#f3fff7",
+    "linear": [
+     0.9,
+     1,
+     0.93
+    ]
+   },
+   "intensity": 5.715542,
+   "position": [
+    1.95,
+    2.46,
+    -3.85
+   ],
+   "castShadow": false,
+   "visible": true,
+   "distance": 7.5,
+   "decay": 2,
+   "angle": 1.35,
+   "penumbra": 0.9,
+   "target": [
+    1.95,
+    0,
+    -5
+   ]
+  },
+  {
    "name": "ceilingLight",
    "type": "PointLight",
    "owner": "world",
@@ -11292,11 +11749,11 @@
     "srgb": "#ffb74c",
     "linear": [
      1,
-     0.471335,
-     0.072638
+     0.471281,
+     0.072577
     ]
    },
-   "intensity": 0.937859,
+   "intensity": 0.935709,
    "position": [
     0.25,
     1.919,
@@ -11393,7 +11850,7 @@
      1
     ]
    },
-   "intensity": 1.862595,
+   "intensity": 1.64238,
    "position": [
     -0.55,
     1.472043,
@@ -11424,7 +11881,7 @@
      0.434154
     ]
    },
-   "intensity": 0.139468,
+   "intensity": 0.139492,
    "position": [
     0,
     1,
@@ -11605,16 +12062,16 @@
    "shackleLift": 0.0095,
    "wheels": [
     {
-     "level": "lockedBox_lock_dial0"
+     "level": "lock_wheel0_x"
     },
     {
-     "level": "lockedBox_lock_dial1"
+     "level": "lock_wheel1_x"
     },
     {
-     "level": "lockedBox_lock_dial2"
+     "level": "lock_wheel2_x"
     },
     {
-     "level": "lockedBox_lock_dial3"
+     "level": "lock_wheel3_x"
     }
    ],
    "wheelFormula": "wheel.rotation.x = ((digit + 0.5) / 10) * 2PI",
@@ -11728,16 +12185,24 @@
   }
  },
  "warnings": [
-  "material hallWall: map tiling snapped from 2.8302 x 2.8302 to 3 x 3 per base tile (seamless)",
-  "material hallWall: map re-sampled into the base UV space (1536x1536)",
+  "re-sampling a non-repeating texture white1x1",
+  "material hallTrim: map re-sampled into the base UV space (1024x1024)",
+  "material details_hallBrick: alphaMap uses uv channel 1 (dropped)",
   "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
   "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
-  "material white_stucco: normalMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
-  "material white_stucco: aoMap tiling snapped from 1.3636 x 1.3636 to 1 x 1 per map tile (seamless)",
+  "material trimStair: map re-sampled into the base UV space (1024x1024)",
+  "material trim: map re-sampled into the base UV space (1024x1024)",
+  "material foil: normal map re-sampled through a mirrored UV mapping (green channel not corrected)",
+  "material foil: normalMap re-sampled into the map UV space (64x64)",
+  "material doorPaint: map re-sampled into the base UV space (1024x1024)",
   "material MeshStandardMaterial: normalMap re-sampled into the map UV space (2048x1365)",
   "material MeshStandardMaterial: normalMap re-sampled into the base UV space (1024x1024)",
+  "material MeshStandardMaterial: normal map re-sampled through a mirrored UV mapping (green channel not corrected)",
+  "material MeshStandardMaterial: normalMap re-sampled into the map UV space (1024x1024)",
+  "material details_carpetWear: normalMap uses uv channel 1 (dropped)",
+  "material details_papers: normalMap uses uv channel 1 (dropped)",
   "override extra_stairPhotoA:Cube009_2: the web build replaced this primitive's geometry (e.g. generated UVs) — Godot keeps the original mesh",
   "override extra_stairPhotoB:Cube009_2: the web build replaced this primitive's geometry (e.g. generated UVs) — Godot keeps the original mesh"
  ]

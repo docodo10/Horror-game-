@@ -45,8 +45,8 @@ const VARIANTS := {
 ## the merged web decal quads (now Godot Decals, see decal_table.gd), the canvas carpet-wear overlay (carpet shader
 ## traffic paths + stains), the lower-wall grime band (wall shader grime / kicks / specks / scratches), the old ceiling
 ## stain quad by the window (water-ring Decal). Matched by node name or by material name (suffix "_<n>" ignored).
-const HIDE_NODES := ["decals_basement", "decals_hall", "details_carpetWear", "details_wallGrime"]
-const HIDE_MATERIALS := ["details_decals", "details_carpetWear", "details_wallGrime", "decal_mat", "stain"]
+const HIDE_NODES := ["decals_basement", "decals_hall", "details_carpetWear", "details_wallGrime", "propsDecals"]
+const HIDE_MATERIALS := ["details_decals", "details_carpetWear", "details_wallGrime", "decal_mat", "stain", "props_decals"]
 
 # ---------------------------------------------------------------------------------------------------- recipes
 ## Shader kind + texture set (res://assets/hires/<set>/{albedo,normal,mask}.jpg) + parameters.

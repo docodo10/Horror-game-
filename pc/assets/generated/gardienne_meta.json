@@ -3,7 +3,7 @@
  "generator": "tools/export-godot.cjs",
  "source": {
   "url": "http://127.0.0.1:PORT/index.html?debug&noentity&quality=high",
-  "date": "2026-11-08T21:53:31.686Z",
+  "date": "2026-11-08T23:39:53.808Z",
   "model": "src/entity/GardienneModel.js"
  },
  "file": "res://assets/generated/gardienne.glb",

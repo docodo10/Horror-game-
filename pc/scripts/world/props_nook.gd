@@ -52,6 +52,7 @@ var _seq_t := 0.0
 var _flicker_t := 40.0
 var _t := 0.0
 var _rng := RandomNumberGenerator.new()
+var _web_glass: Array = []      # glass materials of the web Details tube model (detail_tubeLight), driven by level
 
 func setup(p_world: Node) -> void:
 	world = p_world
@@ -59,6 +60,12 @@ func setup(p_world: Node) -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	_rng.randomize()
 	_flicker_t = _rng.randf_range(25.0, 60.0)
+	# Newer exports carry the web Details tube (mounted_fluorescent_lights at the nook ceiling): drive that model
+	# instead of building a second batten next to it.
+	var web := _find_web_tube()
+	if web != null:
+		_adopt_web_tube(web)
+		return
 	position = CENTER
 	var enamel := StandardMaterial3D.new()
 	enamel.albedo_color = Color(0.86, 0.85, 0.8)
@@ -92,6 +99,39 @@ func setup(p_world: Node) -> void:
 	tube.material_override = _mat
 	add_child(tube)
 	tube_center = CENTER + Vector3(0, -0.068, 0)
+	_apply()
+
+func _find_web_tube() -> Node3D:
+	if world == null: return null
+	var props = world.get("props")
+	if props is Dictionary and (props as Dictionary).get("detail_tubeLight") is Node3D:
+		return (props as Dictionary)["detail_tubeLight"]
+	var root = world.get("level_root")
+	if root is Node:
+		var n := (root as Node).find_child("detail_tubeLight", true, false)
+		if n is Node3D: return n
+	return null
+
+func _adopt_web_tube(web: Node3D) -> void:
+	var bb := AABB()
+	var first := true
+	for n in web.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		if mi.mesh == null: continue
+		var box := mi.global_transform * mi.get_aabb()
+		bb = box if first else bb.merge(box)
+		first = false
+		for si in mi.get_surface_override_material_count():
+			var m := mi.get_active_material(si)
+			if m is BaseMaterial3D and String(m.resource_name).to_lower().contains("glass"):
+				var g := (m as BaseMaterial3D).duplicate() as BaseMaterial3D
+				g.emission_enabled = true
+				mi.set_surface_override_material(si, g)
+				mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				_web_glass.append(g)
+	tube_center = bb.get_center() if not first else web.global_position + Vector3(0, -0.02, 0)
+	length = bb.size.x if not first else 0.912
+	global_position = tube_center
 	_apply()
 
 func _box(n: String, size: Vector3, pos: Vector3, mat: Material) -> void:
@@ -167,6 +207,9 @@ func _click() -> void:
 	Audio.play("flashlight_click", {"position": tube_center, "volume_db": -10.0, "pitch": 0.62})
 
 func _apply() -> void:
+	for g in _web_glass:
+		(g as BaseMaterial3D).emission = color
+		(g as BaseMaterial3D).emission_energy_multiplier = 6.0 * level
 	if _mat == null: return
 	_mat.set_shader_parameter("level", level)
 	_mat.set_shader_parameter("glow", Vector3(color.r, color.g, color.b))
