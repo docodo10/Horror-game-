@@ -130,7 +130,9 @@ export class Assets {
   }
 
   _shrinkMaterial(m) {
-    for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap', 'bumpMap', 'specularColorMap', 'sheenColorMap', 'clearcoatNormalMap']) {
+    for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap', 'bumpMap', 'lightMap', 'displacementMap',
+      'specularColorMap', 'specularIntensityMap', 'sheenColorMap', 'sheenRoughnessMap', 'clearcoatMap', 'clearcoatNormalMap', 'clearcoatRoughnessMap',
+      'transmissionMap', 'thicknessMap', 'iridescenceMap', 'anisotropyMap']) {
       if (m[k]) this.shrinkTexture(m[k]);
     }
   }
