@@ -7,11 +7,13 @@ import * as L from '../config/layout.js';
 //   ceiling   PointLight in the fan light kit (60 W incandescent, castShadow, cube map size from renderer.preset)
 //             + a frosted glass bowl that glows with the filament level
 //   moon      cool SpotLight from outside through the barred window (castShadow → bar shadows on the floor),
-//             with a faint volumetric shaft + drifting dust motes (more visible when the power is off)
+//             with a faint volumetric shaft (analytic in-scattering along each view ray through the shaft prism:
+//             correct from outside and inside, soft edges, dissolves near the lens) + drifting dust motes
 //   doorLight warm PointLight behind the upstairs door: leaks under the 1.5 cm gap (+ emissive strip) while the
 //             door is closed, becomes the hallway ceiling light as the door opens
 //   tvLight   cool flickering SpotLight in front of the CRT (only while the TV is on)
-//   hemi      very low HemisphereLight so pitch darkness stays readable on phones
+//   hemi      very low HemisphereLight so pitch darkness stays readable on phones (x1.3 floor on touch devices;
+//             on the low preset, where the Player has no flashlight bounce light, the torch lifts the floor x1.8)
 // bakeEnvironment(): CubeCamera + PMREMGenerator.fromCubemap → two-bounce "power on" environment and a
 //   "power off" (moonlight only) one; swapped on setPower, intensity follows the filament level.
 //
@@ -24,7 +26,13 @@ import * as L from '../config/layout.js';
 //   setStress(v)                 0..1 continuous flicker probability (entity proximity)
 //   setTVLight(on, intensity)    cool flickering light in front of the TV screen
 //   doorStrip                    the light leaking under the upstairs door: setOccluded(v 0..1) (feet shadows)
-// Extra: .ceiling .moon .doorLight .tvLight .hemi .level (filament 0..1+) .envOn .envOff
+//   setMenuMode(on|null)         TV main menu: ceiling bulb on a faint dimmer, the CRT as the key light. null = auto
+//                                (game.state 'menu'/'loading' or ui.menuCameraActive). Smooth, intensity-only.
+//   addHalo(worldPos, { color, size, scaleX, lowOnly, occlude }) → { sprite, set(intensity), setColor(c) }
+//                                soft glow sprite for another module's small emitter (fluorescent tube, bare bulb)
+//                                where there is no bloom pass; no light, no new shader program; callable any time
+// Extra: .ceiling .moon .doorLight .tvLight .hemi .level (filament 0..1+) .envOn .envOff .menuMode (0..1)
+//        .bowlGlow (sprite halo, low preset only: stand-in for the bloom pass) .tvGlow (soft CRT halo, all presets)
 //
 // Performance rule: the light set is fixed at build (5 lights, 2 shadow casters). Nothing at runtime changes
 // light.visible, castShadow or the light count — every state (off, flicker, blowout, TV) is intensity only
@@ -50,9 +58,19 @@ const STRIP_CD = 2.4;        // light leaking under the upstairs door
 const HALL_CD = 30;          // hallway ceiling fixture when the door is open
 const TV_CD = 7;             // small CRT
 const STRIP_GLOW = 45;       // emissive gap line under the door
-const HEMI_ON = 0.06, HEMI_OFF = 0.17;  // not exposure-scaled: a readability floor in the dark
-const ENV_ON = 0.45;         // two-bounce capture; < 1 keeps the falloff moody
+const HEMI_ON = 0.06, HEMI_OFF = 0.2;   // not exposure-scaled: a readability floor in the dark
+const HEMI_TOUCH = 1.3;      // phones: small screens in brighter surroundings get a slightly higher floor
+const HEMI_FLASH_LOW = 1.8;  // low preset: the flashlight has no bounce light there; its fill lifts the floor instead
+const ENV_ON = 0.35;         // two-bounce capture; < 1 keeps the falloff moody (deeper shadow sides, like the refs)
 const ENV_OFF = 2.2;         // moonlit bounce is very dim; lift a little for readability
+const WHITE_BALANCE = 3700;  // camera white balance (K): 2700 K bulbs read warm, not orange
+// Main menu (diegetic TV): the ceiling light sits on a faint dimmer level and the CRT is the key light.
+const MENU_LEVEL = 0.1;      // filament level while the TV menu is up (a dimmed bulb glows orange)
+const MENU_TV = 2.6;         // TV light boost in the menu
+const MENU_HEMI = 0.75;      // hemi readability floor scale in the menu (darker room, the TV carries the frame)
+// Low preset only (no bloom pass there): camera-facing additive halos around the bowl and the TV screen.
+const GLOW_BOWL = 1.4, GLOW_BOWL_SIZE = 0.95;
+const GLOW_TV = 0.22, GLOW_TV_SIZE = 0.75;
 
 const RAMP = [[0, 0], [0.05, 0.9], [0.09, 0.04], [0.26, 0], [0.32, 0.65], [0.37, 0.08], [0.52, 0], [0.6, 1], [0.68, 0.4], [0.75, 1], [1.1, 1]];
 const RAMP_END = 1.1;
@@ -61,7 +79,7 @@ const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const smooth01 = (t) => t * t * (3 - 2 * t);
 
 /** Black body → linear RGB (Tanner Helland fit), divided by the white-balance colour. */
-function kelvin(k, target, wb = 3900) {
+function kelvin(k, target, wb = WHITE_BALANCE) {
   const f = (t) => {
     t /= 100; let r, g, b;
     if (t <= 66) { r = 255; g = 99.4708 * Math.log(t) - 161.1196; b = t <= 19 ? 0 : 138.5177 * Math.log(t - 10) - 305.0448; }
@@ -76,25 +94,72 @@ function kelvin(k, target, wb = 3900) {
 
 // ------------------------------------------------------------------------------------------------ FX shaders
 
+// Moon shaft = in-scattering integrated ANALYTICALLY along each view ray through the shaft volume (an oblique prism:
+// the window aperture extruded along MOON_DIR down to the floor). Each pixel is shaded exactly once: entry faces
+// when the camera is outside the volume, exit faces (incl. the floor / window caps) when it is inside. The old
+// per-face "facing" shading summed several faces and showed the thin side of the light sheet as a hard bright
+// diagonal streak across close-up frames (jumpscare); now the brightness follows the real path length, edges are
+// soft, and the haze dissolves within ~1 m of the lens.
 const BEAM_VS = /* glsl */`
-  attribute vec2 aBeam;           // x: across 0..1 (face), y: along 0 (window) .. 1 (floor)
-  varying vec2 vBeam; varying vec3 vW; varying vec3 vN;
+  varying vec3 vW; varying vec3 vN;
   void main() {
-    vBeam = aBeam;
     vec4 w = modelMatrix * vec4(position, 1.0);
-    vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal);
+    vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal);   // outward normals (built that way)
     gl_Position = projectionMatrix * viewMatrix * w;
   }`;
 const BEAM_FS = /* glsl */`
   uniform float uIntensity; uniform float uTime; uniform vec3 uColor;
-  varying vec2 vBeam; varying vec3 vW; varying vec3 vN;
+  uniform vec3 uD;          // shaft direction (unit, travel)
+  uniform vec4 uAp;         // aperture in the window plane: xMin, xMax, yMin, yMax
+  uniform float uWinZ;      // window plane z
+  uniform float uInside;    // 1 when the camera is inside the volume
+  uniform float uSFloor;    // shaft length (window -> floor) along uD at the aperture centre
+  varying vec3 vW; varying vec3 vN;
+  void slab(float x0, float d, float a, float b, inout float t0, inout float t1) {
+    if (abs(d) < 1e-6) { if (x0 < a || x0 > b) t1 = -1.0; return; }
+    float ta = (a - x0) / d, tb = (b - x0) / d;
+    t0 = max(t0, min(ta, tb)); t1 = min(t1, max(ta, tb));
+  }
+  void half_(float x0, float d, inout float t0, inout float t1) {   // x0 + t d >= 0
+    if (abs(d) < 1e-6) { if (x0 < 0.0) t1 = -1.0; return; }
+    float t = -x0 / d;
+    if (d > 0.0) t0 = max(t0, t); else t1 = min(t1, t);
+  }
   void main() {
-    vec3 V = normalize(cameraPosition - vW);
-    float facing = abs(dot(V, normalize(vN)));
-    float edge = sin(3.14159 * clamp(vBeam.x, 0.0, 1.0));
-    float along = smoothstep(0.0, 0.08, vBeam.y) * pow(1.0 - vBeam.y, 0.7);
-    float dust = 0.75 + 0.25 * sin(vW.x * 23.0 + uTime * 0.6) * sin(vW.y * 17.0 - uTime * 0.45) * sin(vW.z * 19.0 + uTime * 0.3);
-    float a = uIntensity * edge * along * pow(facing, 1.3) * dust;
+    vec3 c = cameraPosition;
+    vec3 toF = vW - c;
+    float tf = length(toF);
+    vec3 w = toF / tf;
+    bool entry = dot(-toF, vN) > 0.0;
+    if (entry == (uInside > 0.5)) discard;
+    // ray in prism coordinates: s along the shaft from the window plane, (u, v) = projected aperture position
+    float s0 = (c.z - uWinZ) / uD.z, ds = w.z / uD.z;
+    float u0 = c.x - s0 * uD.x, du = w.x - ds * uD.x;
+    float v0 = c.y - s0 * uD.y, dv = w.y - ds * uD.y;
+    float t0 = 0.0, t1 = entry ? tf + 40.0 : tf + 1e-3;
+    slab(u0, du, uAp.x, uAp.y, t0, t1);
+    slab(v0, dv, uAp.z, uAp.w, t0, t1);
+    half_(s0, ds, t0, t1);
+    half_(c.y, w.y, t0, t1);
+    t0 = max(t0, 0.3);                       // no haze glued to the lens
+    float L = t1 - t0;
+    if (L <= 0.0) discard;
+    // 3-point quadrature of the density along the in-volume segment: soft edges (dirty glass + penumbra), fade in
+    // out of the recess, thinning toward the floor, dissolving within ~1.5 m of the lens, slow dust drift
+    float acc = 0.0;
+    for (int i = 0; i < 3; i++) {
+      float tt = t0 + L * (0.16667 + 0.33333 * float(i));
+      vec3 pm = c + w * tt;
+      float um = u0 + tt * du, vm = v0 + tt * dv, sm = s0 + tt * ds;
+      float soft = smoothstep(0.0, 0.22 * (uAp.y - uAp.x), min(um - uAp.x, uAp.y - um))
+                 * smoothstep(0.0, 0.34 * (uAp.w - uAp.z), min(vm - uAp.z, uAp.w - vm));
+      float along = smoothstep(0.0, 0.35, sm) * (1.0 - 0.6 * clamp(sm / uSFloor, 0.0, 1.0));
+      float nearF = smoothstep(0.3, 1.5, tt);
+      float dust = 0.78 + 0.22 * sin(pm.x * 23.0 + uTime * 0.6) * sin(pm.y * 17.0 - uTime * 0.45) * sin(pm.z * 19.0 + uTime * 0.3);
+      acc += soft * along * nearF * dust;
+    }
+    // path length capped: seen edge-on, the thin light sheet must not pile up into a hard bright line
+    float a = uIntensity * min(L, 0.9) * acc * 0.33333;
     gl_FragColor = vec4(uColor * a, 1.0);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
@@ -144,7 +209,7 @@ const SPARK_FS = /* glsl */`
     #include <colorspace_fragment>
   }`;
 
-const _v = new THREE.Vector3(), _v2 = new THREE.Vector3();
+const _v = new THREE.Vector3(), _v2 = new THREE.Vector3(), _v3 = new THREE.Vector3();
 
 export class Lighting {
   constructor(game, world) {
@@ -168,6 +233,13 @@ export class Lighting {
     this._c1900 = kelvin(1900, new THREE.Color());
     this._cTmp = new THREE.Color();
     this.doorStrip = { setOccluded: (v) => { this._occTarget = clamp01(+v || 0); } };
+    // menu mode (TV menu): 1 = fully in menu lighting. Starts "in menu" unless the game autostarts (no ramp then).
+    this._menu = game.params?.autostart ? 0 : 1;
+    this._menuForce = null;
+    this._glowVis = 0; this._tvGlowVis = 0; this._glowT = 0;
+    this._lowFill = false; this._flFill = 0;
+    this._halos = []; this._glowTex = null;
+    this._glowsOn = !(game.renderer?.preset?.bloom ?? true);
   }
 
   async build() {
@@ -227,6 +299,7 @@ export class Lighting {
 
     this._buildBeam();
     this._buildSparks();
+    this._buildGlows(sp);
 
     this._applyQuality(this.game.renderer?.preset, this.game.renderer?.quality);
     this.game.events?.on?.('quality:changed', ({ quality, preset } = {}) => this._applyQuality(preset, quality));
@@ -265,19 +338,36 @@ export class Lighting {
     const top = [new THREE.Vector3(xa, yBot, WIN.z), new THREE.Vector3(xb, yBot, WIN.z), new THREE.Vector3(xb, yTop, WIN.z), new THREE.Vector3(xa, yTop, WIN.z)];
     const bot = top.map((p) => p.clone().addScaledVector(MOON_DIR, p.y / -MOON_DIR.y));
     this._beamTop = top; this._beamBot = bot;
-    const pos = [], beam = [], idx = [];
-    for (let f = 0; f < 4; f++) {
-      const a = f, b = (f + 1) % 4, base = pos.length / 3;
-      for (const [p, u, v] of [[top[a], 0, 0], [top[b], 1, 0], [bot[b], 1, 1], [bot[a], 0, 1]]) { pos.push(p.x, p.y, p.z); beam.push(u, v); }
+    // closed prism: 4 sides + floor cap (1 mm up) + window cap, flat outward normals (the shader picks entry/exit
+    // faces with them, independent of the triangle winding)
+    const centre = new THREE.Vector3();
+    [...top, ...bot].forEach((p) => centre.add(p)); centre.multiplyScalar(1 / 8);
+    const pos = [], nrm = [], idx = [];
+    const quad = (a, b, c, d) => {
+      const n = new THREE.Vector3().subVectors(b, a).cross(new THREE.Vector3().subVectors(d, a)).normalize();
+      const fc = new THREE.Vector3().add(a).add(b).add(c).add(d).multiplyScalar(0.25);
+      if (n.dot(fc.sub(centre)) < 0) n.negate();
+      const base = pos.length / 3;
+      for (const p of [a, b, c, d]) { pos.push(p.x, p.y, p.z); nrm.push(n.x, n.y, n.z); }
       idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
-    }
+    };
+    for (let f = 0; f < 4; f++) { const a = f, b = (f + 1) % 4; quad(top[a], top[b], bot[b], bot[a]); }
+    const lift = (p) => p.clone().setY(p.y + 0.001);
+    quad(lift(bot[0]), lift(bot[1]), lift(bot[2]), lift(bot[3]));
+    quad(top[0], top[1], top[2], top[3]);
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setAttribute('aBeam', new THREE.Float32BufferAttribute(beam, 2));
-    g.setIndex(idx); g.computeVertexNormals();
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3));
+    g.setIndex(idx);
+    g.computeBoundingSphere();
+    this._beamAp = new THREE.Vector4(xa, xb, yBot, yTop);
     this.beamMat = new THREE.ShaderMaterial({
       vertexShader: BEAM_VS, fragmentShader: BEAM_FS,
-      uniforms: { uIntensity: { value: 0 }, uTime: { value: 0 }, uColor: { value: new THREE.Color(0.32, 0.4, 0.62) } },
+      uniforms: {
+        uIntensity: { value: 0 }, uTime: { value: 0 }, uColor: { value: new THREE.Color(0.32, 0.4, 0.62) },
+        uD: { value: MOON_DIR.clone() }, uAp: { value: this._beamAp }, uWinZ: { value: WIN.z }, uInside: { value: 0 },
+        uSFloor: { value: ((yTop + yBot) / 2) / -MOON_DIR.y },
+      },
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
     });
     this.beamMat.name = 'moonShaft';
@@ -327,6 +417,135 @@ export class Lighting {
     this.group.add(this.sparks);
   }
 
+  /** Radial halo texture (tight core + wide photographic tail, zero at the quad edge), shared by every glow sprite. */
+  _glowTexture() {
+    if (this._glowTex) return this._glowTex;
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g2 = c.getContext('2d');
+    const img = g2.createImageData(128, 128);
+    for (let y = 0; y < 128; y++) {
+      for (let x = 0; x < 128; x++) {
+        const r = Math.hypot(x - 63.5, y - 63.5) / 64;
+        const v = r >= 1 ? 0 : (0.55 * Math.exp(-r * r * 22) + 0.45 * Math.exp(-r * 4.2)) * (1 - r * r) ** 2;
+        const k = (y * 128 + x) * 4;
+        img.data[k] = img.data[k + 1] = img.data[k + 2] = Math.round(255 * Math.min(1, v));
+        img.data[k + 3] = 255;
+      }
+    }
+    g2.putImageData(img, 0, 0);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.NoColorSpace; // linear weights
+    this._glowTex = tex;
+    return tex;
+  }
+
+  /** Additive, no-depth-test sprite material (one shader program for every glow: adding one never compiles). */
+  _glowMaterial(name) {
+    const m = new THREE.SpriteMaterial({ map: this._glowTexture(), color: 0x000000, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, transparent: true, fog: false });
+    m.name = name;
+    return m;
+  }
+
+  /**
+   * Halos: soft additive sprites, the photographic glow the bloom pass gives on medium+.
+   *  - fan bowl: low preset only (no bloom pass there)
+   *  - CRT: every preset (the screen is too dim for the bloom threshold); needs the screen to face the camera and
+   *    fades up close (menu framing, reading the digit) so it never veils the screen content.
+   * No depth test (a bloom halo spills over edges too): visibility comes from a cheap occluder ray every few frames.
+   */
+  _buildGlows(tvPos) {
+    const mk = (name) => this._glowMaterial(name);
+    this.bowlGlow = new THREE.Sprite(mk('bowlGlow'));
+    this.bowlGlow.name = 'bowlGlow';
+    this.bowlGlow.position.set(L.FAN.x, FAN_BOTTOM - 0.045, L.FAN.z);
+    this.bowlGlow.scale.setScalar(GLOW_BOWL_SIZE);
+    this.bowlGlow.renderOrder = 9;
+    this.tvGlow = new THREE.Sprite(mk('tvGlow'));
+    this.tvGlow.name = 'tvGlow';
+    this.tvGlow.position.set(tvPos.x, tvPos.y, tvPos.z + 0.02);
+    this.tvGlow.scale.setScalar(GLOW_TV_SIZE);
+    this.tvGlow.renderOrder = 9;
+    this._tvNormal = new THREE.Vector3(0, 0, 1);
+    this.group.add(this.bowlGlow, this.tvGlow);
+  }
+
+  _updateGlows(dt, lv, tvI) {
+    if (!this.bowlGlow) return;
+    const bowlOn = this.bowlGlow.visible && lv > 0.002;
+    const tvOn = tvI > 0.002;
+    if (!bowlOn && !tvOn) {
+      this.bowlGlow.material.color.setRGB(0, 0, 0); this.tvGlow.material.color.setRGB(0, 0, 0);
+      this._glowVis = 0; this._tvGlowVis = 0; this._glowT = 0;
+      return;
+    }
+    const cam = this.game.camera;
+    cam.getWorldPosition(_v);
+    // occlusion (walls, ceiling, big furniture) every ~6 frames, smoothed
+    const w = this.world;
+    this._glowT -= 1;
+    if (this._glowT <= 0) {
+      this._glowT = 6;
+      this._glowOcc = bowlOn && w.lineBlocked ? (w.lineBlocked(_v, this.bowlGlow.position) ? 0 : 1) : 1;
+      if (tvOn) {
+        _v2.copy(this.tvGlow.position).addScaledVector(this._tvNormal, 0.05);
+        const facing = clamp01(_v3.subVectors(_v, _v2).normalize().dot(this._tvNormal));
+        this._tvOcc = facing > 0.05 && !(w.lineBlocked && w.lineBlocked(_v, _v2)) ? facing : 0;
+      }
+    }
+    const k = 1 - Math.exp(-dt * 10);
+    this._glowVis += ((this._glowOcc ?? 1) - this._glowVis) * k;
+    this._tvGlowVis += ((this._tvOcc ?? 0) - this._tvGlowVis) * k;
+    const bowl = bowlOn ? GLOW_BOWL * Math.pow(Math.max(0, lv), 1.6) * this._glowVis : 0;
+    this.bowlGlow.material.color.copy(this.bowlMat.emissive).multiplyScalar(bowl);
+    // CRT halo: fades up close (menu framing, reading the digit) so it never veils the screen content
+    const d = _v.distanceTo(this.tvGlow.position);
+    const tv = tvOn ? GLOW_TV * tvI * this._tvGlowVis * smooth01(clamp01((d - 1.1) / 1.6)) : 0;
+    this.tvGlow.material.color.copy(this.tvLight.color).multiplyScalar(tv);
+  }
+
+  /**
+   * Public: a soft halo for a small bright emitter owned by another module (fluorescent tube, bare bulb, LED...),
+   * so it glows where there is no bloom pass. Safe to call before or after build (no light, no new shader program).
+   * position: world Vector3. opts: { color (hex | THREE.Color, linear), size (m, default 0.6), scaleX (1: round;
+   * >1 = wider, e.g. 2.5 for a tube), lowOnly (true: only on presets without bloom), occlude (true: hidden behind
+   * walls / big furniture), name }. Returns { sprite, set(intensity), setColor(c) }; intensity is a linear multiplier
+   * (≈1 for a 60 W bulb seen at a few metres; drive it with the emitter's own flicker).
+   */
+  addHalo(position, { color = 0xffffff, size = 0.6, scaleX = 1, lowOnly = true, occlude = true, name = 'halo' } = {}) {
+    const s = new THREE.Sprite(this._glowMaterial(name));
+    s.name = name;
+    s.position.copy(position);
+    s.scale.set(size * scaleX, size, 1);
+    s.renderOrder = 9;
+    s.frustumCulled = true;
+    const h = {
+      sprite: s, color: new THREE.Color(color), intensity: 0, vis: 0, occ: 1, lowOnly, occlude, idx: this._halos.length,
+      set: (v) => { h.intensity = Math.max(0, +v || 0); },
+      setColor: (c) => { h.color.set(c); },
+    };
+    s.visible = !lowOnly || this._glowsOn;
+    this.game.scene.add(s);
+    this._halos.push(h);
+    return h;
+  }
+
+  _updateHalos(dt) {
+    const list = this._halos;
+    if (!list.length) return;
+    const cam = this.game.camera.getWorldPosition(_v);
+    const w = this.world;
+    const k = 1 - Math.exp(-dt * 10);
+    for (let i = 0; i < list.length; i++) {
+      const h = list[i];
+      const m = h.sprite.material;
+      if (!h.sprite.visible || h.intensity <= 0) { m.color.setRGB(0, 0, 0); h.vis = 0; continue; }
+      if (h.occlude && w.lineBlocked && (this._frame + i) % 6 === 0) h.occ = w.lineBlocked(cam, h.sprite.position) ? 0 : 1;
+      h.vis += ((h.occlude ? h.occ : 1) - h.vis) * k;
+      m.color.copy(h.color).multiplyScalar(h.intensity * h.vis);
+    }
+  }
+
   _burstSparks() {
     const s = this._spk; if (!s) return;
     for (let i = 0; i < s.n; i++) {
@@ -370,7 +589,14 @@ export class Lighting {
     setSize(this.ceiling, sz);
     setSize(this.moon, Math.max(512, sz));
     this._every = q === 'low' ? { ceil: 3, moon: 6 } : q === 'medium' ? { ceil: 2, moon: 3 } : q === 'ultra' ? { ceil: 1, moon: 1 } : { ceil: 1, moon: 2 };
+    this._lowFill = q === 'low'; // Player adds its flashlight bounce light on medium+ only
     if (this.dust) this.dust.visible = q !== 'low';
+    // sprite halos stand in for the bloom pass where there is none (low preset / direct rendering)
+    // (the CRT is too dim for the bloom threshold: its soft phosphor halo is a sprite on every preset)
+    const glows = !(p.bloom ?? q !== 'low');
+    this._glowsOn = glows;
+    if (this.bowlGlow) { this.bowlGlow.visible = glows; this._glowT = 0; }
+    for (const h of this._halos) h.sprite.visible = !h.lowOnly || glows;
     this.ceiling.shadow.autoUpdate = false; this.moon.shadow.autoUpdate = false;
     this._shadowDirty = 2;
   }
@@ -405,7 +631,7 @@ export class Lighting {
     cam.position.set(0.3, 1.35, 0.05);
     cam.updateMatrixWorld(true);
     const pmrem = new THREE.PMREMGenerator(r);
-    const hide = [this.beam, this.dust, this.sparks].filter(Boolean);
+    const hide = [this.beam, this.dust, this.sparks, this.bowlGlow, this.tvGlow, ...this._halos.map((h) => h.sprite)].filter(Boolean);
     const vis = hide.map((o) => o.visible);
     hide.forEach((o) => { o.visible = false; });
     const zones = this._zoneMats();
@@ -532,6 +758,16 @@ export class Lighting {
     if (typeof intensity === 'number' && isFinite(intensity)) this._tvBase = Math.max(0, intensity);
   }
 
+  /**
+   * Main-menu lighting: true = the ceiling bulb drops to a faint dimmer level and the TV becomes the key light;
+   * false = normal; null (default) = automatic (on while game.state is 'menu' / 'loading' or the UI owns the camera
+   * for the TV menu). Intensity-only ramps (no recompiles); restored smoothly when the game starts.
+   */
+  setMenuMode(on) { this._menuForce = on === null || on === undefined ? null : !!on; }
+
+  /** 0..1 how much of the menu lighting is applied right now. */
+  get menuMode() { return this._menu; }
+
   // ---------------------------------------------------------------------------------------------- frame update
 
   update(dt) {
@@ -539,13 +775,21 @@ export class Lighting {
     this._time += dt;
     this._frame++;
 
+    // ---- menu mode (TV menu): dimmer on the ceiling bulb, TV as the key light
+    const gs = this.game.state;
+    const menuOn = this._menuForce ?? (gs === 'menu' || gs === 'loading' || !!this.game.ui?.menuCameraActive);
+    const mt = menuOn ? 1 : 0;
+    this._menu += (mt - this._menu) * (1 - Math.exp(-dt / (mt > this._menu ? 0.25 : 0.45)));
+    if (Math.abs(this._menu - mt) < 1e-3) this._menu = mt;
+    const menu = this._menu;
+
     // ---- ceiling filament
-    let target = this.power ? 1 : 0;
+    let target = (this.power ? 1 : 0) * (1 + (MENU_LEVEL - 1) * menu);
     if (this._ramp >= 0) {
       this._ramp += dt;
       let v = 1;
       for (let i = RAMP.length - 1; i >= 0; i--) if (this._ramp >= RAMP[i][0]) { v = RAMP[i][1]; break; }
-      target = v;
+      target = v * (1 + (MENU_LEVEL - 1) * menu);
       if (this._ramp >= RAMP_END) this._ramp = -1;
     }
     if (this.power && this._flickT > 0) {
@@ -574,14 +818,21 @@ export class Lighting {
     }
     this._applyLevel(lv);
     this._applyEnv(Math.min(lv, 1.4));
-    this.hemi.intensity = HEMI_OFF + (HEMI_ON - HEMI_OFF) * clamp01(lv);
+    // readability floor in the dark; on low (no flashlight bounce light there) the torch adds a little fill
+    const fl = this.game.player?.flashlight?.light;
+    const flK = this._lowFill && fl ? clamp01(fl.intensity / 42) : 0;
+    this._flFill += (flK - this._flFill) * (1 - Math.exp(-dt * 8));
+    const floor = HEMI_OFF * (this.game.input?.isTouch ? HEMI_TOUCH : 1) * (1 + (HEMI_FLASH_LOW - 1) * this._flFill);
+    this.hemi.intensity = (floor + (HEMI_ON - floor) * clamp01(lv)) * (1 + (MENU_HEMI - 1) * menu);
     this._updateSparks(dt);
 
-    // ---- moon shaft (stronger once the room is dark)
+    // ---- moon shaft (stronger once the room is dark); analytic volume, see BEAM_FS
     const dark = 1 - clamp01(lv);
     if (this.beamMat) {
-      this.beamMat.uniforms.uTime.value = this._time;
-      this.beamMat.uniforms.uIntensity.value = 0.02 + 0.075 * dark;
+      const bu = this.beamMat.uniforms;
+      bu.uTime.value = this._time;
+      bu.uIntensity.value = 0.014 + 0.06 * dark;
+      bu.uInside.value = this._cameraInBeam() ? 1 : 0;
       this.dustMat.uniforms.uTime.value = this._time;
       this.dustMat.uniforms.uIntensity.value = 0.12 + 0.3 * dark;
       const h = this.game.renderer?.webgl?.domElement?.height || 720;
@@ -610,8 +861,11 @@ export class Lighting {
       this._tvTarget = Math.random() < 0.08 ? 1.25 : 0.55 + Math.random() * 0.45;
     }
     this._tvLevel += ((tvOn ? this._tvTarget : 0) - this._tvLevel) * Math.min(1, dt * 22);
-    this.tvLight.intensity = TV_CD * this.exposure * this._tvBase * this._tvLevel;
+    const tvI = this._tvBase * this._tvLevel;
+    this.tvLight.intensity = TV_CD * this.exposure * tvI * (1 + (MENU_TV - 1) * menu);
     this.moon.intensity = MOON_CD * this.exposure;
+    this._updateGlows(dt, lv, tvI);
+    this._updateHalos(dt);
 
     // ---- motion-gated shadow map updates (cube shadow = 6 scene passes: never re-render a static room).
     // Shadows are re-rendered only while something that casts them moves (doors, drawers, lids, lever,
@@ -626,6 +880,17 @@ export class Lighting {
     if (lv > 0.003 && tick(ev.ceil)) this.ceiling.shadow.needsUpdate = true;
     if (tick(ev.moon)) this.moon.shadow.needsUpdate = true;
     if (this._shadowDirty > 0 && !moving) this._shadowDirty--;
+  }
+
+  /** Is the camera inside the moon shaft volume (window aperture extruded along MOON_DIR down to the floor)? */
+  _cameraInBeam() {
+    const ap = this._beamAp;
+    if (!ap) return false;
+    const c = this.game.camera.getWorldPosition(_v3);
+    const s = (c.z - WIN.z) / MOON_DIR.z;
+    if (s < 0 || c.y < 0) return false;
+    const u = c.x - s * MOON_DIR.x, v = c.y - s * MOON_DIR.y;
+    return u >= ap.x && u <= ap.y && v >= ap.z && v <= ap.w;
   }
 
   /** True when any dynamic shadow caster moved since the last frame (cheap matrix comparison, no allocations). */

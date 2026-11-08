@@ -27,28 +27,48 @@ import { PostFX } from './PostFX.js';
 //   .setExposure(v), .fx (PostFX instance: look tunables), .gtao / .bloom (three passes, null when disabled),
 //   .renderScale (auto emergency scale on low), .direct (true when post-processing is unavailable),
 //   .debugView ('ao'|'denoise'|'normal'|'depth' → raw GTAO buffers on screen; URL ?debug&rview=ao).
+//   .look (bloom / AO tunables, see LOOK below; bloom values are read every frame)
 //   Meshes with userData.noAO (and additive / no-depth-write FX meshes, points, lines, sprites) are excluded from AO.
-//   URL (debug/tuning): ?tonemap=agx|aces|neutral, ?exposure=1.2, ?fx=0 (direct rendering, no post).
+//   URL (debug/tuning): ?tonemap=agx|aces|neutral, ?exposure=1.2, ?fx=0 (direct rendering, no post), ?dof=0.
 //
 // Pipeline (no EffectComposer: fewer copies, MSAA only where it matters):
 //   high/ultra: scene → sceneRT (HalfFloat linear HDR, MSAA x4) → GTAO (copy + multiply AO) → rtA
-//               → UnrealBloom (additive, in place on rtA) → OutputPass (AgX + sRGB) → rtB → PostFX → screen
+//               → UnrealBloom (additive, in place on rtA) → OutputPass (AgX + sRGB) → rtB → PostFX (+ DOF) → screen
+//               DOF reuses the GTAO G-buffer depth (no extra scene pass); a 1x1 autofocus pass eases the focus
+//               distance toward the screen-centre depth. DOF fades out while a UI page / note / keypad is open
+//               and outside the 'playing' state (menu).
 //   medium:     scene → sceneRT → UnrealBloom (in place) → OutputPass → rtA → PostFX → screen
-//   low:        scene → sceneRT → PostFX (does the same AgX + sRGB itself) → screen
+//   low:        scene → sceneRT → PostFX (does the same AgX + sRGB itself) → screen  (no extra full-screen pass;
+//               Lighting draws small sprite halos around the bulb / TV instead of bloom)
 //   PostFX always works in display space after tone mapping (never double gamma).
+// Emissive / bloom contract for other modules: bloom starts at ~2.2 (linear, post-exposure luminance) and is full
+//   at ~5.2. Lamps that should glow need emissive luminance ≥ 4 (fan bowl ≈ 6, a fluorescent tube 4–6); lit
+//   paint/plaster stays below it except right next to a bulb or in a close flashlight hot spot (a lower threshold
+//   turns the bright ceiling around the fan into a milky veil). The CRT (~1 linear) gets its halo from Lighting.tvGlow.
 
 const ORDER = ['low', 'medium', 'high', 'ultra'];
 
 // Base presets (pixelRatio = cap, applied as min(devicePixelRatio, cap)). Extra keys are renderer-internal.
 const PRESETS = {
   low:    { pixelRatio: 1,    shadowMapSize: 512,  shadowsFlashlight: false, gtao: false, bloom: false, msaa: 0, envSize: 64,
-            fxaa: true,  ca: false, edgeSoft: false, grainSmooth: false, blurTaps: 6,  bloomScale: 0,    gtaoSamples: 0,  maxPixels: 1.1e6, anisotropy: 4 },
+            fxaa: true,  ca: false, edgeSoft: false, grainSmooth: false, blurTaps: 6,  bloomScale: 0,    gtaoSamples: 0,  maxPixels: 1.1e6, anisotropy: 4, dof: false, toe: 0 },
   medium: { pixelRatio: 1.25, shadowMapSize: 1024, shadowsFlashlight: true,  gtao: false, bloom: true,  msaa: 0, envSize: 128,
-            fxaa: true,  ca: true,  edgeSoft: false, grainSmooth: false, blurTaps: 8,  bloomScale: 0.5,  gtaoSamples: 0,  maxPixels: 2.2e6, anisotropy: 8 },
+            fxaa: true,  ca: true,  edgeSoft: false, grainSmooth: false, blurTaps: 8,  bloomScale: 0.5,  gtaoSamples: 0,  maxPixels: 2.2e6, anisotropy: 8, dof: false, toe: 0.04 },
   high:   { pixelRatio: 1.5,  shadowMapSize: 1024, shadowsFlashlight: true,  gtao: true,  bloom: true,  msaa: 4, envSize: 256,
-            fxaa: false, ca: true,  edgeSoft: true,  grainSmooth: true,  blurTaps: 10, bloomScale: 0.75, gtaoSamples: 12, maxPixels: 3.7e6, anisotropy: 16 },
+            fxaa: false, ca: true,  edgeSoft: true,  grainSmooth: true,  blurTaps: 10, bloomScale: 0.75, gtaoSamples: 12, maxPixels: 3.7e6, anisotropy: 16, dof: true, toe: 0.06 },
   ultra:  { pixelRatio: 2,    shadowMapSize: 2048, shadowsFlashlight: true,  gtao: true,  bloom: true,  msaa: 4, envSize: 256,
-            fxaa: false, ca: true,  edgeSoft: true,  grainSmooth: true,  blurTaps: 12, bloomScale: 1,    gtaoSamples: 16, maxPixels: 8.3e6, anisotropy: 16 },
+            fxaa: false, ca: true,  edgeSoft: true,  grainSmooth: true,  blurTaps: 12, bloomScale: 1,    gtaoSamples: 16, maxPixels: 8.3e6, anisotropy: 16, dof: true, toe: 0.06 },
+};
+// toe: PostFX shadow toe. 0 on low: phones (small screens, bright surroundings) keep every dark tone readable.
+
+// Look-development constants (linear HDR, post-exposure units; see the emissive / bloom contract in the header).
+//  Bloom: only real highlights glow — bare bulbs / the fan bowl (~6), a fluorescent tube (4+), a flashlight hot spot
+//  on a close wall. The soft knee starts at THRESHOLD and reaches full weight at THRESHOLD + KNEE; RADIUS ~0.6 keeps
+//  the wide mips in (soft photographic halo instead of a tight white blob) without veiling the whole frame.
+const LOOK = {
+  bloomStrength: 0.3, bloomRadius: 0.62, bloomThreshold: 2.2, bloomKnee: 3.0,
+  // GTAO: contact shadows under / behind furniture like the reference photos (world-space radius, thin thickness → no halos)
+  aoIntensity: 0.95, aoRadius: 0.5, aoDistanceExponent: 1.4, aoThickness: 0.6, aoScale: 1.15,
 };
 
 const TONEMAPS = { agx: THREE.AgXToneMapping, aces: THREE.ACESFilmicToneMapping, neutral: THREE.NeutralToneMapping };
@@ -118,6 +138,9 @@ export class Renderer {
     this.rtA = null;
     this.rtB = null;
 
+    this.look = { ...LOOK };   // look tunables (bloom / AO); bloom values are read every frame
+    this._dofAllowed = true;
+
     this._toneMapping = THREE.AgXToneMapping;
     this._lastT = 0;
     this._size = { w: 0, h: 0, pr: 0, W: 0, H: 0 };
@@ -149,6 +172,7 @@ export class Renderer {
     const ex = parseFloat(url.get('exposure'));
     if (ex > 0) this.exposure = ex;
     if (game.debug && url.get('rview')) this.debugView = url.get('rview');
+    if (url.get('dof') === '0') this._dofAllowed = false;
     g.toneMappingExposure = this.exposure;
     g.shadowMap.enabled = true;
     g.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -258,23 +282,24 @@ export class Renderer {
     if (tonemapInFx) { this.rtA?.dispose(); this.rtA = null; } else this.rtA ||= mk('Renderer.a');
     if (!p.gtao) { this.rtB?.dispose(); this.rtB = null; } else this.rtB ||= mk('Renderer.b');
 
-    // GTAO: subtle contact shadows (world-space radius, thin thickness → no halos behind furniture)
+    // GTAO: contact shadows (world-space radius, thin thickness → no halos behind furniture)
+    const lk = this.look;
     if (p.gtao) {
       if (!this.gtao) {
         this.gtao = new GameGTAOPass(this.game.scene, this.game.camera, 4, 4);
-        this.gtao.blendIntensity = 0.72;
         this.gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 5, radiusExponent: 1, rings: 2 });
       }
-      this.gtao.updateGtaoMaterial({ radius: 0.38, distanceExponent: 1.6, thickness: 0.55, scale: 1.0, distanceFallOff: 1.0, samples: p.gtaoSamples, screenSpaceRadius: false });
+      this.gtao.blendIntensity = lk.aoIntensity;
+      this.gtao.updateGtaoMaterial({ radius: lk.aoRadius, distanceExponent: lk.aoDistanceExponent, thickness: lk.aoThickness, scale: lk.aoScale, distanceFallOff: 1.0, samples: p.gtaoSamples, screenSpaceRadius: false });
       this.gtao.updatePdMaterial({ samples: p.gtaoSamples >= 16 ? 16 : 12 });
     } else if (this.gtao) {
       this.gtao.dispose(); this.gtao = null;
     }
 
-    // Bloom: very subtle, only real highlights (bulbs, TV, flashlight hot spot)
+    // Bloom: only real highlights (bulbs, fan bowl, fluorescent tube, TV, flashlight hot spot), wide soft halos
     if (p.bloom) {
       if (!this.bloom) {
-        this.bloom = new UnrealBloomPass(new THREE.Vector2(4, 4), 0.18, 0.5, 3.0);
+        this.bloom = new UnrealBloomPass(new THREE.Vector2(4, 4), lk.bloomStrength, lk.bloomRadius, lk.bloomThreshold);
       }
     } else if (this.bloom) {
       this.bloom.dispose(); this.bloom = null;
@@ -283,10 +308,14 @@ export class Renderer {
     if (!tonemapInFx) this.output ||= new OutputPass();
     else if (this.output) { this.output.dispose(); this.output = null; }
 
+    // depth of field (high/ultra): needs the GTAO G-buffer depth; ?dof=0 disables it (debug / comparisons)
+    const dof = !!(p.dof && this.gtao && this._dofAllowed);
     this.fx.configure({
       tonemapInFx, toneMapping: this._toneMapping, fxaa: p.fxaa || p.msaa === 0, ca: p.ca,
-      edgeSoft: p.edgeSoft, grainSmooth: p.grainSmooth, blurTaps: p.blurTaps,
+      edgeSoft: p.edgeSoft, grainSmooth: p.grainSmooth, blurTaps: p.blurTaps, dof,
     });
+    if (!dof) this.fx.setDepth(null);
+    this.fx.toe = p.toe ?? 0;
   }
 
   /** Base exposure (before the brightness setting). */
@@ -360,6 +389,9 @@ export class Renderer {
       return;
     }
 
+    // depth of field only while playing with no UI page / note / keypad over the view
+    const st = this.game.state;
+    this.fx.setDof(st === 'playing' && !this.game.ui?.isModalOpen?.() ? 1 : 0);
     this.fx.update(realDt);
 
     g.setRenderTarget(this.sceneRT);
@@ -381,11 +413,15 @@ export class Renderer {
     if (this.gtao) {
       this.gtao.render(g, write, read, realDt, false);
       read = write; write = this.rtB;
+      if (this.fx.dofEnabled) this.fx.setDepth(this.gtao.depthTexture, camera.near, camera.far);
     }
     if (this.bloom) {
       // threshold in linear pre-exposure units, so it tracks the brightness setting
-      this.bloom.threshold = 3.0 / exposure;
-      this.bloom.highPassUniforms.smoothWidth.value = 4.0 / exposure;
+      const lk = this.look;
+      this.bloom.threshold = lk.bloomThreshold / exposure;
+      this.bloom.highPassUniforms.smoothWidth.value = lk.bloomKnee / exposure;
+      this.bloom.strength = lk.bloomStrength;
+      this.bloom.radius = lk.bloomRadius;
       this.bloom.render(g, write, read, realDt, false); // additive, in place on `read`
     }
     if (this.output) {
