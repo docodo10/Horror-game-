@@ -11,7 +11,7 @@
 | `update(dt)` once per frame | movement / stamina / beam ray in `_physics_process` (60 Hz); look, POV rig, footsteps, flashlight in `_process`; the camera uses the body position **interpolated between physics ticks** (smooth on 144 Hz+) |
 | pointer-lock mouse deltas × 0.0022 rad/px | raw `InputEventMouseMotion.screen_relative` × 0.0022 × sensitivity (no smoothing / clamping; 2 frames ignored after capture) |
 | touch joystick / look pad | gamepad: left stick move, right stick look (deadzone 0.14, response curve 1.8, 2.7 rad/s yaw + turn boost), L3 = sprint toggle, rumble on bump / flinch / landing |
-| three.js SpotLight 42 cd, decay 2, angle 0.42, penumbra 0.45, `map` cookie | `SpotLight3D` energy 42/π (Godot multiplies by π and its Lambert divides by π — measured), `spot_attenuation` 2, `light_projector` cookie with the three.js penumbra baked in and a flat cone (`spot_angle_attenuation` 12) |
+| three.js SpotLight 42 cd, decay 2, angle 0.42, penumbra 0.45, `map` cookie | `SpotLight3D` energy 42/π (Godot multiplies by π and its Lambert divides by π — measured), `spot_attenuation` 2, `light_projector` cookie with the three.js penumbra baked in and a flat cone (`spot_angle_attenuation` 0.05) |
 | `renderer.setHiddenView` | `Quality.set_hidden_view(v)` (called only if the look module defines it) |
 
 ## Godot 4.5.1 findings (measured with lavapipe probes)
@@ -20,6 +20,8 @@
   globally, call `Game.player.set_flashlight_shadows(false)`: the cookie is dropped and replaced by an equivalent cone falloff.
 * Projector textures are sampled from the **sRGB** decal atlas: the cookie stores sRGB-encoded values of the web's linear cookie.
 * Light energy: Godot's non-physical units carry an extra ×π (energy 2 at 2 m on a white Lambert wall = 0.497 linear).
+* Spot cone falloff is `1 - rim^(1 / spot_angle_attenuation)` (rim = (1-cos a)/(1-cos angle)): LARGER values make the
+  beam dimmer and peakier (12 gives only 53 % on the axis); a flat cone needs a small value (0.05).
 
 ## Tests
 ```

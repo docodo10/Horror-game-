@@ -73,6 +73,8 @@ const FLASH_ANGLE := 0.42
 const FLASH_PENUMBRA := 0.45
 const FLASH_POS := Vector3(0.15, -0.16, 0.02)
 const BOUNCE_COLOR := Color(0.941176, 0.815686, 0.666667)
+const CONE_FLAT := 0.05                     # 1 - rim^20: flat to ~90 % of the cone (cookie shapes the beam)
+const CONE_PENUMBRA := 0.4                  # 1 - rim^2.5: ~ three.js penumbra 0.45 when the cookie is unavailable
 
 # ---------------------------------------------------------------- public state
 var camera := Camera3D.new()
@@ -308,7 +310,9 @@ func _setup_flashlight() -> void:
 	_light.spot_range = FLASH_RANGE
 	_light.spot_angle = rad_to_deg(FLASH_ANGLE)
 	_light.spot_attenuation = 2.0              # inverse square (three.js decay 2)
-	_light.spot_angle_attenuation = 12.0       # flat cone: the three.js penumbra is baked into the cookie
+	# Godot's cone falloff is 1 - rim^(1 / spot_angle_attenuation) (measured): a small value = flat cone; the three.js
+	# penumbra is baked into the cookie instead
+	_light.spot_angle_attenuation = CONE_FLAT
 	_cookie = Cookie.make(256, FLASH_ANGLE, FLASH_PENUMBRA)
 	_light.light_projector = _cookie
 	_light.light_specular = 1.0
@@ -369,10 +373,10 @@ func set_flashlight_shadows(on: bool) -> void:
 	_light.shadow_enabled = on
 	if on:
 		_light.light_projector = _cookie
-		_light.spot_angle_attenuation = 12.0
+		_light.spot_angle_attenuation = CONE_FLAT
 	else:
 		_light.light_projector = null
-		_light.spot_angle_attenuation = 2.4
+		_light.spot_angle_attenuation = CONE_PENUMBRA
 
 func _parse_debug_args() -> void:
 	for a in OS.get_cmdline_user_args():

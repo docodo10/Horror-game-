@@ -341,9 +341,9 @@ func _test_flashlight() -> void:
 		"energy %.2f events %s" % [L.light_energy, flashes.slice(f0)])
 	_check("cookie projector set (shadows on)", L.light_projector != null and L.light_projector.get_width() == 256 and L.shadow_enabled, "")
 	P.set_flashlight_shadows(false)
-	var fb_ok := L.light_projector == null and not L.shadow_enabled and L.spot_angle_attenuation < 5.0
+	var fb_ok := L.light_projector == null and not L.shadow_enabled and L.spot_angle_attenuation > 0.2
 	P.set_flashlight_shadows(true)
-	_check("shadow-off fallback drops the cookie", fb_ok and L.light_projector != null and L.shadow_enabled, "")
+	_check("shadow-off fallback drops the cookie", fb_ok and L.light_projector != null and L.shadow_enabled and L.spot_angle_attenuation < 0.1, "")
 	var q0: String = str(root.get_node("Settings").get_value("quality", "high"))
 	E.settings_changed.emit("quality", "low")       # (signal only: the user's settings file is left alone)
 	_check("low quality keeps the torch shadow (projector needs it)", L.shadow_enabled and L.light_projector != null, "")
