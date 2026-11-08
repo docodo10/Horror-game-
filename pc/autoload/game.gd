@@ -35,6 +35,7 @@ func set_state(s: String) -> void:
 
 func start() -> void:
 	if state == "playing": return
+	time_played = 0.0
 	set_state("playing")
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
