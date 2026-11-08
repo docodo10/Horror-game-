@@ -175,3 +175,25 @@ Gameplay is merged (see `pc/scripts/game/README.md` for the full world conventio
   returns "" when cancelled; `show_note({id, title, text, style})` with style note | child | newspaper; optional
   `set_inventory(items, notes)` (inventory entries carry an SVG `icon` with stroke="currentColor").
 * Modals go through `Game.modal(func(): return await Game.ui.show_keypad(...))`.
+
+## 7. User feedback (2026-11-08 22:05) — cinematic quality + new soft-play area
+The user finds the current look "low quality, walls badly textured" and sent 6 screenshots of a UE5 liminal horror game set in
+indoor soft-play centers (Subliminal) as the QUALITY target:
+`/root/.claude/uploads/ad7051f6-fd78-5712-a55d-029443bbf1c7/{9009cc54-image.jpg,c208b582-image.jpg,2ca35acf-image.webp,10168e28-image.webp,e3c05de8-image.jpg,6ee6b1b3-image.jpg}`
+Match their PHOTOGRAPHIC qualities, never their content (no copied rooms, signs, mascots or posters — our game stays original):
+* **Lens / post (look):** strong but tasteful depth of field with autofocus on the centre ray hit (the user explicitly wants
+  "le flou"), soft bloom on fluorescent panels with visible volumetric light shafts, crisp glossy reflections (SSR + reflection
+  probes) on plastic/vinyl/varnish, fine film grain, subtle chromatic aberration at the edges, vignette, filmic contrast, sharp
+  image at native 4K (TAA or FSR2 + sharpening; render scale option). Dark areas fall off to near-black like the references.
+* **Surfaces (new module `surfaces`):** no flat walls. Hi-res PBR (2K) from Poly Haven / ambientCG for walls, ceiling, carpet,
+  trims, stairs, nook block wall; macro colour variation, grime gradient near the floor and in corners, scuffs, stains, hand
+  smudges, roughness breakup and normal relief; Godot Decal nodes for leaks/stains. Owns `scripts/surfaces/**`,
+  `shaders/surface_*.gdshader`, `assets/hires/**`. API: `Surfaces.apply(level_root: Node3D, quality: String)` — the lead calls
+  it from main.gd right after `world.build()`, and on quality change.
+* **New area (new module `garderie`):** an ORIGINAL abandoned home-daycare soft-play area ("la garderie") reached through a new
+  doorway in the main room's WEST wall at x = -3.5, z ∈ [1.72, 2.48] (right beside the bottom of the stairs; the area extends
+  west of x = -3.7, nothing else exists there). Padded columns, foam puzzle mats, soft-play frames with nets, slides the player
+  can ride, ball pit, fluorescent panels. Owns `scripts/garderie/**`, `shaders/garderie_*.gdshader`, `assets/garderie/**`.
+  API: `Garderie.build(world) -> void` (builds the area, carves the doorway, adds colliders/occluders/interactables),
+  `nav_nodes: Dictionary` (id → Vector3), `nav_links: Array` ([[a, b], …]), `hide_spots: Array` (same shape as world.hide_spots).
+  The lead wires it into main.gd and the nav graph at merge time.
