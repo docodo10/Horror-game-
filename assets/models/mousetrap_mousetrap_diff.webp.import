@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkhdsteb3whcm"
-path="res://.godot/imported/mousetrap_mousetrap_diff.webp-1a6a9bf613cbc2a2728d9de2e2a97411.ctex"
+path.s3tc="res://.godot/imported/mousetrap_mousetrap_diff.webp-1a6a9bf613cbc2a2728d9de2e2a97411.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "61b067c5ed1c010c7d025ff354385992"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/mousetrap_mousetrap_diff.webp"
-dest_files=["res://.godot/imported/mousetrap_mousetrap_diff.webp-1a6a9bf613cbc2a2728d9de2e2a97411.ctex"]
+dest_files=["res://.godot/imported/mousetrap_mousetrap_diff.webp-1a6a9bf613cbc2a2728d9de2e2a97411.s3tc.ctex"]
 
 [params]
 

@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://db2wya5fy2uf6"
-path="res://.godot/imported/normal.jpg-f71590ee19f3afafc5193aa7ba142b67.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-f71590ee19f3afafc5193aa7ba142b67.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/white_stucco/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-f71590ee19f3afafc5193aa7ba142b67.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-f71590ee19f3afafc5193aa7ba142b67.s3tc.ctex"]
 
 [params]
 

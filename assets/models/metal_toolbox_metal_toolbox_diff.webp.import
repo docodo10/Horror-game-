@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bxllk81qkpsg3"
-path="res://.godot/imported/metal_toolbox_metal_toolbox_diff.webp-49c6c684f2f9c783a37f506f8c1dfab1.ctex"
+path.s3tc="res://.godot/imported/metal_toolbox_metal_toolbox_diff.webp-49c6c684f2f9c783a37f506f8c1dfab1.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8910bc54ee84684c95c80ffda5fefbdd"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/metal_toolbox_metal_toolbox_diff.webp"
-dest_files=["res://.godot/imported/metal_toolbox_metal_toolbox_diff.webp-49c6c684f2f9c783a37f506f8c1dfab1.ctex"]
+dest_files=["res://.godot/imported/metal_toolbox_metal_toolbox_diff.webp-49c6c684f2f9c783a37f506f8c1dfab1.s3tc.ctex"]
 
 [params]
 

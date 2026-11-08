@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dnsg6fypgd32v"
-path="res://.godot/imported/ao.jpg-a315e22e986914f81c58dc6b584af24c.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-a315e22e986914f81c58dc6b584af24c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/wood_floor_worn/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-a315e22e986914f81c58dc6b584af24c.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-a315e22e986914f81c58dc6b584af24c.s3tc.ctex"]
 
 [params]
 

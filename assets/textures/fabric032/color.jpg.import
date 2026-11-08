@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://0miyqjgtyitv"
-path="res://.godot/imported/color.jpg-f57957e41317217bdbc715f55df8de1c.ctex"
+path.s3tc="res://.godot/imported/color.jpg-f57957e41317217bdbc715f55df8de1c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/fabric032/color.jpg"
-dest_files=["res://.godot/imported/color.jpg-f57957e41317217bdbc715f55df8de1c.ctex"]
+dest_files=["res://.godot/imported/color.jpg-f57957e41317217bdbc715f55df8de1c.s3tc.ctex"]
 
 [params]
 

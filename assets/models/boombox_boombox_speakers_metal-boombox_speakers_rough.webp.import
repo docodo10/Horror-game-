@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bppwggognw022"
-path="res://.godot/imported/boombox_boombox_speakers_metal-boombox_speakers_rough.webp-a0d6abe005e0d15f10f7b9f47e7216bf.ctex"
+path.s3tc="res://.godot/imported/boombox_boombox_speakers_metal-boombox_speakers_rough.webp-a0d6abe005e0d15f10f7b9f47e7216bf.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0f813eb9d5302425f922dc1fe74a459c"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/boombox_boombox_speakers_metal-boombox_speakers_rough.webp"
-dest_files=["res://.godot/imported/boombox_boombox_speakers_metal-boombox_speakers_rough.webp-a0d6abe005e0d15f10f7b9f47e7216bf.ctex"]
+dest_files=["res://.godot/imported/boombox_boombox_speakers_metal-boombox_speakers_rough.webp-a0d6abe005e0d15f10f7b9f47e7216bf.s3tc.ctex"]
 
 [params]
 

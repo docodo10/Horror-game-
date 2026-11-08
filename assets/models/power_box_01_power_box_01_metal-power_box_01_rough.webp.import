@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkgudv85n2yq3"
-path="res://.godot/imported/power_box_01_power_box_01_metal-power_box_01_rough.webp-ee127d2ea96408cae2b8e0494a4286a1.ctex"
+path.s3tc="res://.godot/imported/power_box_01_power_box_01_metal-power_box_01_rough.webp-ee127d2ea96408cae2b8e0494a4286a1.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "747d48b9c87fd06c469d64b5da6ad6b2"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/power_box_01_power_box_01_metal-power_box_01_rough.webp"
-dest_files=["res://.godot/imported/power_box_01_power_box_01_metal-power_box_01_rough.webp-ee127d2ea96408cae2b8e0494a4286a1.ctex"]
+dest_files=["res://.godot/imported/power_box_01_power_box_01_metal-power_box_01_rough.webp-ee127d2ea96408cae2b8e0494a4286a1.s3tc.ctex"]
 
 [params]
 

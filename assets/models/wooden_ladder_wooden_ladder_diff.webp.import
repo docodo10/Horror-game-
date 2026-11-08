@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://be4pnmimcjoma"
-path="res://.godot/imported/wooden_ladder_wooden_ladder_diff.webp-eeaaba40b00752c0967960f768f6d11e.ctex"
+path.s3tc="res://.godot/imported/wooden_ladder_wooden_ladder_diff.webp-eeaaba40b00752c0967960f768f6d11e.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "3e6f1bd845bfd08cab8f0f29cacf7c34"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/wooden_ladder_wooden_ladder_diff.webp"
-dest_files=["res://.godot/imported/wooden_ladder_wooden_ladder_diff.webp-eeaaba40b00752c0967960f768f6d11e.ctex"]
+dest_files=["res://.godot/imported/wooden_ladder_wooden_ladder_diff.webp-eeaaba40b00752c0967960f768f6d11e.s3tc.ctex"]
 
 [params]
 

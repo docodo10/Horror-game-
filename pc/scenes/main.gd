@@ -9,6 +9,7 @@ const Interaction := preload("res://scripts/game/interaction.gd")
 const Inventory := preload("res://scripts/game/inventory.gd")
 const Puzzles := preload("res://scripts/game/puzzles.gd")
 const Quality := preload("res://scripts/render/quality.gd")
+const SurfacesModule := preload("res://scripts/surfaces/surfaces.gd")
 
 func _ready() -> void:
 	InputSetup.setup()
@@ -20,6 +21,9 @@ func _ready() -> void:
 
 	var world := World.new(); world.name = "World"; add_child(world); Game.world = world
 	await world.build(func(p, t): ui.show_loading(0.05 + p * 0.75, t))
+	# Hi-res surfaces (grime, wear, decals) over the exported materials; re-applied when the quality changes.
+	SurfacesModule.apply(world, Settings.get_value("quality", "high"))
+	Events.settings_changed.connect(_on_settings_changed)
 
 	var inventory := Inventory.new(); inventory.name = "Inventory"; add_child(inventory); Game.inventory = inventory
 	var player := Player.new(); player.name = "Player"; add_child(player); Game.player = player
@@ -42,3 +46,7 @@ func _ready() -> void:
 	else:
 		Game.set_state("menu")
 		ui.show_menu()
+
+func _on_settings_changed(key: String, value: Variant) -> void:
+	if key == "quality" and Game.world:
+		SurfacesModule.apply(Game.world, String(value))

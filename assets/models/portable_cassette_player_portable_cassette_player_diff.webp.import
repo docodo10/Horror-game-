@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://degqvv63tmwk1"
-path="res://.godot/imported/portable_cassette_player_portable_cassette_player_diff.webp-c90ba0b88e1a2f5d2e42bc908df9b60c.ctex"
+path.s3tc="res://.godot/imported/portable_cassette_player_portable_cassette_player_diff.webp-c90ba0b88e1a2f5d2e42bc908df9b60c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "55f1320eee11a89792eb3d71eeb2f76d"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/portable_cassette_player_portable_cassette_player_diff.webp"
-dest_files=["res://.godot/imported/portable_cassette_player_portable_cassette_player_diff.webp-c90ba0b88e1a2f5d2e42bc908df9b60c.ctex"]
+dest_files=["res://.godot/imported/portable_cassette_player_portable_cassette_player_diff.webp-c90ba0b88e1a2f5d2e42bc908df9b60c.s3tc.ctex"]
 
 [params]
 

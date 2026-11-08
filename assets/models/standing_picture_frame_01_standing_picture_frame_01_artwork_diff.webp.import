@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dcv5q4yb2vwe2"
-path="res://.godot/imported/standing_picture_frame_01_standing_picture_frame_01_artwork_diff.webp-26521e8a6b6c8fafb86e2dd6d1dc7d12.ctex"
+path.s3tc="res://.godot/imported/standing_picture_frame_01_standing_picture_frame_01_artwork_diff.webp-26521e8a6b6c8fafb86e2dd6d1dc7d12.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0dd0ab6c0ebdfee28b517a1e576c451e"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/standing_picture_frame_01_standing_picture_frame_01_artwork_diff.webp"
-dest_files=["res://.godot/imported/standing_picture_frame_01_standing_picture_frame_01_artwork_diff.webp-26521e8a6b6c8fafb86e2dd6d1dc7d12.ctex"]
+dest_files=["res://.godot/imported/standing_picture_frame_01_standing_picture_frame_01_artwork_diff.webp-26521e8a6b6c8fafb86e2dd6d1dc7d12.s3tc.ctex"]
 
 [params]
 

@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dgsnovpk5qet2"
-path="res://.godot/imported/ao.jpg-ce1ad64fa91bbfb05459a8370ed45541.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-ce1ad64fa91bbfb05459a8370ed45541.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_water_ring/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-ce1ad64fa91bbfb05459a8370ed45541.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-ce1ad64fa91bbfb05459a8370ed45541.s3tc.ctex"]
 
 [params]
 

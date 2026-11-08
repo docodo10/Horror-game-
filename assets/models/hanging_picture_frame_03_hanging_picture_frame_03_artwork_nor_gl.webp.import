@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0pd0setw17s1"
-path="res://.godot/imported/hanging_picture_frame_03_hanging_picture_frame_03_artwork_nor_gl.webp-de4ac4e925be2410ec103e9efe414ab6.ctex"
+path.s3tc="res://.godot/imported/hanging_picture_frame_03_hanging_picture_frame_03_artwork_nor_gl.webp-de4ac4e925be2410ec103e9efe414ab6.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "e115d99726fc31a4d9f3c5980156a84f"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/hanging_picture_frame_03_hanging_picture_frame_03_artwork_nor_gl.webp"
-dest_files=["res://.godot/imported/hanging_picture_frame_03_hanging_picture_frame_03_artwork_nor_gl.webp-de4ac4e925be2410ec103e9efe414ab6.ctex"]
+dest_files=["res://.godot/imported/hanging_picture_frame_03_hanging_picture_frame_03_artwork_nor_gl.webp-de4ac4e925be2410ec103e9efe414ab6.s3tc.ctex"]
 
 [params]
 

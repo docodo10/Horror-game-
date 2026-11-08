@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://7cwosoljyluv"
-path="res://.godot/imported/alpha.jpg-ead2269a5f522e824499765cf009e855.ctex"
+path.s3tc="res://.godot/imported/alpha.jpg-ead2269a5f522e824499765cf009e855.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_rising_damp/alpha.jpg"
-dest_files=["res://.godot/imported/alpha.jpg-ead2269a5f522e824499765cf009e855.ctex"]
+dest_files=["res://.godot/imported/alpha.jpg-ead2269a5f522e824499765cf009e855.s3tc.ctex"]
 
 [params]
 

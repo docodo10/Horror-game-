@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://0wjxxfpbsjb4"
-path="res://.godot/imported/alarm_clock_01_alarm_clock_01_metal.png-alarm_clock_01_rough.webp-3dcd6b329f35bbcfc0658cf9596e254a.ctex"
+path.s3tc="res://.godot/imported/alarm_clock_01_alarm_clock_01_metal.png-alarm_clock_01_rough.webp-3dcd6b329f35bbcfc0658cf9596e254a.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b82ac5f814d3564704c39435a466c2a9"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/alarm_clock_01_alarm_clock_01_metal.png-alarm_clock_01_rough.webp"
-dest_files=["res://.godot/imported/alarm_clock_01_alarm_clock_01_metal.png-alarm_clock_01_rough.webp-3dcd6b329f35bbcfc0658cf9596e254a.ctex"]
+dest_files=["res://.godot/imported/alarm_clock_01_alarm_clock_01_metal.png-alarm_clock_01_rough.webp-3dcd6b329f35bbcfc0658cf9596e254a.s3tc.ctex"]
 
 [params]
 

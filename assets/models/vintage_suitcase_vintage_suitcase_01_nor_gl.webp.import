@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://caoeaf4te7w63"
-path="res://.godot/imported/vintage_suitcase_vintage_suitcase_01_nor_gl.webp-7563e10062510e7c303da0a17b86ae3c.ctex"
+path.s3tc="res://.godot/imported/vintage_suitcase_vintage_suitcase_01_nor_gl.webp-7563e10062510e7c303da0a17b86ae3c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "48ff626f772d984dc99afc66f8ee2680"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/vintage_suitcase_vintage_suitcase_01_nor_gl.webp"
-dest_files=["res://.godot/imported/vintage_suitcase_vintage_suitcase_01_nor_gl.webp-7563e10062510e7c303da0a17b86ae3c.ctex"]
+dest_files=["res://.godot/imported/vintage_suitcase_vintage_suitcase_01_nor_gl.webp-7563e10062510e7c303da0a17b86ae3c.s3tc.ctex"]
 
 [params]
 

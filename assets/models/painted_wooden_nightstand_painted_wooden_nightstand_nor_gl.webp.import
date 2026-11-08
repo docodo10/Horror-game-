@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c2v8mfapfywag"
-path="res://.godot/imported/painted_wooden_nightstand_painted_wooden_nightstand_nor_gl.webp-410940d12ed7e478ac9bfc06244fd39f.ctex"
+path.s3tc="res://.godot/imported/painted_wooden_nightstand_painted_wooden_nightstand_nor_gl.webp-410940d12ed7e478ac9bfc06244fd39f.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "87d8d97c90c61dae586b757b8f967a43"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/painted_wooden_nightstand_painted_wooden_nightstand_nor_gl.webp"
-dest_files=["res://.godot/imported/painted_wooden_nightstand_painted_wooden_nightstand_nor_gl.webp-410940d12ed7e478ac9bfc06244fd39f.ctex"]
+dest_files=["res://.godot/imported/painted_wooden_nightstand_painted_wooden_nightstand_nor_gl.webp-410940d12ed7e478ac9bfc06244fd39f.s3tc.ctex"]
 
 [params]
 

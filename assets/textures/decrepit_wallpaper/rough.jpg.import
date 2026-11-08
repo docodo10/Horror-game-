@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bucm2uv8q1gbq"
-path="res://.godot/imported/rough.jpg-de86b97b2bfc5d9b384aeed10b6f911d.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-de86b97b2bfc5d9b384aeed10b6f911d.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decrepit_wallpaper/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-de86b97b2bfc5d9b384aeed10b6f911d.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-de86b97b2bfc5d9b384aeed10b6f911d.s3tc.ctex"]
 
 [params]
 

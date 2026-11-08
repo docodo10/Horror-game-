@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bcm6poni8kpbj"
-path="res://.godot/imported/rough.jpg-747b8a9546f5734ae5b98aed0cc91b7b.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-747b8a9546f5734ae5b98aed0cc91b7b.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_hand_smudges/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-747b8a9546f5734ae5b98aed0cc91b7b.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-747b8a9546f5734ae5b98aed0cc91b7b.s3tc.ctex"]
 
 [params]
 

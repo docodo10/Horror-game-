@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dlhx862cbfwnt"
-path="res://.godot/imported/alpha.jpg-e6e29e5b954b9d8c1e74f60df0cca9d9.ctex"
+path.s3tc="res://.godot/imported/alpha.jpg-e6e29e5b954b9d8c1e74f60df0cca9d9.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_leak_streaks/alpha.jpg"
-dest_files=["res://.godot/imported/alpha.jpg-e6e29e5b954b9d8c1e74f60df0cca9d9.ctex"]
+dest_files=["res://.godot/imported/alpha.jpg-e6e29e5b954b9d8c1e74f60df0cca9d9.s3tc.ctex"]
 
 [params]
 

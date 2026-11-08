@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dhc4vdfyfbvju"
-path="res://.godot/imported/bleach_bottle_bleach_bottle_01_diff.webp-8a52715c206832b4c189e90f969ac1e9.ctex"
+path.s3tc="res://.godot/imported/bleach_bottle_bleach_bottle_01_diff.webp-8a52715c206832b4c189e90f969ac1e9.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "32384164db44e4881542b9857f0f031c"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/bleach_bottle_bleach_bottle_01_diff.webp"
-dest_files=["res://.godot/imported/bleach_bottle_bleach_bottle_01_diff.webp-8a52715c206832b4c189e90f969ac1e9.ctex"]
+dest_files=["res://.godot/imported/bleach_bottle_bleach_bottle_01_diff.webp-8a52715c206832b4c189e90f969ac1e9.s3tc.ctex"]
 
 [params]
 

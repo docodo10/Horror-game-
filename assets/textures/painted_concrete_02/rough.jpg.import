@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dhvbjch3shciq"
-path="res://.godot/imported/rough.jpg-2710d72c6d11b9a9a1ad3f38702122ce.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-2710d72c6d11b9a9a1ad3f38702122ce.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/painted_concrete_02/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-2710d72c6d11b9a9a1ad3f38702122ce.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-2710d72c6d11b9a9a1ad3f38702122ce.s3tc.ctex"]
 
 [params]
 

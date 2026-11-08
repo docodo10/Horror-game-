@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bo33wk1kc43qc"
-path="res://.godot/imported/ao.jpg-6daf36d55a595f33c3bd6f94682ad19b.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-6daf36d55a595f33c3bd6f94682ad19b.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/surfaceimperfections003/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-6daf36d55a595f33c3bd6f94682ad19b.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-6daf36d55a595f33c3bd6f94682ad19b.s3tc.ctex"]
 
 [params]
 

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://duyfqvy8qcj6o"
-path="res://.godot/imported/side_table_01_side_table_01_metallic-side_table_01_roughness.webp-ff893dc501b5816d201f666270f0ba64.ctex"
+path.s3tc="res://.godot/imported/side_table_01_side_table_01_metallic-side_table_01_roughness.webp-ff893dc501b5816d201f666270f0ba64.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "05063d99dbb88698a1c08d8b63845bca"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/side_table_01_side_table_01_metallic-side_table_01_roughness.webp"
-dest_files=["res://.godot/imported/side_table_01_side_table_01_metallic-side_table_01_roughness.webp-ff893dc501b5816d201f666270f0ba64.ctex"]
+dest_files=["res://.godot/imported/side_table_01_side_table_01_metallic-side_table_01_roughness.webp-ff893dc501b5816d201f666270f0ba64.s3tc.ctex"]
 
 [params]
 

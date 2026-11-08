@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1oak7rrwwlsv"
-path="res://.godot/imported/ao.jpg-d63c22eafd62e2ee61ef461e83c07363.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-d63c22eafd62e2ee61ef461e83c07363.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/tiles094/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-d63c22eafd62e2ee61ef461e83c07363.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-d63c22eafd62e2ee61ef461e83c07363.s3tc.ctex"]
 
 [params]
 

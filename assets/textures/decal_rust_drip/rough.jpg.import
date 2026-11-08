@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cm2gsr3sjuweh"
-path="res://.godot/imported/rough.jpg-e8edc7825d95765a63f52f196c45ba57.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-e8edc7825d95765a63f52f196c45ba57.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_rust_drip/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-e8edc7825d95765a63f52f196c45ba57.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-e8edc7825d95765a63f52f196c45ba57.s3tc.ctex"]
 
 [params]
 

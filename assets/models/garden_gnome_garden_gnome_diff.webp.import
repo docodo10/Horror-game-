@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bc5xxdnxcnaiq"
-path="res://.godot/imported/garden_gnome_garden_gnome_diff.webp-443b58855d2ff99e9e69512bbcc84df5.ctex"
+path.s3tc="res://.godot/imported/garden_gnome_garden_gnome_diff.webp-443b58855d2ff99e9e69512bbcc84df5.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "86c6b8b593c9a2cf526efbdbd79a478d"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/garden_gnome_garden_gnome_diff.webp"
-dest_files=["res://.godot/imported/garden_gnome_garden_gnome_diff.webp-443b58855d2ff99e9e69512bbcc84df5.ctex"]
+dest_files=["res://.godot/imported/garden_gnome_garden_gnome_diff.webp-443b58855d2ff99e9e69512bbcc84df5.s3tc.ctex"]
 
 [params]
 

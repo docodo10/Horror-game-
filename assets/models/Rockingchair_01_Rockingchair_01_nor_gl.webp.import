@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bcfc0ocww2axn"
-path="res://.godot/imported/Rockingchair_01_Rockingchair_01_nor_gl.webp-ab447676192a58ae5e52f57023191e81.ctex"
+path.s3tc="res://.godot/imported/Rockingchair_01_Rockingchair_01_nor_gl.webp-ab447676192a58ae5e52f57023191e81.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0916dfe87806c440d75a19f029ce0f88"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/Rockingchair_01_Rockingchair_01_nor_gl.webp"
-dest_files=["res://.godot/imported/Rockingchair_01_Rockingchair_01_nor_gl.webp-ab447676192a58ae5e52f57023191e81.ctex"]
+dest_files=["res://.godot/imported/Rockingchair_01_Rockingchair_01_nor_gl.webp-ab447676192a58ae5e52f57023191e81.s3tc.ctex"]
 
 [params]
 

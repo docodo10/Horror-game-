@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csoyppdxglxwn"
-path="res://.godot/imported/baseball_bat_baseball_bat_nor_gl.webp-582712e5e6728d7855465f186a3c61bd.ctex"
+path.s3tc="res://.godot/imported/baseball_bat_baseball_bat_nor_gl.webp-582712e5e6728d7855465f186a3c61bd.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "13b849f83ba84212b9ae2844d06d2c5c"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/baseball_bat_baseball_bat_nor_gl.webp"
-dest_files=["res://.godot/imported/baseball_bat_baseball_bat_nor_gl.webp-582712e5e6728d7855465f186a3c61bd.ctex"]
+dest_files=["res://.godot/imported/baseball_bat_baseball_bat_nor_gl.webp-582712e5e6728d7855465f186a3c61bd.s3tc.ctex"]
 
 [params]
 

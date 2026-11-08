@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://chsbkhfbcdud2"
-path="res://.godot/imported/rough.jpg-0bf74e1a53908a7c9339411e07dd2b49.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-0bf74e1a53908a7c9339411e07dd2b49.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/metal048c/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-0bf74e1a53908a7c9339411e07dd2b49.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-0bf74e1a53908a7c9339411e07dd2b49.s3tc.ctex"]
 
 [params]
 

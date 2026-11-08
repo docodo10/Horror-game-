@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdhuaf2y4ovyj"
-path="res://.godot/imported/normal.jpg-e4b1f41423e05ddf4ec6d8bd58de948a.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-e4b1f41423e05ddf4ec6d8bd58de948a.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/snow011/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-e4b1f41423e05ddf4ec6d8bd58de948a.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-e4b1f41423e05ddf4ec6d8bd58de948a.s3tc.ctex"]
 
 [params]
 

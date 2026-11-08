@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://weg7fvadkwo7"
-path="res://.godot/imported/plastic_crate_02_plastic_crate_02_diff-plastic_crate_02_opacity.webp-b12b0551be6f2c7275baeed83358d792.ctex"
+path.s3tc="res://.godot/imported/plastic_crate_02_plastic_crate_02_diff-plastic_crate_02_opacity.webp-b12b0551be6f2c7275baeed83358d792.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8299e69cc4214f2e75d6b4da8b23791f"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/plastic_crate_02_plastic_crate_02_diff-plastic_crate_02_opacity.webp"
-dest_files=["res://.godot/imported/plastic_crate_02_plastic_crate_02_diff-plastic_crate_02_opacity.webp-b12b0551be6f2c7275baeed83358d792.ctex"]
+dest_files=["res://.godot/imported/plastic_crate_02_plastic_crate_02_diff-plastic_crate_02_opacity.webp-b12b0551be6f2c7275baeed83358d792.s3tc.ctex"]
 
 [params]
 

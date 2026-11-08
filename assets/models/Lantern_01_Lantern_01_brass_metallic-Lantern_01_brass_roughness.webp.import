@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://hplubqs2l05l"
-path="res://.godot/imported/Lantern_01_Lantern_01_brass_metallic-Lantern_01_brass_roughness.webp-74455e9bbf8593c056d69daca20a59d7.ctex"
+path.s3tc="res://.godot/imported/Lantern_01_Lantern_01_brass_metallic-Lantern_01_brass_roughness.webp-74455e9bbf8593c056d69daca20a59d7.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a1234fe73540d0ac07c86c5733b6ee27"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/Lantern_01_Lantern_01_brass_metallic-Lantern_01_brass_roughness.webp"
-dest_files=["res://.godot/imported/Lantern_01_Lantern_01_brass_metallic-Lantern_01_brass_roughness.webp-74455e9bbf8593c056d69daca20a59d7.ctex"]
+dest_files=["res://.godot/imported/Lantern_01_Lantern_01_brass_metallic-Lantern_01_brass_roughness.webp-74455e9bbf8593c056d69daca20a59d7.s3tc.ctex"]
 
 [params]
 

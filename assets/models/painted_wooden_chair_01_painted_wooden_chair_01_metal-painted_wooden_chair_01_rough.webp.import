@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bpy8ripbfmaut"
-path="res://.godot/imported/painted_wooden_chair_01_painted_wooden_chair_01_metal-painted_wooden_chair_01_rough.webp-4b8b5000accaeccd1e98db81f90d32aa.ctex"
+path.s3tc="res://.godot/imported/painted_wooden_chair_01_painted_wooden_chair_01_metal-painted_wooden_chair_01_rough.webp-4b8b5000accaeccd1e98db81f90d32aa.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c958ac6097df89bf46bd7a247ab9c96c"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/painted_wooden_chair_01_painted_wooden_chair_01_metal-painted_wooden_chair_01_rough.webp"
-dest_files=["res://.godot/imported/painted_wooden_chair_01_painted_wooden_chair_01_metal-painted_wooden_chair_01_rough.webp-4b8b5000accaeccd1e98db81f90d32aa.ctex"]
+dest_files=["res://.godot/imported/painted_wooden_chair_01_painted_wooden_chair_01_metal-painted_wooden_chair_01_rough.webp-4b8b5000accaeccd1e98db81f90d32aa.s3tc.ctex"]
 
 [params]
 

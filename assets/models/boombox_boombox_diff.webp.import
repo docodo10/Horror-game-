@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://imixifljwitd"
-path="res://.godot/imported/boombox_boombox_diff.webp-184f7e2256e962b6d7f948e59a182712.ctex"
+path.s3tc="res://.godot/imported/boombox_boombox_diff.webp-184f7e2256e962b6d7f948e59a182712.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8d5211bc6ee4e37b568e5331ca89d454"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/boombox_boombox_diff.webp"
-dest_files=["res://.godot/imported/boombox_boombox_diff.webp-184f7e2256e962b6d7f948e59a182712.ctex"]
+dest_files=["res://.godot/imported/boombox_boombox_diff.webp-184f7e2256e962b6d7f948e59a182712.s3tc.ctex"]
 
 [params]
 

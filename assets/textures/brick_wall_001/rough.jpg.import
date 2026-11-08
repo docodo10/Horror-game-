@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://nrw2goplv6he"
-path="res://.godot/imported/rough.jpg-68c86f63d5885cf1729c7c73ec18d1cc.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-68c86f63d5885cf1729c7c73ec18d1cc.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/brick_wall_001/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-68c86f63d5885cf1729c7c73ec18d1cc.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-68c86f63d5885cf1729c7c73ec18d1cc.s3tc.ctex"]
 
 [params]
 

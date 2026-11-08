@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ci213c0qa5m6a"
-path="res://.godot/imported/ao.jpg-653f6f36aaed4d286ec5b4efdec5b06e.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-653f6f36aaed4d286ec5b4efdec5b06e.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/plywood/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-653f6f36aaed4d286ec5b4efdec5b06e.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-653f6f36aaed4d286ec5b4efdec5b06e.s3tc.ctex"]
 
 [params]
 

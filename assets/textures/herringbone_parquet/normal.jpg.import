@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://eunh3l71hql2"
-path="res://.godot/imported/normal.jpg-5baeb28122a3671108b4c6f3bd820ec4.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-5baeb28122a3671108b4c6f3bd820ec4.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/herringbone_parquet/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-5baeb28122a3671108b4c6f3bd820ec4.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-5baeb28122a3671108b4c6f3bd820ec4.s3tc.ctex"]
 
 [params]
 

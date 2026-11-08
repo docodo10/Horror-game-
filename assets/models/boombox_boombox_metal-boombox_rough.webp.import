@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b4mxapyblmbgg"
-path="res://.godot/imported/boombox_boombox_metal-boombox_rough.webp-40e02a28a7279ea1003015d6035d35a5.ctex"
+path.s3tc="res://.godot/imported/boombox_boombox_metal-boombox_rough.webp-40e02a28a7279ea1003015d6035d35a5.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2493f8b814730dc5e1f3c05133936545"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/boombox_boombox_metal-boombox_rough.webp"
-dest_files=["res://.godot/imported/boombox_boombox_metal-boombox_rough.webp-40e02a28a7279ea1003015d6035d35a5.ctex"]
+dest_files=["res://.godot/imported/boombox_boombox_metal-boombox_rough.webp-40e02a28a7279ea1003015d6035d35a5.s3tc.ctex"]
 
 [params]
 

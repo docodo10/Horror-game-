@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dvkbjk8rseot3"
-path="res://.godot/imported/ao.jpg-4ce37708e31c65a5e1a7165d7819779c.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-4ce37708e31c65a5e1a7165d7819779c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/worn_cracked_plaster/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-4ce37708e31c65a5e1a7165d7819779c.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-4ce37708e31c65a5e1a7165d7819779c.s3tc.ctex"]
 
 [params]
 

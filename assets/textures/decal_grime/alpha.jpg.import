@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cs22qofjac36l"
-path="res://.godot/imported/alpha.jpg-047599a4a6fa06a80e34f82047d1000c.ctex"
+path.s3tc="res://.godot/imported/alpha.jpg-047599a4a6fa06a80e34f82047d1000c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_grime/alpha.jpg"
-dest_files=["res://.godot/imported/alpha.jpg-047599a4a6fa06a80e34f82047d1000c.ctex"]
+dest_files=["res://.godot/imported/alpha.jpg-047599a4a6fa06a80e34f82047d1000c.s3tc.ctex"]
 
 [params]
 

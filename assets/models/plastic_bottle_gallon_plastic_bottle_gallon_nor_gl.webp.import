@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0lhudufvtku7"
-path="res://.godot/imported/plastic_bottle_gallon_plastic_bottle_gallon_nor_gl.webp-4be76fb2c66631693ca5997586013d74.ctex"
+path.s3tc="res://.godot/imported/plastic_bottle_gallon_plastic_bottle_gallon_nor_gl.webp-4be76fb2c66631693ca5997586013d74.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "03bce322c516a75cfb2c2cbab2be9742"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/plastic_bottle_gallon_plastic_bottle_gallon_nor_gl.webp"
-dest_files=["res://.godot/imported/plastic_bottle_gallon_plastic_bottle_gallon_nor_gl.webp-4be76fb2c66631693ca5997586013d74.ctex"]
+dest_files=["res://.godot/imported/plastic_bottle_gallon_plastic_bottle_gallon_nor_gl.webp-4be76fb2c66631693ca5997586013d74.s3tc.ctex"]
 
 [params]
 

@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b3u2p1d01lj4s"
-path="res://.godot/imported/rough.jpg-959299d82476cc243c4ec30ec7883189.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-959299d82476cc243c4ec30ec7883189.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/cardboard004/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-959299d82476cc243c4ec30ec7883189.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-959299d82476cc243c4ec30ec7883189.s3tc.ctex"]
 
 [params]
 

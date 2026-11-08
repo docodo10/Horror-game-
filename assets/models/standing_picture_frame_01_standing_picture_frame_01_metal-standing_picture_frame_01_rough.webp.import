@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dqdl1a2n4b7pq"
-path="res://.godot/imported/standing_picture_frame_01_standing_picture_frame_01_metal-standing_picture_frame_01_rough.webp-25f0978a9a904bd678afb9f74a12fb85.ctex"
+path.s3tc="res://.godot/imported/standing_picture_frame_01_standing_picture_frame_01_metal-standing_picture_frame_01_rough.webp-25f0978a9a904bd678afb9f74a12fb85.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9039fe0c9cc0545a37746cad6c869e07"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/standing_picture_frame_01_standing_picture_frame_01_metal-standing_picture_frame_01_rough.webp"
-dest_files=["res://.godot/imported/standing_picture_frame_01_standing_picture_frame_01_metal-standing_picture_frame_01_rough.webp-25f0978a9a904bd678afb9f74a12fb85.ctex"]
+dest_files=["res://.godot/imported/standing_picture_frame_01_standing_picture_frame_01_metal-standing_picture_frame_01_rough.webp-25f0978a9a904bd678afb9f74a12fb85.s3tc.ctex"]
 
 [params]
 

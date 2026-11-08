@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dhuqfl177q4yh"
-path="res://.godot/imported/ao.jpg-4ed804be29827eee2a82f43bd54a0f57.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-4ed804be29827eee2a82f43bd54a0f57.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_hand_smudges/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-4ed804be29827eee2a82f43bd54a0f57.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-4ed804be29827eee2a82f43bd54a0f57.s3tc.ctex"]
 
 [params]
 

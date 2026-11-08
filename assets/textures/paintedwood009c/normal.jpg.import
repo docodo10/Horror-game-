@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://txiv03ns7m64"
-path="res://.godot/imported/normal.jpg-3f879545b8490409b1593ac7e2f86372.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-3f879545b8490409b1593ac7e2f86372.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/paintedwood009c/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-3f879545b8490409b1593ac7e2f86372.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-3f879545b8490409b1593ac7e2f86372.s3tc.ctex"]
 
 [params]
 

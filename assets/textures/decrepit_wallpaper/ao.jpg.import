@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b8ppny4a25l6d"
-path="res://.godot/imported/ao.jpg-135466d46da3a18f4c426e5c9cedaa38.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-135466d46da3a18f4c426e5c9cedaa38.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decrepit_wallpaper/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-135466d46da3a18f4c426e5c9cedaa38.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-135466d46da3a18f4c426e5c9cedaa38.s3tc.ctex"]
 
 [params]
 

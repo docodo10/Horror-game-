@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c132qkwgruyev"
-path="res://.godot/imported/rough.jpg-6d862bd6e25e2a9b65ac7ce716c48589.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-6d862bd6e25e2a9b65ac7ce716c48589.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/paintedwood009c/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-6d862bd6e25e2a9b65ac7ce716c48589.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-6d862bd6e25e2a9b65ac7ce716c48589.s3tc.ctex"]
 
 [params]
 

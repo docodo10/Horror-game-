@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bapkpknxoi4l7"
-path="res://.godot/imported/ao.jpg-fa524e3dde48198a46e821cf9dd4dd4a.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-fa524e3dde48198a46e821cf9dd4dd4a.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/paintedwood009c/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-fa524e3dde48198a46e821cf9dd4dd4a.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-fa524e3dde48198a46e821cf9dd4dd4a.s3tc.ctex"]
 
 [params]
 

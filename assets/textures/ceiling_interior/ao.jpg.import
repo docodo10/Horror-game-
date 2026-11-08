@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cq35g24wq1yj2"
-path="res://.godot/imported/ao.jpg-15b1d0e23da0faed92bff0b47265349a.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-15b1d0e23da0faed92bff0b47265349a.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/ceiling_interior/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-15b1d0e23da0faed92bff0b47265349a.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-15b1d0e23da0faed92bff0b47265349a.s3tc.ctex"]
 
 [params]
 

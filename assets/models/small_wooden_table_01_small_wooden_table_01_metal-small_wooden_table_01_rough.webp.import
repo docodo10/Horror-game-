@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bwhmdwu8d6hnp"
-path="res://.godot/imported/small_wooden_table_01_small_wooden_table_01_metal-small_wooden_table_01_rough.webp-a9646b0f05571c8582744f7849f19947.ctex"
+path.s3tc="res://.godot/imported/small_wooden_table_01_small_wooden_table_01_metal-small_wooden_table_01_rough.webp-a9646b0f05571c8582744f7849f19947.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "cfcb387bd878e64a61fd14de0cd4b7f9"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/small_wooden_table_01_small_wooden_table_01_metal-small_wooden_table_01_rough.webp"
-dest_files=["res://.godot/imported/small_wooden_table_01_small_wooden_table_01_metal-small_wooden_table_01_rough.webp-a9646b0f05571c8582744f7849f19947.ctex"]
+dest_files=["res://.godot/imported/small_wooden_table_01_small_wooden_table_01_metal-small_wooden_table_01_rough.webp-a9646b0f05571c8582744f7849f19947.s3tc.ctex"]
 
 [params]
 

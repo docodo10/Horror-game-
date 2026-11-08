@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://clbm0lr1csp5m"
-path="res://.godot/imported/normal.jpg-4c5e1fdbe779786d26996b547137601c.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-4c5e1fdbe779786d26996b547137601c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/cardboard004/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-4c5e1fdbe779786d26996b547137601c.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-4c5e1fdbe779786d26996b547137601c.s3tc.ctex"]
 
 [params]
 

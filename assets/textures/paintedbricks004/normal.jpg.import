@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7ewx4jx8qgcj"
-path="res://.godot/imported/normal.jpg-c6aabc095fb13a6965a7a2c930bb251d.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-c6aabc095fb13a6965a7a2c930bb251d.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/paintedbricks004/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-c6aabc095fb13a6965a7a2c930bb251d.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-c6aabc095fb13a6965a7a2c930bb251d.s3tc.ctex"]
 
 [params]
 

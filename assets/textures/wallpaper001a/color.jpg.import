@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://brsltvim7bv6l"
-path="res://.godot/imported/color.jpg-c86d77b664c964b3e5c61b819b7a1ba5.ctex"
+path.s3tc="res://.godot/imported/color.jpg-c86d77b664c964b3e5c61b819b7a1ba5.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/wallpaper001a/color.jpg"
-dest_files=["res://.godot/imported/color.jpg-c86d77b664c964b3e5c61b819b7a1ba5.ctex"]
+dest_files=["res://.godot/imported/color.jpg-c86d77b664c964b3e5c61b819b7a1ba5.s3tc.ctex"]
 
 [params]
 

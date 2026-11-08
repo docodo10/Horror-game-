@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0nqmf41eiju0"
-path="res://.godot/imported/rough.jpg-deb5159a33baa6908776d6e0039c7bb8.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-deb5159a33baa6908776d6e0039c7bb8.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/herringbone_parquet/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-deb5159a33baa6908776d6e0039c7bb8.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-deb5159a33baa6908776d6e0039c7bb8.s3tc.ctex"]
 
 [params]
 

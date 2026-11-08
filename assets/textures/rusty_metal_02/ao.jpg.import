@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://f27xsib0od6n"
-path="res://.godot/imported/ao.jpg-ccb7b1cfa1e602cb185284d55b33b4d9.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-ccb7b1cfa1e602cb185284d55b33b4d9.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/rusty_metal_02/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-ccb7b1cfa1e602cb185284d55b33b4d9.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-ccb7b1cfa1e602cb185284d55b33b4d9.s3tc.ctex"]
 
 [params]
 

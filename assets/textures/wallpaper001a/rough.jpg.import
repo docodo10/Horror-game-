@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cyat3ikpddvp5"
-path="res://.godot/imported/rough.jpg-50f85a39b7fe94b255466700d97483c3.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-50f85a39b7fe94b255466700d97483c3.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/wallpaper001a/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-50f85a39b7fe94b255466700d97483c3.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-50f85a39b7fe94b255466700d97483c3.s3tc.ctex"]
 
 [params]
 

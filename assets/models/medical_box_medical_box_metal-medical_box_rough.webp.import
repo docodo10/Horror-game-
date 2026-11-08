@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://boakssre27udw"
-path="res://.godot/imported/medical_box_medical_box_metal-medical_box_rough.webp-14633a75b7a470335a31694d10b14286.ctex"
+path.s3tc="res://.godot/imported/medical_box_medical_box_metal-medical_box_rough.webp-14633a75b7a470335a31694d10b14286.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "cd42feeed4e0750c7523522866590584"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/medical_box_medical_box_metal-medical_box_rough.webp"
-dest_files=["res://.godot/imported/medical_box_medical_box_metal-medical_box_rough.webp-14633a75b7a470335a31694d10b14286.ctex"]
+dest_files=["res://.godot/imported/medical_box_medical_box_metal-medical_box_rough.webp-14633a75b7a470335a31694d10b14286.s3tc.ctex"]
 
 [params]
 

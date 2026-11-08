@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://lo8ivrxqnt3y"
-path="res://.godot/imported/hanging_industrial_lamp_hanging_industrial_lamp_emissive.webp-2c14b32c645490c28f74c2b8665e78f5.ctex"
+path.s3tc="res://.godot/imported/hanging_industrial_lamp_hanging_industrial_lamp_emissive.webp-2c14b32c645490c28f74c2b8665e78f5.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a5bafe353f837f5ecb72bbbec0839090"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/hanging_industrial_lamp_hanging_industrial_lamp_emissive.webp"
-dest_files=["res://.godot/imported/hanging_industrial_lamp_hanging_industrial_lamp_emissive.webp-2c14b32c645490c28f74c2b8665e78f5.ctex"]
+dest_files=["res://.godot/imported/hanging_industrial_lamp_hanging_industrial_lamp_emissive.webp-2c14b32c645490c28f74c2b8665e78f5.s3tc.ctex"]
 
 [params]
 

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ccty1iu1ghadq"
-path="res://.godot/imported/pastic_torch_6v_pastic_torch_6v_metal-pastic_torch_6v_rough.webp-3a8933ea9cd4d608d0a491cb02112c01.ctex"
+path.s3tc="res://.godot/imported/pastic_torch_6v_pastic_torch_6v_metal-pastic_torch_6v_rough.webp-3a8933ea9cd4d608d0a491cb02112c01.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "aa50f86aba387327273cdbc89e853c61"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pastic_torch_6v_pastic_torch_6v_metal-pastic_torch_6v_rough.webp"
-dest_files=["res://.godot/imported/pastic_torch_6v_pastic_torch_6v_metal-pastic_torch_6v_rough.webp-3a8933ea9cd4d608d0a491cb02112c01.ctex"]
+dest_files=["res://.godot/imported/pastic_torch_6v_pastic_torch_6v_metal-pastic_torch_6v_rough.webp-3a8933ea9cd4d608d0a491cb02112c01.s3tc.ctex"]
 
 [params]
 

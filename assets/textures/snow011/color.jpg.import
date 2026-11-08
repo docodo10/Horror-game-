@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cen4t1j7ti65y"
-path="res://.godot/imported/color.jpg-4b66aa45544ffab6ddc3f231c071ebb2.ctex"
+path.s3tc="res://.godot/imported/color.jpg-4b66aa45544ffab6ddc3f231c071ebb2.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/snow011/color.jpg"
-dest_files=["res://.godot/imported/color.jpg-4b66aa45544ffab6ddc3f231c071ebb2.ctex"]
+dest_files=["res://.godot/imported/color.jpg-4b66aa45544ffab6ddc3f231c071ebb2.s3tc.ctex"]
 
 [params]
 

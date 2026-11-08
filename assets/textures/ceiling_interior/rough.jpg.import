@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dewcr6t050ff5"
-path="res://.godot/imported/rough.jpg-992daa277916957d08dc528581a10995.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-992daa277916957d08dc528581a10995.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/ceiling_interior/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-992daa277916957d08dc528581a10995.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-992daa277916957d08dc528581a10995.s3tc.ctex"]
 
 [params]
 

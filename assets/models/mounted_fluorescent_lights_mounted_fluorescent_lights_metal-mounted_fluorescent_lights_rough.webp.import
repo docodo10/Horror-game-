@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2souyt8ghusm"
-path="res://.godot/imported/mounted_fluorescent_lights_mounted_fluorescent_lights_metal-mounted_fluorescent_lights_rough.webp-b4b07a00e1799d948bedde0377f5e42c.ctex"
+path.s3tc="res://.godot/imported/mounted_fluorescent_lights_mounted_fluorescent_lights_metal-mounted_fluorescent_lights_rough.webp-b4b07a00e1799d948bedde0377f5e42c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "5d6ba3e865f9e0e45d4502c2812ca2e7"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/mounted_fluorescent_lights_mounted_fluorescent_lights_metal-mounted_fluorescent_lights_rough.webp"
-dest_files=["res://.godot/imported/mounted_fluorescent_lights_mounted_fluorescent_lights_metal-mounted_fluorescent_lights_rough.webp-b4b07a00e1799d948bedde0377f5e42c.ctex"]
+dest_files=["res://.godot/imported/mounted_fluorescent_lights_mounted_fluorescent_lights_metal-mounted_fluorescent_lights_rough.webp-b4b07a00e1799d948bedde0377f5e42c.s3tc.ctex"]
 
 [params]
 

@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdhlnxv3ybna8"
-path="res://.godot/imported/ao.jpg-afe5b08fa0b1d13a8c6d0f2e9c16d8d3.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-afe5b08fa0b1d13a8c6d0f2e9c16d8d3.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/peeling_painted_wall/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-afe5b08fa0b1d13a8c6d0f2e9c16d8d3.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-afe5b08fa0b1d13a8c6d0f2e9c16d8d3.s3tc.ctex"]
 
 [params]
 

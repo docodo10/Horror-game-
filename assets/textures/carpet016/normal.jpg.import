@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bw6g4bf0uurnh"
-path="res://.godot/imported/normal.jpg-928486426daeab80cf62fac792a4d7da.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-928486426daeab80cf62fac792a4d7da.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/carpet016/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-928486426daeab80cf62fac792a4d7da.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-928486426daeab80cf62fac792a4d7da.s3tc.ctex"]
 
 [params]
 

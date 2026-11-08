@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://col75mc83nfey"
-path="res://.godot/imported/normal.jpg-fbde91a5383b921c3fd4e15ea21bef0f.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-fbde91a5383b921c3fd4e15ea21bef0f.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/brick_wall_001/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-fbde91a5383b921c3fd4e15ea21bef0f.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-fbde91a5383b921c3fd4e15ea21bef0f.s3tc.ctex"]
 
 [params]
 

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://glu4ebbx7nat"
-path="res://.godot/imported/ClassicConsole_01_ClassicConsole_01_diff.webp-4d2991b42e5c06c208afaa1cc375cc14.ctex"
+path.s3tc="res://.godot/imported/ClassicConsole_01_ClassicConsole_01_diff.webp-4d2991b42e5c06c208afaa1cc375cc14.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9cef6450c692cd5c666d2293fc9b5374"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ClassicConsole_01_ClassicConsole_01_diff.webp"
-dest_files=["res://.godot/imported/ClassicConsole_01_ClassicConsole_01_diff.webp-4d2991b42e5c06c208afaa1cc375cc14.ctex"]
+dest_files=["res://.godot/imported/ClassicConsole_01_ClassicConsole_01_diff.webp-4d2991b42e5c06c208afaa1cc375cc14.s3tc.ctex"]
 
 [params]
 

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bumxlll8yetaw"
-path="res://.godot/imported/Shelf_01_Shelf_01_diff.webp-851aea34e19a618579cd73e73b79635f.ctex"
+path.s3tc="res://.godot/imported/Shelf_01_Shelf_01_diff.webp-851aea34e19a618579cd73e73b79635f.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "e0b6b09ba6089dad60a2468f6da74528"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/Shelf_01_Shelf_01_diff.webp"
-dest_files=["res://.godot/imported/Shelf_01_Shelf_01_diff.webp-851aea34e19a618579cd73e73b79635f.ctex"]
+dest_files=["res://.godot/imported/Shelf_01_Shelf_01_diff.webp-851aea34e19a618579cd73e73b79635f.s3tc.ctex"]
 
 [params]
 

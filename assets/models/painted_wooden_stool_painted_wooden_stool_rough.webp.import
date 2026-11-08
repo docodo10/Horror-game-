@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://h8we4q2b41th"
-path="res://.godot/imported/painted_wooden_stool_painted_wooden_stool_rough.webp-0c41018d1a344343f57acb334c18f0dd.ctex"
+path.s3tc="res://.godot/imported/painted_wooden_stool_painted_wooden_stool_rough.webp-0c41018d1a344343f57acb334c18f0dd.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1804708be4a561f87be591b07edbd31f"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/painted_wooden_stool_painted_wooden_stool_rough.webp"
-dest_files=["res://.godot/imported/painted_wooden_stool_painted_wooden_stool_rough.webp-0c41018d1a344343f57acb334c18f0dd.ctex"]
+dest_files=["res://.godot/imported/painted_wooden_stool_painted_wooden_stool_rough.webp-0c41018d1a344343f57acb334c18f0dd.s3tc.ctex"]
 
 [params]
 

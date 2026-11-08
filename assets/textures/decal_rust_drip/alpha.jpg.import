@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b60gccnyofwnh"
-path="res://.godot/imported/alpha.jpg-3afc06ab5ae068b33e3047e810475837.ctex"
+path.s3tc="res://.godot/imported/alpha.jpg-3afc06ab5ae068b33e3047e810475837.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_rust_drip/alpha.jpg"
-dest_files=["res://.godot/imported/alpha.jpg-3afc06ab5ae068b33e3047e810475837.ctex"]
+dest_files=["res://.godot/imported/alpha.jpg-3afc06ab5ae068b33e3047e810475837.s3tc.ctex"]
 
 [params]
 

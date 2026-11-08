@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkgck71n3vu42"
-path="res://.godot/imported/CheeseBox_01_CheeseBox_01_nor_gl.webp-56c63003deb3f5e8ca392fba3171cb07.ctex"
+path.s3tc="res://.godot/imported/CheeseBox_01_CheeseBox_01_nor_gl.webp-56c63003deb3f5e8ca392fba3171cb07.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "1555a3323b6e9b389c4e3e1b06175166"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/CheeseBox_01_CheeseBox_01_nor_gl.webp"
-dest_files=["res://.godot/imported/CheeseBox_01_CheeseBox_01_nor_gl.webp-56c63003deb3f5e8ca392fba3171cb07.ctex"]
+dest_files=["res://.godot/imported/CheeseBox_01_CheeseBox_01_nor_gl.webp-56c63003deb3f5e8ca392fba3171cb07.s3tc.ctex"]
 
 [params]
 

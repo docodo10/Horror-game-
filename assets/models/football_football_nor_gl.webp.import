@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://mkgulaxgm6ap"
-path="res://.godot/imported/football_football_nor_gl.webp-dc8f882a65f8917237291649dc4dd381.ctex"
+path.s3tc="res://.godot/imported/football_football_nor_gl.webp-dc8f882a65f8917237291649dc4dd381.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a99fbf917b506a316337a465903556de"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/football_football_nor_gl.webp"
-dest_files=["res://.godot/imported/football_football_nor_gl.webp-dc8f882a65f8917237291649dc4dd381.ctex"]
+dest_files=["res://.godot/imported/football_football_nor_gl.webp-dc8f882a65f8917237291649dc4dd381.s3tc.ctex"]
 
 [params]
 

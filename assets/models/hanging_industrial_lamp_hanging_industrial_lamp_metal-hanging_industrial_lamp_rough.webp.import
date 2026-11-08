@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bijnuktungc5j"
-path="res://.godot/imported/hanging_industrial_lamp_hanging_industrial_lamp_metal-hanging_industrial_lamp_rough.webp-eed37a9329c3052478a55b4be70c3337.ctex"
+path.s3tc="res://.godot/imported/hanging_industrial_lamp_hanging_industrial_lamp_metal-hanging_industrial_lamp_rough.webp-eed37a9329c3052478a55b4be70c3337.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8735b8776382756d527cc2cc54b8c0e3"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/hanging_industrial_lamp_hanging_industrial_lamp_metal-hanging_industrial_lamp_rough.webp"
-dest_files=["res://.godot/imported/hanging_industrial_lamp_hanging_industrial_lamp_metal-hanging_industrial_lamp_rough.webp-eed37a9329c3052478a55b4be70c3337.ctex"]
+dest_files=["res://.godot/imported/hanging_industrial_lamp_hanging_industrial_lamp_metal-hanging_industrial_lamp_rough.webp-eed37a9329c3052478a55b4be70c3337.s3tc.ctex"]
 
 [params]
 

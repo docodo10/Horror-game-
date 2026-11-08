@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://pkiwj66jkxxb"
-path="res://.godot/imported/ao.jpg-2c962351b8e10100ffdfba371c8100e8.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-2c962351b8e10100ffdfba371c8100e8.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/plastic013b/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-2c962351b8e10100ffdfba371c8100e8.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-2c962351b8e10100ffdfba371c8100e8.s3tc.ctex"]
 
 [params]
 

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://vavfa6f2q5tm"
-path="res://.godot/imported/painted_wooden_stool_painted_wooden_stool_nor_gl.webp-2c5e5f32f8af24ce39097e47e11ef0cd.ctex"
+path.s3tc="res://.godot/imported/painted_wooden_stool_painted_wooden_stool_nor_gl.webp-2c5e5f32f8af24ce39097e47e11ef0cd.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "3229f2205f93909c98d552f9ded98a12"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/painted_wooden_stool_painted_wooden_stool_nor_gl.webp"
-dest_files=["res://.godot/imported/painted_wooden_stool_painted_wooden_stool_nor_gl.webp-2c5e5f32f8af24ce39097e47e11ef0cd.ctex"]
+dest_files=["res://.godot/imported/painted_wooden_stool_painted_wooden_stool_nor_gl.webp-2c5e5f32f8af24ce39097e47e11ef0cd.s3tc.ctex"]
 
 [params]
 

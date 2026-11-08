@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ifogmus4m0r3"
-path="res://.godot/imported/alpha.jpg-70399616ea5d9b10453a056bca927f90.ctex"
+path.s3tc="res://.godot/imported/alpha.jpg-70399616ea5d9b10453a056bca927f90.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_scuffs/alpha.jpg"
-dest_files=["res://.godot/imported/alpha.jpg-70399616ea5d9b10453a056bca927f90.ctex"]
+dest_files=["res://.godot/imported/alpha.jpg-70399616ea5d9b10453a056bca927f90.s3tc.ctex"]
 
 [params]
 

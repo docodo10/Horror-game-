@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://qt0q7237s7m5"
-path="res://.godot/imported/normal.jpg-9caac39628835716a77c6a7fcc45947a.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-9caac39628835716a77c6a7fcc45947a.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/beige_wall_001/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-9caac39628835716a77c6a7fcc45947a.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-9caac39628835716a77c6a7fcc45947a.s3tc.ctex"]
 
 [params]
 

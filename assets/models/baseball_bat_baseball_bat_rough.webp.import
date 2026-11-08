@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ofh3q3lfljw8"
-path="res://.godot/imported/baseball_bat_baseball_bat_rough.webp-126ad97890e3a1c2cbdcdabae9db1a77.ctex"
+path.s3tc="res://.godot/imported/baseball_bat_baseball_bat_rough.webp-126ad97890e3a1c2cbdcdabae9db1a77.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2563a570ca57f9c9700b1e9edf766437"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/baseball_bat_baseball_bat_rough.webp"
-dest_files=["res://.godot/imported/baseball_bat_baseball_bat_rough.webp-126ad97890e3a1c2cbdcdabae9db1a77.ctex"]
+dest_files=["res://.godot/imported/baseball_bat_baseball_bat_rough.webp-126ad97890e3a1c2cbdcdabae9db1a77.s3tc.ctex"]
 
 [params]
 

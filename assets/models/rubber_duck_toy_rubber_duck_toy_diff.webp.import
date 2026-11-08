@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://btu8saj658ja0"
-path="res://.godot/imported/rubber_duck_toy_rubber_duck_toy_diff.webp-2771a12ad460ac1f1aa93adbc2ee1ca9.ctex"
+path.s3tc="res://.godot/imported/rubber_duck_toy_rubber_duck_toy_diff.webp-2771a12ad460ac1f1aa93adbc2ee1ca9.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "380211488c45a0da4f2f34d0a162bca6"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/rubber_duck_toy_rubber_duck_toy_diff.webp"
-dest_files=["res://.godot/imported/rubber_duck_toy_rubber_duck_toy_diff.webp-2771a12ad460ac1f1aa93adbc2ee1ca9.ctex"]
+dest_files=["res://.godot/imported/rubber_duck_toy_rubber_duck_toy_diff.webp-2771a12ad460ac1f1aa93adbc2ee1ca9.s3tc.ctex"]
 
 [params]
 

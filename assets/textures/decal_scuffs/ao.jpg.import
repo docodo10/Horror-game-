@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://2ey3ogewofxv"
-path="res://.godot/imported/ao.jpg-1a64446b9cc826300e55e938e70f4563.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-1a64446b9cc826300e55e938e70f4563.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_scuffs/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-1a64446b9cc826300e55e938e70f4563.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-1a64446b9cc826300e55e938e70f4563.s3tc.ctex"]
 
 [params]
 

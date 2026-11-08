@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://da2dxjy6gjdxi"
-path="res://.godot/imported/rough.jpg-64b0b76e0e785d2234564c509e51f7bf.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-64b0b76e0e785d2234564c509e51f7bf.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/plywood/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-64b0b76e0e785d2234564c509e51f7bf.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-64b0b76e0e785d2234564c509e51f7bf.s3tc.ctex"]
 
 [params]
 

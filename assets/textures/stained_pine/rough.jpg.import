@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://eiu5eqmegkft"
-path="res://.godot/imported/rough.jpg-6d21bff7a7c6fed7441126a60012e0b5.ctex"
+path.s3tc="res://.godot/imported/rough.jpg-6d21bff7a7c6fed7441126a60012e0b5.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/stained_pine/rough.jpg"
-dest_files=["res://.godot/imported/rough.jpg-6d21bff7a7c6fed7441126a60012e0b5.ctex"]
+dest_files=["res://.godot/imported/rough.jpg-6d21bff7a7c6fed7441126a60012e0b5.s3tc.ctex"]
 
 [params]
 

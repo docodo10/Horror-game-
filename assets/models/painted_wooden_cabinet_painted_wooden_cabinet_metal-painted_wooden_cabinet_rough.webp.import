@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bd3hg0s8bja37"
-path="res://.godot/imported/painted_wooden_cabinet_painted_wooden_cabinet_metal-painted_wooden_cabinet_rough.webp-93b84b49f4fb1d228748a4031c8713b6.ctex"
+path.s3tc="res://.godot/imported/painted_wooden_cabinet_painted_wooden_cabinet_metal-painted_wooden_cabinet_rough.webp-93b84b49f4fb1d228748a4031c8713b6.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "87245ac8de4a3f3f0e9bca41f66e7bc6"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/painted_wooden_cabinet_painted_wooden_cabinet_metal-painted_wooden_cabinet_rough.webp"
-dest_files=["res://.godot/imported/painted_wooden_cabinet_painted_wooden_cabinet_metal-painted_wooden_cabinet_rough.webp-93b84b49f4fb1d228748a4031c8713b6.ctex"]
+dest_files=["res://.godot/imported/painted_wooden_cabinet_painted_wooden_cabinet_metal-painted_wooden_cabinet_rough.webp-93b84b49f4fb1d228748a4031c8713b6.s3tc.ctex"]
 
 [params]
 

@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://hh1f04fqcq0n"
-path="res://.godot/imported/normal.jpg-73ee6c2351d89b1caf6b1548cef69094.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-73ee6c2351d89b1caf6b1548cef69094.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/metal048c/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-73ee6c2351d89b1caf6b1548cef69094.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-73ee6c2351d89b1caf6b1548cef69094.s3tc.ctex"]
 
 [params]
 

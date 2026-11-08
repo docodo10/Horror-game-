@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bmyx4suu0thh2"
-path="res://.godot/imported/ao.jpg-a6605a216970a9d26b1929edad5ff7f3.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-a6605a216970a9d26b1929edad5ff7f3.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_grime/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-a6605a216970a9d26b1929edad5ff7f3.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-a6605a216970a9d26b1929edad5ff7f3.s3tc.ctex"]
 
 [params]
 

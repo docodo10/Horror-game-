@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bce4bspc3ftp7"
-path="res://.godot/imported/ceiling_fan_ceiling_fan_diff.webp-83db30439ebab423bacce5b26d22d6a8.ctex"
+path.s3tc="res://.godot/imported/ceiling_fan_ceiling_fan_diff.webp-83db30439ebab423bacce5b26d22d6a8.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "106c51404ff49c8d4be89348d0bb382f"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/ceiling_fan_ceiling_fan_diff.webp"
-dest_files=["res://.godot/imported/ceiling_fan_ceiling_fan_diff.webp-83db30439ebab423bacce5b26d22d6a8.ctex"]
+dest_files=["res://.godot/imported/ceiling_fan_ceiling_fan_diff.webp-83db30439ebab423bacce5b26d22d6a8.s3tc.ctex"]
 
 [params]
 

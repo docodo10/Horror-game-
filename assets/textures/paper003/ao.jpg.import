@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wr1jj2atwnwp"
-path="res://.godot/imported/ao.jpg-d0cb3c7f016997894bbf00a47435eb99.ctex"
+path.s3tc="res://.godot/imported/ao.jpg-d0cb3c7f016997894bbf00a47435eb99.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/paper003/ao.jpg"
-dest_files=["res://.godot/imported/ao.jpg-d0cb3c7f016997894bbf00a47435eb99.ctex"]
+dest_files=["res://.godot/imported/ao.jpg-d0cb3c7f016997894bbf00a47435eb99.s3tc.ctex"]
 
 [params]
 

@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dedakregdy8en"
-path="res://.godot/imported/steel_frame_shelves_02_steel_frame_shelves_02_diff.webp-463961451ce50a5ab9485e4fbb39cec8.ctex"
+path.s3tc="res://.godot/imported/steel_frame_shelves_02_steel_frame_shelves_02_diff.webp-463961451ce50a5ab9485e4fbb39cec8.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "fff44b99cc2a8ede6ca444d0c6e78518"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/steel_frame_shelves_02_steel_frame_shelves_02_diff.webp"
-dest_files=["res://.godot/imported/steel_frame_shelves_02_steel_frame_shelves_02_diff.webp-463961451ce50a5ab9485e4fbb39cec8.ctex"]
+dest_files=["res://.godot/imported/steel_frame_shelves_02_steel_frame_shelves_02_diff.webp-463961451ce50a5ab9485e4fbb39cec8.s3tc.ctex"]
 
 [params]
 

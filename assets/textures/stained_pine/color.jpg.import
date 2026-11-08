@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://btdqalp68qm7r"
-path="res://.godot/imported/color.jpg-5526897aa0f1ce49fef7db5950fc1334.ctex"
+path.s3tc="res://.godot/imported/color.jpg-5526897aa0f1ce49fef7db5950fc1334.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/stained_pine/color.jpg"
-dest_files=["res://.godot/imported/color.jpg-5526897aa0f1ce49fef7db5950fc1334.ctex"]
+dest_files=["res://.godot/imported/color.jpg-5526897aa0f1ce49fef7db5950fc1334.s3tc.ctex"]
 
 [params]
 

@@ -3,15 +3,16 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bc38admcoa4tv"
-path="res://.godot/imported/normal.jpg-6f3eb907cf56873d21cc43f67d26fb78.ctex"
+path.s3tc="res://.godot/imported/normal.jpg-6f3eb907cf56873d21cc43f67d26fb78.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/decal_grime/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-6f3eb907cf56873d21cc43f67d26fb78.ctex"]
+dest_files=["res://.godot/imported/normal.jpg-6f3eb907cf56873d21cc43f67d26fb78.s3tc.ctex"]
 
 [params]
 

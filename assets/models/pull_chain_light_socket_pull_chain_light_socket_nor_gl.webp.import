@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://prdq2j26adsw"
-path="res://.godot/imported/pull_chain_light_socket_pull_chain_light_socket_nor_gl.webp-eb870c61b4d6feca67b83f2344f9cc62.ctex"
+path.s3tc="res://.godot/imported/pull_chain_light_socket_pull_chain_light_socket_nor_gl.webp-eb870c61b4d6feca67b83f2344f9cc62.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "15b3d946d4b78864e6e2ee8fc905dd79"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pull_chain_light_socket_pull_chain_light_socket_nor_gl.webp"
-dest_files=["res://.godot/imported/pull_chain_light_socket_pull_chain_light_socket_nor_gl.webp-eb870c61b4d6feca67b83f2344f9cc62.ctex"]
+dest_files=["res://.godot/imported/pull_chain_light_socket_pull_chain_light_socket_nor_gl.webp-eb870c61b4d6feca67b83f2344f9cc62.s3tc.ctex"]
 
 [params]
 

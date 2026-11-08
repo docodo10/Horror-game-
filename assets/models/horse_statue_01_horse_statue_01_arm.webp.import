@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cjlqeg2yujlb"
-path="res://.godot/imported/horse_statue_01_horse_statue_01_arm.webp-b92578cd8861953f9273492dc40e3b86.ctex"
+path.s3tc="res://.godot/imported/horse_statue_01_horse_statue_01_arm.webp-b92578cd8861953f9273492dc40e3b86.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "dd8f32ffa7734a474ef1c2c21ca98202"
@@ -14,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/horse_statue_01_horse_statue_01_arm.webp"
-dest_files=["res://.godot/imported/horse_statue_01_horse_statue_01_arm.webp-b92578cd8861953f9273492dc40e3b86.ctex"]
+dest_files=["res://.godot/imported/horse_statue_01_horse_statue_01_arm.webp-b92578cd8861953f9273492dc40e3b86.s3tc.ctex"]
 
 [params]
 
