@@ -143,6 +143,20 @@ func _run() -> void:
 	(settings.get(&"values") as Dictionary)["quality"] = orig
 	root.get_node("Events").emit_signal("settings_changed", "quality", orig)
 	await _frames(3)
+	# ---- upscaler (Settings "upscale") + render scale
+	var vp0 := get_root().get_viewport()
+	(settings.get(&"values") as Dictionary)["upscale"] = "fsr2_quality"
+	root.get_node("Events").emit_signal("settings_changed", "upscale", "fsr2_quality")
+	_check(vp0.scaling_3d_mode == Viewport.SCALING_3D_MODE_FSR2 and absf(vp0.scaling_3d_scale - 0.667) < 0.01 and not vp0.use_taa,
+		"upscale fsr2_quality -> FSR2 at 0.667, TAA off")
+	(settings.get(&"values") as Dictionary)["upscale"] = "off"
+	(settings.get(&"values") as Dictionary)["render_scale"] = 0.75
+	root.get_node("Events").emit_signal("settings_changed", "render_scale", 0.75)
+	_check(vp0.scaling_3d_mode == Viewport.SCALING_3D_MODE_FSR and absf(vp0.scaling_3d_scale - 0.75) < 0.01, "render_scale 0.75 -> FSR1")
+	(settings.get(&"values") as Dictionary).erase("upscale")
+	(settings.get(&"values") as Dictionary).erase("render_scale")
+	root.get_node("Events").emit_signal("settings_changed", "render_scale", 1.0)
+	_check(vp0.scaling_3d_scale > 0.99, "native again")
 	# ---- brightness live
 	var b0: float = float((settings.get(&"values") as Dictionary).get("brightness", 1.0))
 	(settings.get(&"values") as Dictionary)["brightness"] = 1.4

@@ -85,11 +85,25 @@ func _run() -> void:
 	var game := root.get_node("Game")
 	var want := "menu" if _menu else "playing"
 	var t0 := Time.get_ticks_msec()
-	while String(game.get(&"state")) != want and Time.get_ticks_msec() - t0 < 180000: await process_frame
+	var lean := "--lookdev-lean" in OS.get_cmdline_user_args()
+	var leaned := false
+	while String(game.get(&"state")) != want and Time.get_ticks_msec() - t0 < 180000:
+		await process_frame
+		if lean and not leaned:   # as early as possible: before the live mirror compiles its own pipelines
+			var w0 = game.get(&"world")
+			var r0 = w0.get(&"reflections") if w0 != null else null
+			if r0 != null and r0.has_method("set_quality"):
+				r0.call("set_quality", "medium")
+				leaned = true
 	await _frames_wait(20)
 	var Q: Script = load("res://scripts/render/quality.gd")
 	var rig: Node = Q.call("rig")
 	var world: Node = game.get(&"world")
+	# --lookdev-lean: the live planar mirror renders everything it sees with its own environment, i.e. a second set of
+	# pipelines; under lavapipe that can push the process over the memory limit -> static silvered glass for test shots
+	if "--lookdev-lean" in OS.get_cmdline_user_args() and world != null:
+		var refl = world.get(&"reflections")
+		if refl != null and refl.has_method("set_quality"): refl.call("set_quality", "medium")
 	var lighting: Node = world.get(&"lighting") if world else null
 	var dbg := root.get_node("DebugTools")
 	var views: Dictionary = (dbg.get(&"VIEWS") as Dictionary).duplicate()

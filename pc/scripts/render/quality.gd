@@ -19,10 +19,19 @@
 ##   set_fill(v)                     lighting.gd: readability ambient (power off / menu), multiplier of the preset ambient
 ##   snap_focus()                    autofocus snaps instead of easing on the next frame (teleports, cuts)
 ##   set_dof_enabled(on)             force the depth of field off (e.g. a cinematic) — on by default where the preset has it
-## Settings read (Settings autoload): quality, brightness (0.6..1.6 → exposure + display gamma), render_scale
-##   (0.5..1.0, default 1.0: FSR2 on high/ultra, FSR1 on low/medium below 1), vsync / fullscreen are the UI's.
+## Settings read live (Settings autoload, Events.settings_changed): quality, brightness (0.6..1.6 → exposure × b and a
+##   display gamma), upscale ("off" | "fsr2_quality" 0.667 | "fsr2_balanced" 0.588 | "fsr2_performance" 0.5: FSR 2.2
+##   temporal upscaling with its own AA — TAA / FXAA / SMAA off while it runs), render_scale (0.5..1.0, used when upscale
+##   is "off": FSR 1 spatial below 1.0), depth_of_field / film_grain / chromatic_aberration (bool, default true).
+##   Per-frame cost on the CPU side: ~15 shader uniforms, 5 physics rays every other frame (autofocus), no allocations.
+##   vsync / fullscreen are the UI's. No auto-exposure (La Gardienne's torch exposure in gardienne.gd stays valid).
+## Tone / bloom contract for other modules: AgX at exposure 1.0 (× brightness); bloom = Godot glow, threshold 1.15 with a
+##   soft knee to ~3.75 (glow_hdr_scale 2.6), intensity 0.32, screen blend, levels 2–5. Emitters that should glow need
+##   linear output ≥ ~2 (the fan bowl ≈ 8, a fluorescent tube 6–10); the TV glass at 1.55 glows only faintly.
 ## Debug args (after --): --look-nopost (no post pass), --look-nodof, --look-focus=<m> (fixed focus distance),
-##   --look-fear=<v>, --look-hidden=<v>, --look-blur=<v>, --look-stats (prints the preset + timings once)
+##   --look-fear=<v>, --look-hidden=<v>, --look-blur=<v>, --look-stats (prints the preset once),
+##   --look-nogi / --look-nofog / --look-noglow, --look-upscale=<upscale value> (not saved), --look-tune=k:v;k:v (look_rig.gd TUNE_DEFAULTS)
+## Look-dev: scripts/render/tests/lookdev.sh (variants × views in one session), tests/look_test.gd (headless contract test).
 class_name Quality
 extends RefCounted
 

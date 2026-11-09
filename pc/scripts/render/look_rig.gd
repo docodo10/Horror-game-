@@ -16,8 +16,8 @@ const TUNE_DEFAULTS := {
 	"tonemap_exposure": 1.0,
 	"ambient_color": Color(0.62, 0.58, 0.53),       # sRGB: warm grey bounce stand-in (low / medium only)
 	# bloom (Godot glow, first pass: smoothstep(threshold, threshold + scale, max(rgb)) after exposure)
-	"glow_threshold": 1.15, "glow_scale": 2.6, "glow_intensity": 0.32, "glow_cap": 14.0, "glow_mix": 0.05,
-	"glow_levels": [0.0, 0.3, 0.6, 0.5, 0.25, 0.0, 0.0],
+	"glow_threshold": 1.15, "glow_scale": 2.6, "glow_intensity": 0.26, "glow_cap": 14.0, "glow_mix": 0.05,
+	"glow_levels": [0.0, 0.35, 0.55, 0.3, 0.1, 0.0, 0.0],
 	# volumetric fog (dust in the air: shafts under the bulb, through the window, along the torch beam)
 	"fog_density": 0.014, "fog_albedo": Color(0.86, 0.85, 0.83), "fog_anisotropy": 0.45, "fog_length": 14.0,
 	"fog_gi_inject": 0.35, "fog_spread": 1.6,
@@ -37,6 +37,8 @@ const DOF_REF_HEIGHT := 1080.0     # preset dof_amount is for a 1080-pixel tall 
 const FOCUS_SPEED := 3.5           # 1/s, log space
 const FOCUS_MIN := 0.22
 const FOCUS_MAX := 30.0
+const FOCUS_OFFS: Array[Vector2] = [Vector2.ZERO, Vector2(-0.03, 0.0), Vector2(0.03, 0.0), Vector2(0.0, -0.04), Vector2(0.0, 0.04)]
+const FOCUS_W: Array[float] = [3.0, 1.0, 1.0, 1.0, 1.0]
 const FOCUS_NEAR_K := 0.94         # near blur starts a little in front of the focus plane
 const FOCUS_FAR_K := 1.06          # far blur a little behind it (in-focus slab)
 const FOCUS_MASK := 1 | 2 | 8 | 16  # world, interact, entity, sight occluders
@@ -80,6 +82,9 @@ var _rays: Array[PhysicsRayQueryParameters3D] = []
 var _dbg := {}
 var _dof_height := 1080.0
 var _stats_printed := false
+var _ca_on := true
+var _exclude: Array[RID] = []
+var _exclude_player: Object = null
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -88,6 +93,7 @@ func _ready() -> void:
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		if kv[0].begins_with("look-"): _dbg[kv[0]] = kv[1] if kv.size() > 1 else "1"
 	if _dbg.has("look-tune"): tune.merge(parse_tune(String(_dbg["look-tune"])), true)
+	if _dbg.has("look-upscale"): Settings.values["upscale"] = String(_dbg["look-upscale"])   # test only, never saved
 	_build()
 	Events.settings_changed.connect(_on_settings_changed)
 	get_viewport().size_changed.connect(_update_dof_height)
@@ -156,20 +162,26 @@ func _apply_viewport() -> void:
 	if vp == null: return
 	vp.msaa_3d = p.msaa
 	vp.screen_space_aa = p.ssaa
+	# Settings "upscale": off | fsr2_quality | fsr2_balanced | fsr2_performance (FSR 2.2: temporal upscaling with its own
+	# anti-aliasing, so TAA and screen-space AA are switched off; it also feeds the DOF jitter). With "off", Settings
+	# "render_scale" (0.5..1.0) below 1 uses FSR 1 (spatial) — handy on low / medium.
+	var up := String(Settings.get_value("upscale", "off"))
+	var fsr2 := Presets.UPSCALE.has(up) and up != "off"
 	var scale := clampf(float(Settings.get_value("render_scale", 1.0)), 0.5, 1.0)
-	if scale < 0.999:
-		vp.scaling_3d_mode = p.upscaler
-		vp.scaling_3d_scale = scale
-		vp.use_taa = bool(p.taa) and p.upscaler != Viewport.SCALING_3D_MODE_FSR2
-	elif bool(p.fsr2_native):
-		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2   # FSR 2.2 "native AA": temporal AA + RCAS, no upscale
-		vp.scaling_3d_scale = 1.0
+	if fsr2:
+		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2
+		vp.scaling_3d_scale = Presets.upscale_scale(up)
 		vp.use_taa = false
+		vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+	elif scale < 0.999:
+		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR
+		vp.scaling_3d_scale = scale
+		vp.use_taa = bool(p.taa)
 	else:
 		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
 		vp.scaling_3d_scale = 1.0
 		vp.use_taa = bool(p.taa)
-	vp.fsr_sharpness = 0.3
+	vp.fsr_sharpness = 0.35
 	vp.use_debanding = true
 	vp.anisotropic_filtering_level = int(p.aniso)
 	vp.mesh_lod_threshold = float(p.lod)
@@ -192,7 +204,8 @@ func _apply_rendering_server() -> void:
 	RenderingServer.positional_soft_shadow_filter_set_quality(p.soft)
 	RenderingServer.directional_soft_shadow_filter_set_quality(p.soft)
 	RenderingServer.environment_set_ssao_quality(p.ssao_q, bool(p.ssao_half), 0.5, 2, 50.0, 300.0)
-	if p.has("ssil_q"): RenderingServer.environment_set_ssil_quality(p.ssil_q, false, 0.5, 4, 50.0, 300.0)
+	if p.has("ssil_q"): RenderingServer.environment_set_ssil_quality(p.ssil_q, bool(p.get("ssil_half", false)), 0.5, 2, 50.0, 300.0)
+	RenderingServer.gi_set_use_half_resolution(bool(p.get("gi_half", true)))
 	if p.has("ssr_rough"): RenderingServer.environment_set_ssr_roughness_quality(p.ssr_rough)
 	if p.has("sdfgi_rays"):
 		RenderingServer.environment_set_sdfgi_ray_count(p.sdfgi_rays)
@@ -297,7 +310,7 @@ func _apply_post_static() -> void:
 	m.set_shader_parameter("distort", float(tune.distort))
 	m.set_shader_parameter("sharpen", float(p.sharpen) * float(tune.sharpen_k))
 	m.set_shader_parameter("vignette", float(tune.vignette))
-	m.set_shader_parameter("grain", float(tune.grain))
+	m.set_shader_parameter("grain", float(tune.grain) * (1.0 if _setting_on("film_grain") else 0.0))
 	m.set_shader_parameter("grain_smooth", 1.0 if bool(p.grain_smooth) else 0.0)
 	m.set_shader_parameter("edge_soft", float(p.edge_soft))
 	m.set_shader_parameter("blur_taps", int(p.blur_taps))
@@ -307,7 +320,12 @@ func _apply_post_static() -> void:
 	m.set_shader_parameter("sat", float(tune.sat))
 	m.set_shader_parameter("contrast", float(tune.contrast))
 	m.set_shader_parameter("toe", float(p.toe) * float(tune.toe_k))
+	_ca_on = _setting_on("chromatic_aberration")
 	_apply_brightness()
+
+## Player toggles (Settings, default on): "depth_of_field", "film_grain", "chromatic_aberration".
+func _setting_on(key: String) -> bool:
+	return Settings.get_value(key, true) != false
 
 func _apply_brightness() -> void:
 	brightness = clampf(float(Settings.get_value("brightness", 1.0)), 0.3, 2.0)
@@ -327,8 +345,10 @@ func _on_settings_changed(key: String, value: Variant) -> void:
 	match key:
 		"quality": apply_preset(String(value))
 		"brightness": _apply_brightness()
-		"render_scale":
+		"film_grain", "chromatic_aberration": _apply_post_static()
+		"render_scale", "upscale":
 			_apply_viewport()
+			_apply_rendering_server()
 			_update_dof_height()
 
 # =================================================================== look-dev tunables
@@ -465,7 +485,8 @@ func _update_effects(dt: float) -> void:
 	var aspect := vs.x / maxf(1.0, vs.y)
 	# zoom so the distorted / shaken image always covers the screen (no clamped borders)
 	m.set_shader_parameter("zoom", 1.0 / ((1.0 + distort) * (1.0 + 2.2 * amp + 1.2 * absf(sr) * maxf(1.0, aspect))))
-	m.set_shader_parameter("ca", float(preset.get("ca", 0.003)) * float(tune.ca_k) * (1.0 + 2.5 * f + 0.8 * _pulse))
+	var ca_on := 1.0 if _ca_on else 0.25   # off = only the fear response keeps a trace of it
+	m.set_shader_parameter("ca", float(preset.get("ca", 0.003)) * float(tune.ca_k) * ca_on * (1.0 + 2.5 * f + 0.8 * _pulse))
 	m.set_shader_parameter("fear", f)
 	m.set_shader_parameter("pulse", _pulse)
 	m.set_shader_parameter("blur", _blur)
@@ -475,7 +496,7 @@ func _update_effects(dt: float) -> void:
 
 ## Autofocus: rays around the screen centre of the current camera -> eased focus distance -> physically based DOF.
 func _update_focus(dt: float) -> void:
-	var want := bool(preset.get("dof", false)) and _dof_enabled and not _dbg.has("look-nodof")
+	var want := bool(preset.get("dof", false)) and _dof_enabled and _setting_on("depth_of_field") and not _dbg.has("look-nodof")
 	var target_env := 1.0 if want else 0.0
 	var was := dof_amount
 	dof_amount += (target_env - dof_amount) * minf(1.0, dt * 5.0)
@@ -489,7 +510,8 @@ func _update_focus(dt: float) -> void:
 		return
 	var cam := get_viewport().get_camera_3d()
 	if cam == null or not cam.is_inside_tree(): return
-	var z := _measure_focus(cam)
+	var z := -1.0
+	if _focus_snap or (_frame & 1) == 0: z = _measure_focus(cam)
 	if _dbg.has("look-focus"): z = clampf(float(_dbg["look-focus"]), FOCUS_MIN, FOCUS_MAX)
 	if z > 0.0: focus_target = z
 	if _focus_snap:
@@ -522,28 +544,28 @@ func _measure_focus(cam: Camera3D) -> float:
 	var fwd := -cam.global_basis.z
 	var vs := get_viewport().get_visible_rect().size
 	var c := vs * 0.5
-	var offs := [Vector2.ZERO, Vector2(-0.03 * vs.x, 0.0), Vector2(0.03 * vs.x, 0.0), Vector2(0.0, -0.04 * vs.y), Vector2(0.0, 0.04 * vs.y)]
-	var weights := [3.0, 1.0, 1.0, 1.0, 1.0]
 	# hidden in the closet: look through the louvers (ignore what is right in front of the eye)
 	var start := 0.05 + 0.75 * _hidden
 	var lsum := 0.0
 	var wsum := 0.0
 	var zn := INF
-	var exclude: Array[RID] = []
 	var pl = Game.player
-	if pl is CollisionObject3D and is_instance_valid(pl): exclude.append((pl as CollisionObject3D).get_rid())
+	if pl is CollisionObject3D and is_instance_valid(pl) and _exclude_player != pl:
+		_exclude_player = pl
+		_exclude.clear()
+		_exclude.append((pl as CollisionObject3D).get_rid())
+		for rq in _rays: rq.exclude = _exclude
 	for i in 5:
-		var dir: Vector3 = fwd if i == 0 else cam.project_ray_normal(c + offs[i])
+		var dir: Vector3 = fwd if i == 0 else cam.project_ray_normal(c + FOCUS_OFFS[i] * vs)
 		var q := _rays[i]
 		q.from = origin + dir * start
 		q.to = origin + dir * FOCUS_MAX
-		q.exclude = exclude
 		var hit := space.intersect_ray(q)
 		var z := FOCUS_MAX
 		if not hit.is_empty():
 			z = clampf(((hit.position as Vector3) - origin).dot(fwd), FOCUS_MIN, FOCUS_MAX)
-		lsum += log(z) * float(weights[i])
-		wsum += float(weights[i])
+		lsum += log(z) * FOCUS_W[i]
+		wsum += FOCUS_W[i]
 		zn = minf(zn, z)
 	lsum += 2.0 * log(zn)
 	wsum += 2.0

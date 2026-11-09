@@ -1,31 +1,39 @@
 ## Look module (ARCHITECTURE_PC.md §4 Look) — the basement's real lights. Port of src/world/Lighting.js (+ the web Details
 ## fluorescent tube light) on Godot lights. Photometry = the web's: luminous intensity (cd) × a camera exposure (EXPOSURE),
 ## in Godot's non-physical units (energy = cd × EXPOSURE / PI, inverse-square falloff — the player module's torch uses the
-## same calibration), so the tonemapper (AgX, quality.gd) runs at exposure ~1 and the emissive / unshaded content (TV
-## static, CRT, tube glass, mirror) keeps its designed level. Light colours: black body white-balanced like a camera at
-## 3700 K (a 2700 K bulb reads warm, not orange; a dimming filament drifts toward 1900 K).
+## same calibration), so the tonemapper (AgX, quality.gd) runs at exposure 1 and the emissive / unshaded content (TV
+## static, CRT, tube glass, mirror, garderie lights) keeps its designed level. Light colours: black body white-balanced like
+## a camera at 3700 K (a 2700 K bulb reads warm cream, not orange; a dimming filament drifts toward 1900 K).
 ##   ceiling   OmniLight3D in the fan light kit (60 W incandescent): cube shadows, PCSS softness (light_size) on high+,
-##             + the frosted bowl emission (level node fanBowl); fan blades / body never shadow it (no disc on the ceiling)
-##   moon      SpotLight3D far outside through the high south window: bar shadows on the floor, strong volumetric-fog
-##             energy (the light shaft on medium+; an analytic shaft mesh on low) + drifting dust motes in the beam
+##             + the frosted bowl emission (level node fanBowl) and the fan model's own light-kit glass, both following
+##             the filament. The fan never casts into its shadow map (a ring-edged disc on the ceiling; tested): the
+##             hot ceiling right above the bowl is kept and tamed by the tight bloom (look_rig.gd glow levels).
+##   moon      SpotLight3D far outside through the high south window: bar shadows on the floor; volumetric shaft from a
+##             dust FogVolume shaped like the window prism (shaders/look_shaftfog.gdshader, medium+; analytic shaft mesh
+##             on low) whose fog energy rises as the room goes dark; drifting dust motes in the beam
 ##   door      OmniLight3D behind the upstairs door: leaks under the 1.5 cm gap (+ the emissive strip, level node doorStrip,
 ##             with the "feet" occlusion of door_strip_occluded), becomes the hall pendant's light as the door opens
-##   tv        SpotLight3D in front of the dresser CRT (cool flicker) — set_tv_light (world TV, UI menu)
+##   tv        SpotLight3D in front of the dresser CRT (cool flicker) — set_tv_light (world TV, UI menu); shadows high+
 ##   tube      SpotLight3D under the nook fluorescent (follows world.nook_tube.level / level_changed: starter strikes,
-##             ageing dips)
+##             ageing dips) + a dust FogVolume in the storage nook (the tube reads as a soft shaft)
 ##   bounce    unshadowed fill at the bulb (low / medium only: stands in for SDFGI + SSIL)
+##   stair     unshadowed warm bounce up the stairwell (follows the bulb; SDFGI carries little through the opening)
 ##   fill      very low flat fill (readability floor in the dark; the environment ambient is replaced by SDFGI on high+)
+## Unshadowed lights skip the garderie's render layers (1024 | 2048). Blowout: white-hot pop, 26 CPU-simulated sparks,
+## light_pop, a warm screen flash (Quality.flash). Runtime emitters (bowl, strip, TV / CRT screens, tube glass) are taken
+## out of SDFGI's static emission (a dead bulb must not keep glowing in the GI).
 ## Rule: the light set is fixed at build; nothing at runtime adds / removes lights or toggles shadows (quality changes
 ## aside) — every state (off, flicker, blowout, stress, menu, TV) is energy only.
 ##
 ## Public API (keep): build(world) ; set_power(on) ; blowout() ; flicker(duration := 0.6, depth := 1.0) ; set_stress(v) ;
 ##   set_tv_light(on, intensity := 1.0) ; door_strip_occluded(v) ; set_menu_mode(on)
 ## Additions:
-##   ceiling, moon, door_light, tv_light, tube_light, bounce, fill (lights), power, level (filament 0..1+, 5 at the
-##   blowout pop), menu (0..1 eased), stress, apply_quality(q) (Quality.apply calls it), reset_after_caught(),
-##   static kelvin(k) -> Color (linear, white-balanced), EXPOSURE (camera exposure folded into the light energies),
-##   set_menu_mode(null) = automatic (game state menu / loading)
-## Debug args (after --): --look-level=<0..1> (freeze the filament level), --look-menu (force the menu lighting)
+##   ceiling, moon, door_light, tv_light, tube_light, bounce, stair_bounce, fill (lights), power, level
+##   (filament 0..1+, 5 at the blowout pop), menu (0..1 eased), stress, apply_quality(q) (Quality.apply calls it),
+##   reset_after_caught(), static kelvin(k, wb) -> Color (linear, white-balanced), EXPOSURE (camera exposure folded into the
+##   light energies), set_menu_mode(null) = automatic (game state menu / loading), tune + set_tune(d) (look-dev tunables)
+## Debug args (after --): --look-level=<0..5> (freeze the filament level), --look-menu (force the menu lighting),
+##   --look-off=ceiling,moon,... (zero those lights), --look-light=k:v;k:v (TUNE_DEFAULTS overrides)
 extends Node3D
 
 const Presets := preload("res://scripts/render/look_presets.gd")
@@ -51,6 +59,7 @@ const MENU_TV := 2.6            # TV light boost in the menu (the CRT is the key
 const MENU_FILL := 0.75
 const FILL_ON := 0.004          # flat fill (Godot energy, attenuation 0): power on (GI does the rest)
 const FILL_OFF := 0.03          # power off: moonlit readability floor
+const STAIR_BOUNCE := 0.07        # stairwell: light bounced up from the lit basement (Godot energy at full bulb)
 const FILL_AMBIENT_FLOOR := 0.35  # environment ambient (low / medium) kept when the bulb is off (fraction of the preset)
 
 # ---------------------------------------------------------------- geometry
@@ -72,6 +81,7 @@ const FOG_DOOR := 1.2
 const FOG_TV := 0.5
 const FOG_TUBE := 14.0
 const SHAFT_DUST := 0.35          # FogVolume density in the moonbeam (dust)
+const MOON_FOG_LIT := 0.1        # moonbeam haze kept while the bulb is on (the eye / camera adapts to the lit room)
 const NOOK_DUST := 0.09           # FogVolume density in the storage nook (the tube light reads as a shaft)
 
 ## Look-dev tunables (scripts/render/tests/lookdev.gd: set_tune({...}); --look-light=k:v;k:v). Defaults = the constants.
@@ -80,7 +90,7 @@ const TUNE_DEFAULTS := {
 	"hall_cd": HALL_CD, "tv_cd": TV_CD, "strip_glow": STRIP_GLOW, "tube_cd": TUBE_CD, "fill_on": FILL_ON,
 	"fill_off": FILL_OFF, "bounce_k": 1.0, "fog_ceil": FOG_CEIL, "fog_moon": FOG_MOON, "fog_door": FOG_DOOR,
 	"fog_tv": FOG_TV, "fog_tube": FOG_TUBE, "ceil_size": 0.12, "moon_size": 0.06, "ceil_spec": 0.9, "wb": WHITE_BALANCE,
-	"shaft_dust": SHAFT_DUST, "nook_dust": NOOK_DUST,
+	"shaft_dust": SHAFT_DUST, "nook_dust": NOOK_DUST, "moon_fog_lit": MOON_FOG_LIT, "fan_shadow": 0.0, "stair_bounce": STAIR_BOUNCE,
 }
 
 var world: Node = null
@@ -91,6 +101,7 @@ var tv_light: SpotLight3D = null
 var tube_light: SpotLight3D = null
 var bounce: OmniLight3D = null
 var fill: OmniLight3D = null
+var stair_bounce: OmniLight3D = null
 var power := true
 var level := 1.0
 var menu := 0.0
@@ -121,6 +132,7 @@ var _menu_settled := 0.0
 var _time := 0.0
 var _bowl_mats: Array[BaseMaterial3D] = []
 var _fan_glow: Array = []          # [[material, base emission energy]] of the fan model's light kit
+var _fan_body: Array[GeometryInstance3D] = []   # the fan's motor body / light kit (optional bulb shadow caster)
 var _strip_mat: ShaderMaterial = null
 var _hall_mats: Array[BaseMaterial3D] = []
 var _strip_pos := Vector3.ZERO
@@ -145,6 +157,8 @@ var _spk_active := false
 var _rng := RandomNumberGenerator.new()
 var _dbg := {}
 var _refresh_pending := false
+var _lv_applied := -1.0
+var _menu_applied := -1.0
 
 # =================================================================== build
 
@@ -273,8 +287,20 @@ func build(p_world: Node) -> void:
 	fill.light_bake_mode = Light3D.BAKE_DISABLED
 	fill.light_volumetric_fog_energy = 0.0
 	add_child(fill)
+	# stairwell: the lit basement bounces warm light up the stairs (SDFGI carries little of it through the opening)
+	stair_bounce = OmniLight3D.new()
+	stair_bounce.name = "StairBounce"
+	stair_bounce.position = Vector3(-3.0, 2.3, -0.6)
+	stair_bounce.light_color = Color(1.0, 0.82, 0.62)
+	stair_bounce.omni_range = 3.6
+	stair_bounce.omni_attenuation = 1.2
+	stair_bounce.shadow_enabled = false
+	stair_bounce.light_specular = 0.0
+	stair_bounce.light_bake_mode = Light3D.BAKE_DISABLED
+	stair_bounce.light_volumetric_fog_energy = 0.0
+	add_child(stair_bounce)
 	# lights without shadows (or with shadows only on high+) never reach the garderie's render layers through the walls
-	for l in [fill, bounce, door_light, tv_light, tube_light]:
+	for l in [fill, bounce, stair_bounce, door_light, tv_light, tube_light]:
 		(l as Light3D).light_cull_mask = 0xFFFFF & ~GARDERIE_LAYERS
 
 	_build_sparks()
@@ -298,6 +324,7 @@ func _prepare_fan() -> void:
 	if fan is Node3D:
 		for n in (fan as Node).find_children("*", "GeometryInstance3D", true, false):
 			(n as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			if not String(n.name).contains("blade"): _fan_body.append(n as GeometryInstance3D)
 		# the fan model's light-kit glass has its own emissive texture: it must follow the filament (dark when off)
 		for n in (fan as Node).find_children("*", "MeshInstance3D", true, false):
 			var mi := n as MeshInstance3D
@@ -346,6 +373,7 @@ func _prepare_hall_lamp() -> void:
 			var m := mi.get_active_material(s)
 			if m is BaseMaterial3D and (m as BaseMaterial3D).emission_enabled:
 				var d := (m as BaseMaterial3D).duplicate() as BaseMaterial3D
+				d.emission_energy_multiplier = 7.0
 				mi.set_surface_override_material(s, d)
 				_hall_mats.append(d)
 
@@ -548,7 +576,7 @@ func apply_quality(q: String) -> void:
 	_motes.visible = q != "low"
 	_apply_static()
 	_fill_sent = -1.0
-	_apply_level(level)
+	_apply_level(level, true)
 
 ## Constant light settings that only change with the tunables (fog energies, moonlight).
 func _apply_static() -> void:
@@ -559,7 +587,8 @@ func _apply_static() -> void:
 	moon.light_energy = float(tune.moon_cd) * float(tune.exposure) / PI
 	ceiling.light_volumetric_fog_energy = float(tune.fog_ceil)
 	ceiling.light_specular = float(tune.ceil_spec)
-	moon.light_volumetric_fog_energy = float(tune.fog_moon)
+	var fs := GeometryInstance3D.SHADOW_CASTING_SETTING_ON if float(tune.fan_shadow) > 0.5 else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for g in _fan_body: if is_instance_valid(g): g.cast_shadow = fs
 	door_light.light_volumetric_fog_energy = float(tune.fog_door)
 	tv_light.light_volumetric_fog_energy = float(tune.fog_tv)
 	tube_light.light_volumetric_fog_energy = float(tune.fog_tube)
@@ -716,6 +745,8 @@ func _process(delta: float) -> void:
 		_shaft_mat.set_shader_parameter("intensity", 0.014 + 0.06 * dark)
 		_shaft_mat.set_shader_parameter("time_s", _time)
 		_shaft_mat.set_shader_parameter("inside", 1.0 if _camera_in_beam() else 0.0)
+	var mfog := float(tune.fog_moon) * lerpf(float(tune.moon_fog_lit), 1.0, dark)
+	if absf(mfog - moon.light_volumetric_fog_energy) > 0.05: moon.light_volumetric_fog_energy = mfog
 	if _motes.visible:
 		_motes_mat.set_shader_parameter("time_s", _time)
 		_motes_mat.set_shader_parameter("intensity", 0.5 + 1.1 * dark)
@@ -735,7 +766,6 @@ func _process(delta: float) -> void:
 		_strip_mat.set_shader_parameter("energy", float(tune.strip_glow) * float(tune.exposure) * (1.0 - e))
 		_strip_mat.set_shader_parameter("occ", _occ)
 		_strip_mat.set_shader_parameter("time_s", _time)
-	for m in _hall_mats: m.emission_energy_multiplier = 7.0
 
 	# ---- TV
 	var tv_on: bool = _tv_on and world.get(&"power") != false
@@ -760,8 +790,11 @@ func _process(delta: float) -> void:
 		if refl != null and is_instance_valid(refl) and refl.has_method("refresh"): refl.call("refresh", 0.3)
 
 ## Push a filament level (0..1+) into the bulb, the bowl, the stand-ins and the readability fill.
-func _apply_level(lv: float) -> void:
+func _apply_level(lv: float, force := false) -> void:
 	var l := maxf(0.0, lv)
+	if not force and absf(l - _lv_applied) < 1e-4 and absf(menu - _menu_applied) < 1e-4: return
+	_lv_applied = l
+	_menu_applied = menu
 	# incandescent dimming: a cooling filament shifts toward 1900 K
 	var col := _c2700.lerp(_c1900, clampf(1.0 - l, 0.0, 1.0) * 0.85)
 	var srgb := col.linear_to_srgb()
@@ -776,6 +809,7 @@ func _apply_level(lv: float) -> void:
 	var lit := clampf(l, 0.0, 1.0)
 	var menu_k := 1.0 + (MENU_FILL - 1.0) * menu
 	fill.light_energy = lerpf(float(tune.fill_off), float(tune.fill_on), lit) * menu_k
+	stair_bounce.light_energy = float(tune.stair_bounce) * minf(l, 1.4) * float(tune.exposure) / EXPOSURE
 	var amb := (FILL_AMBIENT_FLOOR + (1.0 - FILL_AMBIENT_FLOOR) * minf(l, 1.4)) * menu_k
 	if absf(amb - _fill_sent) > 0.01:
 		_fill_sent = amb
