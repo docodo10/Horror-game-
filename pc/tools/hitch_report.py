@@ -11,6 +11,8 @@ for r in rows:
     for k in ("lap", "frame", "draw_calls", "prims", "objects", "c_draw", "c_surface", "c_mesh", "c_spec", "c_canvas", "vmem_mb"):
         r[k] = int(r[k])
     r["ms"] = float(r["ms"])
+    r["shadow_prims"] = int(r.get("shadow_prims") or 0)
+    r["shadow_calls"] = int(r.get("shadow_calls") or 0)
 
 steps = OrderedDict()
 for r in rows:
@@ -29,7 +31,7 @@ for lap in (1, 2):
           f"blocking compiles {sum(r['c_draw'] for r in L)}, background compiles {sum(r['c_surface'] + r['c_mesh'] + r['c_spec'] for r in L)}, "
           f"canvas {sum(r['c_canvas'] for r in L)}")
 
-print(f"\n{'step':30s} lap  n   med    max  x   draw surf spec  prims med -> max        dc med->max   vmem")
+print(f"\n{'step':30s} lap  n   med    max  x   draw surf spec  prims med -> max        dc med->max   vmem  shadow prims med -> max")
 names = OrderedDict((k[0], 1) for k in steps)
 for name in names:
     for lap in (1, 2):
@@ -51,4 +53,5 @@ for name in names:
         if pmed > 0 and max(pr) > 1.6 * pmed and max(pr) - pmed > 150000: flag += " REDRAW"
         if not show_all and not flag and lap == 2: continue
         print(f"{name[:30]:30s} {lap}  {len(S):3d} {med:6.1f} {mx:6.1f} {ratio:3.1f} {cd:5d} {cs:4d} {cp:4d}  "
-              f"{int(pmed):8d} -> {max(pr):8d}  {int(statistics.median(dc)):5d}->{max(dc):5d}  {S[-1]['vmem_mb']:5d}{flag}")
+              f"{int(pmed):8d} -> {max(pr):8d}  {int(statistics.median(dc)):5d}->{max(dc):5d}  {S[-1]['vmem_mb']:5d}  "
+              f"{int(statistics.median([r['shadow_prims'] for r in S])):7d} -> {max(r['shadow_prims'] for r in S):7d}{flag}")

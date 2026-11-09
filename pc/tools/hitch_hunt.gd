@@ -41,13 +41,16 @@ func _frame() -> void:
 	for i in c.size(): d.append(c[i] - _prev[i] if c[i] >= _prev[i] else c[i])
 	_prev = c
 	var pos: Vector3 = P.global_position if P != null else Vector3.ZERO
-	_rows.append("%d,%s,%d,%.2f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%s" % [_lap, _step, _n, ms,
+	var vp := root.get_viewport_rid()
+	var sh_prims := RenderingServer.viewport_get_render_info(vp, RenderingServer.VIEWPORT_RENDER_INFO_TYPE_SHADOW, RenderingServer.VIEWPORT_RENDER_INFO_PRIMITIVES_IN_FRAME)
+	var sh_calls := RenderingServer.viewport_get_render_info(vp, RenderingServer.VIEWPORT_RENDER_INFO_TYPE_SHADOW, RenderingServer.VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME)
+	_rows.append("%d,%s,%d,%.2f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%.2f,%.2f,%s,%d,%d" % [_lap, _step, _n, ms,
 		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
 		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME),
 		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME),
 		d[0], d[1], d[2], d[3], d[4],
 		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576,
-		pos.x, pos.z, float(P.get("yaw")) if P != null else 0.0, String(G.get(&"state"))])
+		pos.x, pos.z, float(P.get("yaw")) if P != null else 0.0, String(G.get(&"state")), sh_prims, sh_calls])
 	_n += 1
 	_poll_hidden()
 	if _n % 60 == 0: _flush()
@@ -95,7 +98,7 @@ func _flush() -> void:
 	var f := FileAccess.open(_out, FileAccess.READ_WRITE if _header_done else FileAccess.WRITE)
 	if f == null: return
 	if not _header_done:
-		f.store_line("lap,step,frame,ms,draw_calls,prims,objects,c_draw,c_surface,c_mesh,c_spec,c_canvas,vmem_mb,x,z,yaw,state")
+		f.store_line("lap,step,frame,ms,draw_calls,prims,objects,c_draw,c_surface,c_mesh,c_spec,c_canvas,vmem_mb,x,z,yaw,state,shadow_prims,shadow_calls")
 		_header_done = true
 	f.seek_end()
 	for r in _rows: f.store_line(r)

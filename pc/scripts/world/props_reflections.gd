@@ -145,7 +145,11 @@ func set_quality(q: String) -> void:
 		var w := int(round(h * (GLASS.maxX - GLASS.minX) / (GLASS.maxY - GLASS.minY)))
 		_vp.size = Vector2i(w, h)
 		_live_mat.set_shader_parameter("texel", Vector2(1.0 / w, 1.0 / h))
-		_vp.msaa_3d = Viewport.MSAA_4X if q == "ultra" else Viewport.MSAA_2X
+		# No MSAA: with the same attachment formats as the main view the mirror pass reuses the main view's pipelines
+		# (a multisampled target needs its own set, compiled the first time each object shows up in the glass). The
+		# aged silvering blurs the reflection anyway; FXAA takes care of the edges.
+		_vp.msaa_3d = Viewport.MSAA_DISABLED
+		_vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
 		_vp.positional_shadow_atlas_size = 2048 if q == "ultra" else 1024
 	else:
 		_set_mirror_live(false)

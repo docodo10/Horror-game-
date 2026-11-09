@@ -63,6 +63,10 @@ func setup(p_world: Node, ctx: Dictionary) -> void:
 		if n == null: continue
 		var b: Array = ac[k].get("base", [0, 0, 0, 1])
 		_ac_hands[k] = {"node": n, "a0": float(ac[k].get("a0", 0.0)), "base": Quaternion(b[0], b[1], b[2], b[3]).normalized()}
+		# the hands tick every second: as shadow casters they made every light around them re-render its shadow map
+		# once a second for a shadow nobody can see (millimetres, behind the glass)
+		for g in [n] + n.find_children("*", "GeometryInstance3D", true, false):
+			if g is GeometryInstance3D: (g as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_update_alarm_clock(0.0, true)
 	# grandfather clock (stopped at 10:10 until the clue digit is set)
 	var gf: Dictionary = anim.get("grandfatherClock", {})
