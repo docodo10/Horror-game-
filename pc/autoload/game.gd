@@ -7,6 +7,7 @@ const NIGHTS_TOTAL := 3
 var state := "loading"
 var night := 1
 var time_played := 0.0
+var mode := "normal"        # normal (with La Gardienne) | explore (no monster) — chosen on the TV menu
 var fear := 0.0              # smoothed 0..1 (from entity.fear)
 
 # Registered by scenes/main.gd once built:
@@ -37,6 +38,10 @@ func set_state(s: String) -> void:
 func start() -> void:
 	if state == "playing": return
 	time_played = 0.0
+	var dbg = get_node_or_null("/root/DebugTools")
+	if dbg and (dbg.get("args") as Dictionary).has("mode"): mode = str(dbg.args["mode"])
+	# "explore": no monster — La Gardienne is switched off for the whole run (puzzles have fallbacks for that)
+	if entity and is_instance_valid(entity) and entity.has_method("set_enabled"): entity.set_enabled(mode != "explore")
 	set_state("playing")
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

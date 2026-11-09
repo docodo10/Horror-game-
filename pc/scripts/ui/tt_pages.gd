@@ -159,9 +159,9 @@ func main(b: TT) -> void:
 	b.bar(2, R, 2)
 	b.text(2, "c", "LA GARDIENNE", Y, true)
 	b.text(4, "c", "CHAPITRE 1 — LE SOUS-SOL", C)
-	b.mosaic_band(5, B, 2.0)
-	var r := 6
-	b.item(r, {"id": "play", "label": "NOUVELLE PARTIE", "right": "101", "on": Callable(ui, "tv_start_game")}); r += 1
+	var r := 5
+	b.item(r, {"id": "play", "label": "JOUER (AVEC LA GARDIENNE)", "right": "101", "on": Callable(ui, "tv_start_game").bind("normal")}); r += 1
+	b.item(r, {"id": "explore", "label": "EXPLORER (SANS MONSTRE)", "right": "102", "on": Callable(ui, "tv_start_game").bind("explore")}); r += 1
 	b.item(r, {"id": "options", "label": "OPTIONS", "right": "200", "on": _goto.bind(b, "options")}); r += 1
 	b.item(r, {"id": "controls", "label": "CONTRÔLES", "right": "300", "on": _goto.bind(b, "controls")}); r += 1
 	b.item(r, {"id": "credits", "label": "CRÉDITS", "right": "400", "on": _goto.bind(b, "credits")}); r += 1

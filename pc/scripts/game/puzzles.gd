@@ -319,7 +319,7 @@ func _objective_text() -> String:
 		"intro": return "Explore le sous-sol."
 		"dark": return "Trouve une lumière."
 		"power":
-			if flags.summoned and not flags.summon_done: return "Cache-toi ! (placard sous l’escalier)"
+			if flags.summoned and not flags.summon_done and Game.mode != "explore": return "Cache-toi ! (placard sous l’escalier)"
 			return "Rétablis le courant (panneau électrique, buanderie)."
 		"code":
 			if flags.box_open: return "Prends la clé dans le coffret."
@@ -852,6 +852,9 @@ func _flip_breaker() -> void:
 
 func _breaker_lines() -> void:
 	await _wait(0.9)
+	if Game.mode == "explore":   # no monster: nobody comes down to check the breaker
+		_set_objective(_objective_text())
+		return
 	_ui("alert", [_fr("CACHE-TOI !"), 2.5])
 	_set_objective(_objective_text())
 	await _wait(2.0)

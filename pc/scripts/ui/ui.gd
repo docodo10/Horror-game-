@@ -668,9 +668,10 @@ func _tv_deactivate() -> void:
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
 ## "Nouvelle partie": static burst + CRT power-off collapse, fade to black, then Events.ui_start.
-func tv_start_game() -> void:
+func tv_start_game(mode := "normal") -> void:
 	if not tv.trans.is_empty():
 		return
+	Game.mode = mode
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 	tv.power_off(_on_power_off_start)
 
