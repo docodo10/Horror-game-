@@ -26,6 +26,9 @@ class Bin:
 
 var bins := {}             # material id -> Bin
 var tri_count := 0
+## > 0: every closed box() of this kit becomes a smooth-shaded chamfered box with this radius (furniture, trims:
+## the 5-10 mm micro-bevels that catch a highlight on every edge).
+var chamfer := 0.0
 
 func bin(id: String) -> Bin:
 	var b: Bin = bins.get(id)
@@ -80,6 +83,11 @@ func tri(mat: String, a: Vector3, b: Vector3, c: Vector3, nrm: Vector3, ua: Vect
 ## Box mn..mx in the local frame `xf` (rotation + translation only). World-planar UVs from the local coordinates
 ## (walls: u horizontal, v downward), so adjacent boxes tile seamlessly. `faces` = bit mask of FACE_*.
 func box(mat: String, mn: Vector3, mx: Vector3, col := Color.WHITE, uvs := 1.0, faces := ALL, xf := Transform3D.IDENTITY, uv_off := Vector2.ZERO) -> void:
+	if chamfer > 0.0 and faces == ALL and uv_off == Vector2.ZERO:
+		var lo := mn.min(mx)
+		var hi := mn.max(mx)
+		rbox(mat, lo, hi, chamfer, 1, col, uvs, xf, faces)
+		return
 	var B := xf.basis
 	var o := xf.origin
 	var p000 := xf * Vector3(mn.x, mn.y, mn.z)
@@ -114,6 +122,130 @@ func box(mat: String, mn: Vector3, mx: Vector3, col := Color.WHITE, uvs := 1.0, 
 func cbox(mat: String, center: Vector3, size: Vector3, col := Color.WHITE, uvs := 1.0, yaw := 0.0, faces := ALL) -> void:
 	var xf := Transform3D(Basis(Vector3.UP, yaw), center)
 	box(mat, -size * 0.5, size * 0.5, col, uvs, faces, xf)
+
+## Rounded box mn..mx in the frame `xf` ("Nanite" bevels): every edge rounded with radius r, `segs` steps per 45° of
+## arc (1 = a smooth-shaded chamfer for trims / furniture, 2-3 = foam blocks and pads). Exact smooth normals
+## (inner box + r * direction), world-planar UVs like box() (computed on the unrounded box, so neighbours line up).
+## `faces` skips whole faces (their rounded edges stop at the 45° seam shared with the neighbour face).
+func rbox(mat: String, mn: Vector3, mx: Vector3, r: float, segs := 2, col := Color.WHITE, uvs := 1.0, xf := Transform3D.IDENTITY, faces := ALL) -> void:
+	var h := (mx - mn) * 0.5
+	var c := (mx + mn) * 0.5
+	r = clampf(r, 0.0, minf(h.x, minf(h.y, h.z)) * 0.98)
+	if r < 1e-4:
+		box(mat, mn, mx, col, uvs, faces, xf)
+		return
+	var hi := h - Vector3(r, r, r)
+	var B := xf.basis
+	var bn := bin(mat)
+	# per face: [axis, sign, u axis, v axis, face bit]
+	for f in [[0, 1.0, 2, 1, FACE_PX], [0, -1.0, 2, 1, FACE_NX], [1, 1.0, 0, 2, FACE_PY], [1, -1.0, 0, 2, FACE_NY], [2, 1.0, 0, 1, FACE_PZ], [2, -1.0, 0, 1, FACE_NZ]]:
+		if not (faces & int(f[4])):
+			continue
+		var ax: int = f[0]
+		var sg: float = f[1]
+		var ua: int = f[2]
+		var va: int = f[3]
+		var su := _rb_samples(h[ua], hi[ua], r, segs)
+		var sv := _rb_samples(h[va], hi[va], r, segs)
+		var nu := su.size()
+		var nv := sv.size()
+		var base := bn.v.size()
+		for j in nv:
+			for i in nu:
+				var q := Vector3.ZERO
+				q[ax] = sg * h[ax]
+				q[ua] = su[i]
+				q[va] = sv[j]
+				var inner := q.clamp(-hi, hi)
+				var d := q - inner
+				var n := d.normalized() if d.length_squared() > 1e-12 else Vector3.ZERO
+				if n == Vector3.ZERO:
+					n[ax] = sg
+				var p := c + inner + n * r
+				bn.v.append(xf * p)
+				bn.n.append((B * n).normalized())
+				var lq := c + q
+				var uv: Vector2
+				match ax:
+					0: uv = Vector2(-lq.z * sg, -lq.y)
+					1: uv = Vector2(lq.x, lq.z * sg)
+					_: uv = Vector2(lq.x * sg, -lq.y)
+				bn.uv.append(uv * uvs)
+				bn.c.append(col)
+		# winding from the first non-degenerate quad vs its normal
+		var flip := false
+		var fn := Vector3.ZERO
+		fn[ax] = sg
+		var a := bn.v[base + (nv / 2) * nu + nu / 2]
+		var b := bn.v[base + (nv / 2) * nu + nu / 2 + 1]
+		var cc := bn.v[base + (nv / 2 + 1) * nu + nu / 2]
+		if (b - a).cross(cc - a).dot(B * fn) > 0.0:
+			flip = true
+		for j in nv - 1:
+			for i in nu - 1:
+				var i0 := base + j * nu + i
+				var i1 := i0 + 1
+				var i2 := i0 + nu
+				var i3 := i2 + 1
+				if flip:
+					bn.idx.append(i0); bn.idx.append(i2); bn.idx.append(i1)
+					bn.idx.append(i1); bn.idx.append(i2); bn.idx.append(i3)
+				else:
+					bn.idx.append(i0); bn.idx.append(i1); bn.idx.append(i2)
+					bn.idx.append(i1); bn.idx.append(i3); bn.idx.append(i2)
+		tri_count += (nu - 1) * (nv - 1) * 2
+
+## Sample positions across one face axis of a rounded box: the arc (tan-spaced so the angles are even) on each side
+## of the flat part.
+static func _rb_samples(h: float, hi: float, r: float, segs: int) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	for k in range(segs, -1, -1):
+		out.append(-(hi + r * tan(PI * 0.25 * float(k) / float(segs))))
+	for k in range(0, segs + 1):
+		out.append(hi + r * tan(PI * 0.25 * float(k) / float(segs)))
+	return out
+
+## Seam piping of a soft block (rbox with radius r): a thin cord (radius pr) along the 12 rounded edges, at the 45°
+## line of each edge, between the inner corners (+ a little overlap).
+func piping(mat: String, mn: Vector3, mx: Vector3, r: float, pr: float, col := Color.WHITE, xf := Transform3D.IDENTITY, sides := 6) -> void:
+	var h := (mx - mn) * 0.5
+	var c := (mx + mn) * 0.5
+	r = clampf(r, 0.0, minf(h.x, minf(h.y, h.z)) * 0.98)
+	var hi := h - Vector3(r, r, r)
+	var k := r * 0.7071 + pr * 0.35
+	for ax in 3:
+		var o1 := (ax + 1) % 3
+		var o2 := (ax + 2) % 3
+		for s1: float in [-1.0, 1.0]:
+			for s2: float in [-1.0, 1.0]:
+				var p := c
+				p[o1] += s1 * (hi[o1] + k)
+				p[o2] += s2 * (hi[o2] + k)
+				var a := p
+				var b := p
+				a[ax] -= hi[ax] + r * 0.35
+				b[ax] += hi[ax] + r * 0.35
+				var up := Vector3.ZERO
+				up[o1] = 1.0
+				tube(mat, PackedVector3Array([xf * a, xf * b]), pr, sides, col, 1.0, false, Callable(), xf.basis * up)
+
+## Fold displacement of a padded vinyl wrap (metres, signed): two bands of irregular spiral folds (≈11 cm wavelength,
+## ±12 mm and ≈5 cm, ±6 mm — the measured Subliminal folds), sharpened into creases (vinyl buckles into ridges with
+## soft rounded bulges). ang = angle around the wrap, s = metres along it, k scales the amplitude (thin posts / rails),
+## ph = per-wrap phase. Integer frequencies around keep the wrap seamless.
+## small: weight of the 5 cm band (0 on thin posts / rails whose rings are too far apart to carry it: it would alias
+## into per-vertex normal noise).
+static func fold(ang: float, s: float, k: float, ph: float, small_k := 1.0) -> float:
+	# near-horizontal compression rings (m = 1) + spiral folds (m = 3..5), their amplitude wandering along / around the
+	# wrap (λ ≈ 48 cm) so the pattern never reads as a regular screw thread
+	var big := 0.38 * sin(ang + s * 52.0 + ph * 2.1) + 0.36 * sin(3.0 * ang + s * 57.1 + ph) + 0.22 * sin(-4.0 * ang + s * 66.0 + ph * 1.7) \
+		+ 0.18 * sin(5.0 * ang + s * 47.6 - ph * 0.6)
+	big *= 0.5 + 0.5 * absf(sin(2.0 * ang + s * 13.1 + ph * 3.0) + 0.6 * sin(s * 7.3 - ang + ph))
+	big = big - 0.4 * absf(big)             # creases: sharper valleys, rounded bulges
+	if small_k <= 0.0:
+		return 0.012 * big * k
+	var small := 0.5 * sin(9.0 * ang + s * 125.7 + ph * 2.3) + 0.35 * sin(-11.0 * ang + s * 114.2 - ph * 1.1) + 0.25 * sin(7.0 * ang - s * 139.6 + ph * 0.4)
+	return (0.012 * big + 0.006 * small * small_k) * k
 
 ## Wall slab between two xz points (thickness t, from y0 to y1), with rectangular openings
 ## [[s0, s1, y0, y1], ...] given as distances along the wall from `a`. UVs continue across the pieces.
@@ -356,7 +488,9 @@ func _reorient_last(mat: String, ntri: int, center: Vector3) -> void:
 
 # ---------------------------------------------------------------- commit
 
-static func build_mesh(b: Bin, tangents := true) -> ArrayMesh:
+## Mesh of one bin. lods: automatic LOD chain (meshoptimizer through ImporterMesh, also used by the shadow passes):
+## the dense fold-displaced vinyl wraps drop to a fraction of their triangles a few metres away.
+static func build_mesh(b: Bin, tangents := true, lods := false) -> ArrayMesh:
 	var arr := []
 	arr.resize(Mesh.ARRAY_MAX)
 	arr[Mesh.ARRAY_VERTEX] = b.v
@@ -364,21 +498,68 @@ static func build_mesh(b: Bin, tangents := true) -> ArrayMesh:
 	arr[Mesh.ARRAY_TEX_UV] = b.uv
 	arr[Mesh.ARRAY_COLOR] = b.c
 	arr[Mesh.ARRAY_INDEX] = b.idx
+	var m: ArrayMesh
 	if tangents:
 		var st := SurfaceTool.new()
 		st.create_from_arrays(arr)
 		st.generate_tangents()
-		return st.commit()
-	var m := ArrayMesh.new()
-	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+		m = st.commit()
+	else:
+		m = ArrayMesh.new()
+		m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	if lods and b.idx.size() >= 3 * 600:
+		var im := ImporterMesh.new()
+		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, m.surface_get_arrays(0))
+		im.generate_lods(25.0, 60.0, [])
+		m = im.get_mesh()
 	return m
 
+## Splits a bin into spatial chunks (triangle centroids on an xz grid of `cell` metres): smaller meshes cull and pick
+## their LOD independently. Returns Array[Bin] (the bin itself when it fits in one cell).
+static func split_bin(b: Bin, cell: float) -> Array:
+	var tri_n := b.idx.size() / 3
+	var keys := {}
+	var tri_key := PackedInt32Array()
+	tri_key.resize(tri_n)
+	for t in tri_n:
+		var c := (b.v[b.idx[t * 3]] + b.v[b.idx[t * 3 + 1]] + b.v[b.idx[t * 3 + 2]]) / 3.0
+		var k := Vector2i(int(floor(c.x / cell)), int(floor(c.z / cell)))
+		if not keys.has(k):
+			keys[k] = keys.size()
+		tri_key[t] = int(keys[k])
+	if keys.size() <= 1:
+		return [b]
+	var out: Array = []
+	var remap := PackedInt32Array()
+	remap.resize(b.v.size())
+	for ci in keys.size():
+		var nb := Bin.new()
+		remap.fill(-1)
+		for t in tri_n:
+			if tri_key[t] != ci:
+				continue
+			for e in 3:
+				var vi := b.idx[t * 3 + e]
+				if remap[vi] < 0:
+					remap[vi] = nb.v.size()
+					nb.v.append(b.v[vi])
+					nb.n.append(b.n[vi])
+					nb.uv.append(b.uv[vi])
+					nb.c.append(b.c[vi])
+				nb.idx.append(remap[vi])
+		out.append(nb)
+	return out
+
 ## One MeshInstance3D per non-empty bin, named "<prefix>_<material>". mats: id -> Material.
-## opts: {no_shadow: [ids], shadow_only: [ids], vis_end: float (visibility range end, 0 = off), gi_off: [ids]}
+## opts: {no_shadow: [ids], shadow_only: [ids], vis_end: float (visibility range end, 0 = off), gi_off: [ids],
+##        lods: [ids] (automatic LOD chain), chunk: float (split those LOD'd bins into xz cells of that size, metres)}
 func commit(parent: Node3D, mats: Dictionary, prefix: String, opts := {}) -> Array[MeshInstance3D]:
 	var out: Array[MeshInstance3D] = []
 	var no_shadow: Array = opts.get("no_shadow", [])
+	var shadow_only: Array = opts.get("shadow_only", [])
 	var gi_off: Array = opts.get("gi_off", [])
+	var lod_ids: Array = opts.get("lods", [])
+	var chunk := float(opts.get("chunk", 0.0))
 	var vis_end := float(opts.get("vis_end", 0.0))
 	var keys := bins.keys()
 	keys.sort()
@@ -386,22 +567,27 @@ func commit(parent: Node3D, mats: Dictionary, prefix: String, opts := {}) -> Arr
 		var b: Bin = bins[id]
 		if b.idx.is_empty():
 			continue
-		var mesh := build_mesh(b, not (id in opts.get("no_tangents", [])))
-		if mats.has(id):
-			mesh.surface_set_material(0, mats[id])
-		var mi := MeshInstance3D.new()
-		mi.name = "%s_%s" % [prefix, id]
-		mi.mesh = mesh
-		if id in no_shadow:
-			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		if id in gi_off:
-			mi.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
-		if vis_end > 0.0:
-			mi.visibility_range_end = vis_end
-			mi.visibility_range_end_margin = 2.0
-			mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
-		parent.add_child(mi)
-		out.append(mi)
+		var lod: bool = id in lod_ids
+		var parts: Array = split_bin(b, chunk) if lod and chunk > 0.0 else [b]
+		for pi in parts.size():
+			var mesh := build_mesh(parts[pi], not (id in opts.get("no_tangents", [])), lod)
+			if mats.has(id):
+				mesh.surface_set_material(0, mats[id])
+			var mi := MeshInstance3D.new()
+			mi.name = "%s_%s" % [prefix, id] if parts.size() == 1 else "%s_%s_%d" % [prefix, id, pi]
+			mi.mesh = mesh
+			if id in no_shadow:
+				mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			elif id in shadow_only:
+				mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+			if id in gi_off:
+				mi.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+			if vis_end > 0.0:
+				mi.visibility_range_end = vis_end
+				mi.visibility_range_end_margin = 2.0
+				mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+			parent.add_child(mi)
+			out.append(mi)
 	return out
 
 # ---------------------------------------------------------------- colliders

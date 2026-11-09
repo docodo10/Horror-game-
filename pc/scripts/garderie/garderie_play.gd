@@ -8,14 +8,18 @@ const GL := preload("res://scripts/garderie/garderie_layout.gd")
 const Kit := preload("res://scripts/garderie/garderie_kit.gd")
 const Shell := preload("res://scripts/garderie/garderie_shell.gd")
 
-const FRAME_BLUE := Color(0.13, 0.3, 0.62)
-const FRAME_RED := Color(0.78, 0.16, 0.13)
-const FRAME_YELLOW := Color(0.94, 0.72, 0.13)
-const PAD_COLS := [Color(0.16, 0.36, 0.7), Color(0.8, 0.2, 0.15)]
-const LANE_COLS := [Color(0.86, 0.15, 0.12), Color(0.96, 0.74, 0.1), Color(0.12, 0.42, 0.82), Color(0.15, 0.62, 0.28)]
-const BALL_COLS := [Color(0.86, 0.12, 0.1), Color(0.97, 0.78, 0.08), Color(0.1, 0.38, 0.85), Color(0.12, 0.62, 0.25),
-	Color(0.95, 0.45, 0.08), Color(0.55, 0.22, 0.68)]
+## Deep saturated primaries (sRGB), measured on the reference: red (0.60, 0.07, 0.05), blue (0.08, 0.20, 0.52),
+## yellow (0.80, 0.58, 0.10).
+const FRAME_BLUE := Color(0.08, 0.2, 0.52)
+const FRAME_RED := Color(0.6, 0.07, 0.05)
+const FRAME_YELLOW := Color(0.8, 0.58, 0.1)
+const PAD_COLS := [Color(0.09, 0.21, 0.54), Color(0.6, 0.08, 0.05)]
+const LANE_COLS := [Color(0.62, 0.08, 0.05), Color(0.82, 0.58, 0.08), Color(0.07, 0.22, 0.58), Color(0.07, 0.42, 0.14)]
+const BALL_COLS := [Color(0.72, 0.08, 0.06), Color(0.86, 0.64, 0.06), Color(0.06, 0.22, 0.62), Color(0.07, 0.45, 0.15),
+	Color(0.85, 0.34, 0.05), Color(0.38, 0.12, 0.5)]
 const POST_R := 0.072
+const LAYER_BALLS := 32                # physics layer 6: ball-pit balls + their bed (garderie_physics.gd)
+const ZIP_STEP := 0.42
 const CARGO_Z0 := -0.35
 const CARGO_Z1 := 0.55
 
@@ -91,7 +95,7 @@ static func _frame(c) -> void:
 		var z0: float = d[2]
 		var z1: float = d[3]
 		var y: float = d[4]
-		k.box("steel", Vector3(x0, y - GL.DECK_T, z0), Vector3(x1, y - 0.05, z1), FRAME_BLUE, 1.0, Kit.ALL)
+		k.rbox("steel", Vector3(x0, y - GL.DECK_T, z0), Vector3(x1, y - 0.05, z1), 0.008, 1, FRAME_BLUE)
 		cl.box(Vector3(x0, y - GL.DECK_T, z0), Vector3(x1, y, z1))
 		var nx := maxi(1, int(round((x1 - x0) / 1.2)))
 		var nz := maxi(1, int(round((z1 - z0) / 1.1)))
@@ -101,7 +105,7 @@ static func _frame(c) -> void:
 				var bx := x0 + (x1 - x0) * float(i + 1) / nx - 0.008
 				var az := z0 + (z1 - z0) * float(j) / nz + 0.008
 				var bz := z0 + (z1 - z0) * float(j + 1) / nz - 0.008
-				k.box("vinyl_flat", Vector3(ax, y - 0.05, az), Vector3(bx, y, bz), PAD_COLS[(i + j) % 2], 1.0, Kit.FACE_PY | Kit.FACE_PX | Kit.FACE_NX | Kit.FACE_PZ | Kit.FACE_NZ)
+				k.rbox("vinyl_flat", Vector3(ax, y - 0.06, az), Vector3(bx, y, bz), 0.024, 2, PAD_COLS[(i + j) % 2], 1.0, Transform3D.IDENTITY, Kit.ALL & ~Kit.FACE_NY)
 	# posts along the outline + inner railings
 	var posts := {}
 	for seg in OUTLINE:
@@ -145,20 +149,23 @@ static func _frame(c) -> void:
 	var Ls := Vector2(cx1 - cx0, GL.L1 - F).length()
 	kn.quad("net", na, nb, nc, nd, slope_n, Vector2(0, 0), Vector2(CARGO_Z1 - CARGO_Z0, 0), Vector2(CARGO_Z1 - CARGO_Z0, Ls), Vector2(0, Ls))
 	for zz in [CARGO_Z0, CARGO_Z1]:
-		k.tube("vinyl", PackedVector3Array([Vector3(cx1, F + 0.05, zz), Vector3(cx0, GL.L1 + 0.05, zz)]), 0.05, 10, FRAME_YELLOW)
-	k.tube("vinyl", PackedVector3Array([Vector3(cx1, F + 0.05, CARGO_Z0), Vector3(cx1, F + 0.05, CARGO_Z1)]), 0.05, 10, FRAME_RED)
+		wrap_rail(c, Vector3(cx1, F + 0.05, zz), Vector3(cx0, GL.L1 + 0.05, zz), 0.05, FRAME_YELLOW)
+	wrap_rail(c, Vector3(cx1, F + 0.05, CARGO_Z0), Vector3(cx1, F + 0.05, CARGO_Z1), 0.05, FRAME_RED)
 	c.col_see("play").convex(PackedVector3Array([na, nb, nc, nd, Vector3(cx0, F, CARGO_Z0), Vector3(cx0, F, CARGO_Z1)]))
 	# a few punching bags hanging under the upper decks (soft obstacles), roof canopy over the slide start
 	for pb in [Vector3(-29.4, GL.L2 - GL.DECK_T, 0.2), Vector3(-33.2, GL.L2 - GL.DECK_T, -3.4), Vector3(-33.0, GL.L3 - GL.DECK_T, 0.8)]:
 		var pts := PackedVector3Array()
-		for i in 9:
-			pts.append(Vector3(pb.x, pb.y - 0.25 - 0.95 * float(i) / 8.0, pb.z))
-		k.tube("vinyl", pts, 0.16, 16, FRAME_RED, 1.0, true, func(i: int, _a: float) -> float: return 0.85 + 0.15 * sin(PI * float(i) / 8.0))
+		for i in 33:
+			pts.append(Vector3(pb.x, pb.y - 0.25 - 0.95 * float(i) / 32.0, pb.z))
+		var bph := fmod(absf(pb.x * 1.3 + pb.z), TAU)
+		c.kit("play_wraps").tube("vinyl", pts, 0.16, 32, FRAME_RED, 1.0, true, func(i: int, a: float) -> float:
+			var t := float(i) / 32.0
+			return 0.85 + 0.15 * sin(PI * t) + Kit.fold(a, t * 0.95, 0.8, bph, 0.0) / 0.16 * sin(PI * t))
 		ks.box("metal", Vector3(pb.x - 0.008, pb.y - 0.26, pb.z - 0.008), Vector3(pb.x + 0.008, pb.y, pb.z + 0.008), Color(0.4, 0.4, 0.4))
 	var W: Dictionary = GL.WAVE
 	var cz0: float = W.z0
 	var cz1: float = W.z1
-	k.tube("vinyl", PackedVector3Array([Vector3(-31.0, GL.L3 + 1.9, cz0), Vector3(-31.0, GL.L3 + 1.9, cz1)]), 0.045, 12, FRAME_RED)
+	wrap_rail(c, Vector3(-31.0, GL.L3 + 1.9, cz0), Vector3(-31.0, GL.L3 + 1.9, cz1), 0.045, FRAME_RED)
 
 static func _post_points(a: Vector2, b: Vector2, step: float, out: Dictionary) -> void:
 	var L := a.distance_to(b)
@@ -168,22 +175,52 @@ static func _post_points(a: Vector2, b: Vector2, step: float, out: Dictionary) -
 		var key := Vector2i(int(round(p.x * 20.0)), int(round(p.y * 20.0)))
 		out[key] = p
 
-## Padded vertical post: vinyl wrap with soft wobble, black zip ties, foam cap.
+## Kit of the frame's folded vinyl wraps near p: one region per 4 m cell (each culls on its own), no shadow casting —
+## a plain low-poly proxy casts their shadow instead (shadow passes never draw the fold geometry).
+static func fold_kit(c, p: Vector3):
+	return c.kit("pfold_%d_%d" % [int(floor(p.x / 4.0)) + 20, int(floor(p.z / 4.0)) + 5])
+
+static func shadow_proxy(c, a: Vector3, b: Vector3, r: float) -> void:
+	c.kit("play_shadow").tube("vinyl", PackedVector3Array([a, b]), r * 0.96, 8, Color.WHITE)
+
+## Padded vertical post: vinyl wrap with real folds (Kit.fold, scaled to the 7 cm post), cinched under black zip ties
+## every 42 cm, foam cap. 16 sides, a ring every 5 cm.
 static func _padded_post(c, k, ks, base: Vector3, ytop: float, col: Color) -> void:
+	var kw = fold_kit(c, base)
+	shadow_proxy(c, base, Vector3(base.x, ytop, base.z), POST_R)
 	var pts := PackedVector3Array()
 	var h := ytop - base.y
-	var rows := maxi(4, int(h / 0.18))
+	var rows := maxi(6, int(ceil(h / 0.05)))
 	for i in rows + 1:
 		pts.append(base + Vector3(0, h * float(i) / float(rows), 0))
 	var ph := fmod(absf(base.x * 3.7 + base.z * 1.3), TAU)
-	k.tube("vinyl", pts, POST_R, 12, col, 1.0, false, func(i: int, ang: float) -> float:
-		var t := float(i) / float(rows)
-		return 1.0 + 0.06 * sin(ang * 2.0 + ph + t * 9.0) * sin(t * 31.0 + ph) + 0.03 * sin(ang * 5.0 - ph))
-	k.sphere("vinyl", base + Vector3(0, h, 0), POST_R * 1.05, 10, 6, col, Vector3(1.0, 0.6, 1.0))
+	kw.tube("vinyl", pts, POST_R, 16, col, 1.0, false, func(i: int, ang: float) -> float:
+		var s := h * float(i) / float(rows)
+		var dz := fposmod(s - 0.35 + ZIP_STEP * 0.5, ZIP_STEP) - ZIP_STEP * 0.5    # distance to the nearest tie
+		var cinch := 0.1 * exp(-dz * dz / 0.0004) if s > 0.3 and s < h - 0.15 else 0.0
+		return 1.0 - cinch + Kit.fold(ang, s * 0.6, 0.6, ph, 0.0) / POST_R * (1.0 - cinch * 6.0))
+	kw.sphere("vinyl", base + Vector3(0, h, 0), POST_R * 1.05, 14, 8, col, Vector3(1.0, 0.6, 1.0))
 	var y := base.y + 0.35
 	while y < ytop - 0.15:
-		ks.tube("rubber", PackedVector3Array([Vector3(base.x, y, base.z), Vector3(base.x, y + 0.012, base.z)]), POST_R * 1.07, 12, Color(0.05, 0.05, 0.06), 1.0)
-		y += 0.42
+		ks.tube("rubber", PackedVector3Array([Vector3(base.x, y - 0.005, base.z), Vector3(base.x, y + 0.005, base.z)]), POST_R * 0.93, 14, Color(0.03, 0.03, 0.035), 1.0)
+		# the tie's locking head
+		ks.box("rubber", Vector3(base.x + POST_R * 0.88, y - 0.008, base.z - 0.006), Vector3(base.x + POST_R * 0.88 + 0.012, y + 0.008, base.z + 0.006), Color(0.03, 0.03, 0.035))
+		y += ZIP_STEP
+
+## Horizontal padded rail between a and b (radius r): folded vinyl wrap + its shadow proxy. k = fold amount.
+static func wrap_rail(c, a: Vector3, b: Vector3, r: float, col: Color, k := 0.45, sides := 12) -> void:
+	var kw = fold_kit(c, (a + b) * 0.5)
+	var L := a.distance_to(b)
+	if L < 0.01:
+		return
+	shadow_proxy(c, a, b, r)
+	var rows := maxi(2, int(ceil(L / 0.06)))
+	var pts := PackedVector3Array()
+	for i in rows + 1:
+		pts.append(a.lerp(b, float(i) / float(rows)))
+	var ph := fmod(absf(a.x * 2.3 + a.z * 1.7 + a.y * 0.9), TAU)
+	kw.tube("vinyl", pts, r, sides, col, 1.0, false, func(i: int, ang: float) -> float:
+		return 1.0 + Kit.fold(ang, L * float(i) / float(rows) * 0.55, k, ph, 0.0) / r)
 
 static func _net_panel(kn, a: Vector3, b: Vector3) -> void:
 	## vertical net rectangle between the vertical edges at a (bottom) and b (top) — a.y bottom, b.y top
@@ -196,7 +233,30 @@ static func _net_panel(kn, a: Vector3, b: Vector3) -> void:
 	if L < 0.05:
 		return
 	var nrm := Vector3(-d.z, 0, d.x).normalized()
-	kn.quad("net", p0, p1, p2, p3, nrm, Vector2(0, -a.y), Vector2(L, -a.y), Vector2(L, -b.y), Vector2(0, -b.y))
+	var H := b.y - a.y
+	if L < 0.25 or H < 0.25:
+		kn.quad("net", p0, p1, p2, p3, nrm, Vector2(0, -a.y), Vector2(L, -a.y), Vector2(L, -b.y), Vector2(0, -b.y))
+		return
+	# subdivided panel that sags between its posts: 2-4 cm bow (catenary-like) + a little gravity droop, uneven
+	var nu := maxi(2, int(ceil(L / 0.3)))
+	var nv := maxi(2, int(ceil(H / 0.3)))
+	var amp := clampf(0.012 * L, 0.02, 0.04)
+	var ph := fmod(absf(a.x * 1.9 + a.z * 2.7 + a.y), TAU)
+	var P := PackedVector3Array()
+	var U := PackedVector2Array()
+	P.resize((nu + 1) * (nv + 1))
+	U.resize((nu + 1) * (nv + 1))
+	for j in nv + 1:
+		var v := float(j) / float(nv)
+		for i in nu + 1:
+			var u := float(i) / float(nu)
+			var s := sin(PI * u) * sin(PI * v)
+			var wob := 0.75 + 0.25 * sin(u * 7.0 + v * 5.0 + ph)
+			var p := p0.lerp(p1, u) + Vector3(0, H * v, 0)
+			p += nrm * (amp * s * wob) + Vector3(0, -amp * 0.5 * s, 0)
+			P[j * (nu + 1) + i] = p
+			U[j * (nu + 1) + i] = Vector2(L * u, -(a.y + H * v))
+	kn.grid("net", P, nv + 1, nu + 1, U)
 
 ## Outer wall of the frame along a->b: kick panels from the floor to deck L1, nets from L1 to the local top,
 ## horizontal padded rails at each level, openings where the tube / flights / slides connect.
@@ -229,7 +289,7 @@ static func _net_wall(c, kn, k, a: Vector2, b: Vector2, posts: Dictionary) -> vo
 			else:
 				mn.x -= 0.03
 				mx.x += 0.03
-			k.box("vinyl_flat", mn, mx, FRAME_BLUE.darkened(0.25))
+			k.rbox("vinyl_flat", mn, mx, 0.028, 2, FRAME_BLUE.darkened(0.2))
 			cl.box(mn, mx)
 		# net in vertical bands, skipping openings (sampled every 0.3 m and 0.25 m up)
 		var levels := [GL.L1, GL.L2, GL.L3]
@@ -263,11 +323,11 @@ static func _net_wall(c, kn, k, a: Vector2, b: Vector2, posts: Dictionary) -> vo
 		# horizontal padded rails at deck levels within this segment and at its top
 		for lv in levels:
 			if float(lv) <= ytop - 0.3 and not _opening(pm, float(lv) + 0.1):
-				k.tube("vinyl", PackedVector3Array([Vector3(pa.x, float(lv), pa.y), Vector3(pb.x, float(lv), pb.y)]), 0.05, 10, FRAME_RED)
+				wrap_rail(c, Vector3(pa.x, float(lv), pa.y), Vector3(pb.x, float(lv), pb.y), 0.05, FRAME_RED)
 		for run in _runs(pa, pb, ytop - 0.3):
 			var ra: Vector2 = run[0]
 			var rb: Vector2 = run[1]
-			k.tube("vinyl", PackedVector3Array([Vector3(ra.x, ytop - 0.06, ra.y), Vector3(rb.x, ytop - 0.06, rb.y)]), 0.055, 10, FRAME_YELLOW)
+			wrap_rail(c, Vector3(ra.x, ytop - 0.06, ra.y), Vector3(rb.x, ytop - 0.06, rb.y), 0.055, FRAME_YELLOW)
 	posts = posts
 
 ## Pieces of the segment a->b that are not inside an opening at height y (24 samples).
@@ -317,8 +377,8 @@ static func _rail_net(c, kn, k, a: Vector2, b: Vector2, deck_y: float, posts: Di
 		var pb: Vector2 = pc[1]
 		_net_panel(kn, Vector3(pa.x, deck_y, pa.y), Vector3(pb.x, top, pb.y))
 		_col_strip(cl, pa, pb, deck_y, top)
-		k.tube("vinyl", PackedVector3Array([Vector3(pa.x, top - 0.06, pa.y), Vector3(pb.x, top - 0.06, pb.y)]), 0.055, 10, FRAME_YELLOW)
-	k.tube("vinyl", PackedVector3Array([Vector3(a.x, deck_y, a.y), Vector3(b.x, deck_y, b.y)]), 0.05, 10, FRAME_RED)
+		wrap_rail(c, Vector3(pa.x, top - 0.06, pa.y), Vector3(pb.x, top - 0.06, pb.y), 0.055, FRAME_YELLOW)
+	wrap_rail(c, Vector3(a.x, deck_y, a.y), Vector3(b.x, deck_y, b.y), 0.05, FRAME_RED)
 	posts = posts
 
 ## Padded steps between two levels + invisible ramp collider through the nosings.
@@ -336,12 +396,12 @@ static func _flight(c, k, f: Array) -> void:
 		var xb := lerpf(x_low, x_high, float(i + 1) / float(n))
 		var mn := Vector3(minf(xa, xb), y_low, z0 + 0.02)
 		var mx := Vector3(maxf(xa, xb), y_low + rise * i, z1 - 0.02)
-		k.box("vinyl", mn, mx, PAD_COLS[i % 2] if y_low > GL.HALL else [FRAME_YELLOW, FRAME_RED][i % 2])
+		k.rbox("vinyl", mn, mx, 0.03, 2, PAD_COLS[i % 2] if y_low > GL.HALL else [FRAME_YELLOW, FRAME_RED][i % 2])
 	c.col("play").ramp_x(x_low, x_high, y_low, y_high, z0, z1)
 	if y_low <= GL.HALL + 0.01:
 		# hall floor -> L1: padded side walls
 		for zz in [z0 - 0.06, z1]:
-			k.box("vinyl", Vector3(minf(x_low, x_high), y_low, zz), Vector3(maxf(x_low, x_high), y_high + 0.45, zz + 0.06), FRAME_BLUE)
+			k.rbox("vinyl", Vector3(minf(x_low, x_high), y_low, zz), Vector3(maxf(x_low, x_high), y_high + 0.45, zz + 0.06), 0.025, 2, FRAME_BLUE)
 			c.col("play").box(Vector3(minf(x_low, x_high), y_low, zz), Vector3(maxf(x_low, x_high), y_high + 0.9, zz + 0.06))
 
 # ====================================================================== crawl tube (hide spot)
@@ -366,7 +426,7 @@ static func _tube(c) -> void:
 		var up := maxf(0.0, cos(ang))                       # frames: ang 0 = up -> the floor never dips
 		var rr := 1.0 + (bell / r - 1.0) * f * f * (0.3 + 0.7 * up)
 		return rr * (1.0 if inner else (r + 0.045) / r)
-	var yellow := Color(0.96, 0.7, 0.08)
+	var yellow := Color(0.82, 0.58, 0.06)
 	k.tube("plastic", pts, r, 30, yellow, 1.0, false, func(i: int, ang: float) -> float: return flare.call(i, ang, false))
 	kin.tube("plastic", pts, r, 30, yellow * 0.88, 1.0, false, func(i: int, ang: float) -> float: return flare.call(i, ang, true))
 	_flip_last(kin, "plastic", rows, 30)
@@ -376,13 +436,13 @@ static func _tube(c) -> void:
 		var a := TAU * float(i) / 32.0
 		var rr: float = r * flare.call(0, a, true) + 0.022
 		rim.append(Vector3(mx - 0.01, cy + cos(a) * rr, z + sin(a) * rr))
-	k.tube("plastic", rim, 0.03, 8, Color(0.9, 0.2, 0.12))
-	k.disc("vinyl_up", Vector3(ex - 0.01, cy, z), Vector3.LEFT, Vector3.UP, r + 0.01, 28, Color(0.8, 0.2, 0.15))
+	k.tube("plastic", rim, 0.03, 8, Color(0.62, 0.08, 0.05))
+	k.disc("vinyl_up", Vector3(ex - 0.01, cy, z), Vector3.LEFT, Vector3.UP, r + 0.01, 28, Color(0.58, 0.07, 0.05))
 	k.disc("plastic", Vector3(ex, cy, z), Vector3.RIGHT, Vector3.UP, r + 0.045, 28, yellow)
 	# cradles holding it on the landing
 	for sx in [mx + 0.45, ex - 0.4]:
 		for sz in [-1.0, 1.0]:
-			k.box("vinyl_up", Vector3(sx - 0.12, GL.UP, z + sz * (r - 0.05) - 0.09), Vector3(sx + 0.12, GL.UP + 0.16, z + sz * (r - 0.05) + 0.09), Color(0.15, 0.36, 0.66))
+			k.rbox("vinyl_up", Vector3(sx - 0.12, GL.UP, z + sz * (r - 0.05) - 0.09), Vector3(sx + 0.12, GL.UP + 0.16, z + sz * (r - 0.05) + 0.09), 0.03, 2, Color(0.08, 0.2, 0.52))
 	# colliders: coarse shell (the landing is the floor inside), end cap
 	var faces := PackedVector3Array()
 	var cs := 16
@@ -474,13 +534,15 @@ static func _wave(c) -> void:
 	var xo: float = W.x_out
 	var lane_w := (z1 - z0 - 0.12) / float(lanes)
 	# cross-section (z, dy, lane index for colour): lip, lanes with rounded troughs, double ridges between lanes
+	# profile points: [z, dy, lane, cavity] — cavity (dust / grime) in the lane corners where the trough meets the ridge
+	# and on the lips, never in the polished run of the trough
 	var prof: Array = []
-	prof.append([z0, 0.2, 0])
-	prof.append([z0 + 0.03, 0.22, 0])
-	prof.append([z0 + 0.06, 0.18, 0])
+	prof.append([z0, 0.2, 0, 0.5])
+	prof.append([z0 + 0.03, 0.22, 0, 0.35])
+	prof.append([z0 + 0.06, 0.18, 0, 0.6])
 	for li in lanes:
 		var a := z0 + 0.06 + li * lane_w
-		var steps := 14
+		var steps := 18
 		for s in steps + 1:
 			var u := float(s) / float(steps)
 			var zz := a + u * lane_w
@@ -488,12 +550,13 @@ static func _wave(c) -> void:
 			var dy := 0.16 * pow(d, 3.2) + 0.012 * pow(d, 1.2)
 			if li > 0 and s == 0:
 				continue
-			prof.append([zz, dy, li])
+			var cav := 0.85 * exp(-pow((d - 0.86) / 0.09, 2.0)) + 0.3 * smoothstep(0.95, 1.0, d)
+			prof.append([zz, dy, li, cav])
 		if li < lanes - 1:
-			prof.append([a + lane_w + 0.0, 0.2, li])
-	prof.append([z1 - 0.06, 0.18, lanes - 1])
-	prof.append([z1 - 0.03, 0.22, lanes - 1])
-	prof.append([z1, 0.2, lanes - 1])
+			prof.append([a + lane_w + 0.0, 0.2, li, 0.45])
+	prof.append([z1 - 0.06, 0.18, lanes - 1, 0.6])
+	prof.append([z1 - 0.03, 0.22, lanes - 1, 0.35])
+	prof.append([z1, 0.2, lanes - 1, 0.5])
 	var xs_list := PackedFloat32Array()
 	var x := xs
 	while x < xo:
@@ -526,9 +589,13 @@ static func _wave(c) -> void:
 				acc += absf(pz - float(prof[j - 1][0])) + absf(dy - float(prof[j - 1][1]))
 			P[i * cols + j] = Vector3(xx, h + dy, pz)
 			U[i * cols + j] = Vector2(acc, along)
-			C[i * cols + j] = LANE_COLS[int(pr[2])]
-	k.grid("plastic", P, rows, cols, U, Color.WHITE, false, false, C)
-	_fix_up(k, "plastic", rows * cols)
+			var lc: Color = LANE_COLS[int(pr[2])]
+			# dust also gathers at the bottom of the run-out where the slide stops
+			var run_end := smoothstep(float(W.x_out) - 0.9, float(W.x_out), xx) * 0.35
+			lc.a = 1.0 - clampf(float(pr[3]) + run_end, 0.0, 0.95)
+			C[i * cols + j] = lc
+	k.grid("slide", P, rows, cols, U, Color.WHITE, false, false, C)
+	_fix_up(k, "slide", rows * cols)
 	# underside (simple flat shell) + edges
 	var P2 := PackedVector3Array()
 	var U2 := PackedVector2Array()
@@ -677,7 +744,7 @@ static func _spiral(c) -> void:
 	var cen := PackedVector3Array()
 	for p in path:
 		cen.append(p + Vector3(0, tr, 0))
-	var red := Color(0.82, 0.12, 0.1)
+	var red := Color(0.62, 0.08, 0.05)
 	var n := cen.size()
 	# split: entry hood (open top) / closed tube / open run-out half-pipe
 	var i_closed := 6
@@ -792,15 +859,15 @@ static func _pit(c) -> void:
 		[Vector3(x1 - t, F, gz1), Vector3(x1, F + h, z1 - t)],
 	]
 	for w in walls:
-		k.box("vinyl", w[0], w[1], FRAME_BLUE)
+		k.rbox("vinyl", w[0], w[1], 0.04, 2, FRAME_BLUE)
 		c.col("play").box(w[0], w[1])
 	# rounded top rails
 	for seg in [[Vector3(x0, F + h, z0 + t * 0.5), Vector3(x1, F + h, z0 + t * 0.5)], [Vector3(x0, F + h, z1 - t * 0.5), Vector3(x1, F + h, z1 - t * 0.5)],
 			[Vector3(x0 + t * 0.5, F + h, z0), Vector3(x0 + t * 0.5, F + h, z1)], [Vector3(x1 - t * 0.5, F + h, z0), Vector3(x1 - t * 0.5, F + h, gz0)],
 			[Vector3(x1 - t * 0.5, F + h, gz1), Vector3(x1 - t * 0.5, F + h, z1)]]:
-		k.tube("vinyl", PackedVector3Array([seg[0], seg[1]]), t * 0.52, 14, FRAME_RED)
+		wrap_rail(c, seg[0], seg[1], t * 0.52, FRAME_RED, 1.0, 20)
 	# low padded step in the gate
-	k.box("vinyl", Vector3(x1 - t, F, gz0), Vector3(x1 + 0.3, F + 0.22, gz1), FRAME_YELLOW)
+	k.rbox("vinyl", Vector3(x1 - t, F, gz0), Vector3(x1 + 0.3, F + 0.22, gz1), 0.04, 2, FRAME_YELLOW)
 	c.col("play").box(Vector3(x1 - t, F, gz0), Vector3(x1 + 0.3, F + 0.22, gz1))
 	# dark ball bed (seen through the gaps between balls)
 	var kb = c.kit("balls")
@@ -817,6 +884,7 @@ static func _pit(c) -> void:
 	var bx := x1 - t - rad
 	var az := z0 + t + rad
 	var bz := z1 - t - rad
+	var top := PackedByteArray()
 	for layer in 2:
 		var off := 0.5 * sp * float(layer % 2)
 		var zz := az + off
@@ -824,21 +892,91 @@ static func _pit(c) -> void:
 		while zz <= bz:
 			var xx := ax + off + (0.5 * sp if row % 2 == 1 else 0.0)
 			while xx <= bx:
-				var mound := 0.05 * sin(xx * 1.7 + zz * 0.9) + 0.03 * sin(xx * 4.1 - zz * 3.3)
-				var y := F + fill + mound - float(layer) * sp * 0.82 + rng.randf_range(-0.012, 0.012)
+				var y := F + fill + pit_mound(xx, zz) - float(layer) * sp * 0.82 + rng.randf_range(-0.012, 0.012)
 				if layer == 0 or rng.randf() < 0.75:
 					var p := Vector3(xx + rng.randf_range(-0.01, 0.01), y, zz + rng.randf_range(-0.01, 0.01))
 					var b := Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, 0.0)).scaled(Vector3.ONE * rng.randf_range(0.96, 1.04))
 					xforms.append(Transform3D(b, p))
 					var cc: Color = BALL_COLS[rng.randi() % BALL_COLS.size()]
-					cols.append(cc.lerp(Color(0.85, 0.85, 0.82), rng.randf() * rng.randf() * 0.3))
+					cols.append(cc.lerp(Color(0.8, 0.8, 0.77), rng.randf() * rng.randf() * 0.25))
+					top.append(1 if layer == 0 else 0)
 				xx += sp
 			zz += sp * 0.87
 			row += 1
 	var mmi := _ball_multimesh(c, xforms, cols, "BallPitBalls")
 	mmi.visibility_range_end = 32.0
 	mmi.visibility_range_end_margin = 3.0
+	c.pit_balls["pit"] = {"mmi": mmi, "top": top, "cols": cols, "xforms": xforms}
 	c.notes.append("ball pit: %d balls" % xforms.size())
+	# the bed the physics balls rest on = the hidden layer of balls under the top one: a 2.5 cm heightfield made of
+	# their caps (so a rigid ball sits nested in a pocket and does not roll away), over the dark fill, on the balls'
+	# own physics layer (the player wades on the pit floor and never touches it)
+	var step := 0.025
+	var ix0 := x0 + t
+	var iz0 := z0 + t
+	var nx := int(ceil((x1 - x0 - 2.0 * t) / step)) + 1
+	var nz := int(ceil((z1 - z0 - 2.0 * t) / step)) + 1
+	var hmap := PackedFloat32Array()
+	hmap.resize(nx * nz)
+	var floor_h := F + fill - 0.11
+	hmap.fill(floor_h)
+	var cap_r := 0.035
+	var reach := int(ceil(cap_r / step))
+	for bi in xforms.size():
+		if top[bi] != 0:
+			continue
+		var o: Vector3 = xforms[bi].origin
+		var ci := int(round((o.x - ix0) / step))
+		var cj := int(round((o.z - iz0) / step))
+		for dj in range(-reach, reach + 1):
+			var j := cj + dj
+			if j < 0 or j >= nz:
+				continue
+			for di in range(-reach, reach + 1):
+				var i := ci + di
+				if i < 0 or i >= nx:
+					continue
+				var dx := ix0 + float(i) * step - o.x
+				var dz := iz0 + float(j) * step - o.z
+				var d2 := dx * dx + dz * dz
+				if d2 < cap_r * cap_r:
+					var hy := o.y + sqrt(cap_r * cap_r - d2)
+					if hy > hmap[j * nx + i]:
+						hmap[j * nx + i] = hy
+	# HeightMapShape3D samples are 1 unit apart: scale the shape node (uniformly) to the 2.5 cm step
+	var hs := HeightMapShape3D.new()
+	hs.map_width = nx
+	hs.map_depth = nz
+	var scaled := PackedFloat32Array()
+	scaled.resize(hmap.size())
+	for i in hmap.size():
+		scaled[i] = (hmap[i] - F) / step
+	hs.map_data = scaled
+	var body := StaticBody3D.new()
+	body.name = "BallBed"
+	body.collision_layer = LAYER_BALLS
+	body.collision_mask = 0
+	var pm := PhysicsMaterial.new()
+	pm.absorbent = true
+	pm.bounce = 0.3
+	pm.friction = 0.6
+	body.physics_material_override = pm
+	var cs := CollisionShape3D.new()
+	cs.shape = hs
+	cs.transform = Transform3D(Basis.from_scale(Vector3(step, step, step)), Vector3(ix0 + float(nx - 1) * step * 0.5, F, iz0 + float(nz - 1) * step * 0.5))
+	body.add_child(cs)
+	# solid fill under the heightfield: a ball that ever got through the surface is pushed back up, not down
+	var cb := CollisionShape3D.new()
+	var fill_box := BoxShape3D.new()
+	fill_box.size = Vector3(x1 - x0 - 2.0 * t, floor_h - F - 0.01, z1 - z0 - 2.0 * t)
+	cb.shape = fill_box
+	cb.position = Vector3((x0 + x1) * 0.5, F + (floor_h - F - 0.01) * 0.5, (z0 + z1) * 0.5)
+	body.add_child(cb)
+	c.region("balls").add_child(body)
+
+## Height of the ball pit's surface mounds above the fill line at (x, z) (shared with the physics bed).
+static func pit_mound(x: float, z: float) -> float:
+	return 0.05 * sin(x * 1.7 + z * 0.9) + 0.03 * sin(x * 4.1 - z * 3.3)
 
 static func _ball_mesh() -> ArrayMesh:
 	# icosphere (1 subdivision, 80 triangles), smooth normals, radius 0.037
@@ -919,6 +1057,12 @@ static func _scatter_balls(c) -> void:
 			var p: Vector3 = cl[0] + Vector3(cos(a) * r, 0, sin(a) * r)
 			if GL.ground_height_at(p.x, p.z) > GL.HALL + 0.01:
 				continue
+			# not inside the pit's walls / gate step (they would start inside a collider as rigid balls)
+			var PT: Dictionary = GL.PIT
+			if p.x > float(PT.x0) - 0.06 and p.x < float(PT.x1) + 0.36 and p.z > float(PT.z0) - 0.06 and p.z < float(PT.z1) + 0.06:
+				continue
+			if GL.DECKS.any(func(d): return p.x > float(d[0]) - 0.08 and p.x < float(d[1]) + 0.08 and p.z > float(d[2]) - 0.08 and p.z < float(d[3]) + 0.08):
+				continue
 			xf.append(Transform3D(Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, 0)), p))
 			cols.append(BALL_COLS[rng.randi() % BALL_COLS.size()])
 	# a trail of single balls going up the steps and into the vestibule
@@ -927,6 +1071,10 @@ static func _scatter_balls(c) -> void:
 		cols.append(BALL_COLS[0])
 	var mmi := _ball_multimesh(c, xf, cols, "ScatterBalls")
 	mmi.visibility_range_end = 40.0
+	var top := PackedByteArray()
+	top.resize(xf.size())
+	top.fill(1)
+	c.pit_balls["scatter"] = {"mmi": mmi, "top": top, "cols": cols, "xforms": xf}
 
 # ====================================================================== toddler corner
 
@@ -943,46 +1091,20 @@ static func _toddler(c) -> void:
 	var fence := [[Vector3(x0, F, z0), Vector3(x1, F + 0.5, z0 + 0.1)], [Vector3(x0, F, z1 - 0.1), Vector3(x1, F + 0.5, z1)],
 		[Vector3(x1 - 0.1, F, z0), Vector3(x1, F + 0.5, 6.2)], [Vector3(x1 - 0.1, F, 7.4), Vector3(x1, F + 0.5, z1)]]
 	for f in fence:
-		k.box("vinyl", f[0], f[1], Color(0.95, 0.55, 0.62))
+		k.rbox("vinyl", f[0], f[1], 0.04, 2, Color(0.62, 0.12, 0.2))
 		cl.box(f[0], f[1])
 	Shell.sign_quad(k, "tex_labels.jpg", Vector3(x0 + 0.006, F + 1.35, 7.0), Vector3.RIGHT, 0.6, 0.45, Rect2(2.0 / 3.0, 0.0, 1.0 / 3.0, 0.5))
-	# soft blocks: cubes, cylinders, wedges, an arch, a tiny foam slide
-	var blocks := [
-		["cube", Vector3(-37.6, F, 5.0), 0.4, Color(0.95, 0.75, 0.15), 0.3], ["cube", Vector3(-37.2, F + 0.4, 5.1), 0.3, Color(0.2, 0.55, 0.85), 0.8],
-		["cube", Vector3(-36.4, F, 8.9), 0.35, Color(0.85, 0.25, 0.2), 0.1], ["cyl", Vector3(-38.0, F, 9.3), 0.25, Color(0.3, 0.7, 0.35), 0.0],
-		["cyl", Vector3(-36.9, F, 6.3), 0.2, Color(0.6, 0.3, 0.7), 0.0], ["wedge", Vector3(-37.4, F, 7.7), 0.6, Color(0.2, 0.55, 0.85), 0.0],
-		["cube", Vector3(-36.2, F, 4.4), 0.3, Color(0.3, 0.7, 0.35), 0.5], ["arch", Vector3(-38.0, F, 6.6), 0.9, Color(0.95, 0.75, 0.15), 0.0],
-	]
-	for b in blocks:
-		var p: Vector3 = b[1]
-		var s: float = b[2]
-		var col: Color = b[3]
-		var yaw: float = b[4]
-		match String(b[0]):
-			"cube":
-				k.box("vinyl_flat", Vector3(-s, 0, -s) * 0.5, Vector3(s, 2.0 * s, s) * 0.5, col, 1.0, Kit.ALL, Transform3D(Basis(Vector3.UP, yaw), p))
-				cl.box(p - Vector3(s, 0, s) * 0.5, p + Vector3(s * 0.5, s, s * 0.5))
-			"cyl":
-				k.tube("vinyl_flat", PackedVector3Array([p, p + Vector3(0, s * 1.6, 0)]), s * 0.5, 16, col, 1.0, true)
-				cl.box(p - Vector3(s, 0, s) * 0.5, p + Vector3(s * 0.5, s * 1.6, s * 0.5))
-			"wedge":
-				var w := s
-				var hw := w * 0.5
-				var q := [p + Vector3(-hw, 0, -0.3), p + Vector3(hw, 0.35, -0.3), p + Vector3(hw, 0.35, 0.3), p + Vector3(-hw, 0, 0.3)]
-				k.quad("vinyl_flat", q[0], q[1], q[2], q[3], Vector3(-0.35, w, 0).normalized(), Vector2.ZERO, Vector2(1, 0), Vector2(1, 1), Vector2(0, 1), col)
-				k.quad("vinyl_flat", p + Vector3(hw, 0, -0.3), p + Vector3(hw, 0.35, -0.3), p + Vector3(hw, 0.35, 0.3), p + Vector3(hw, 0, 0.3), Vector3.RIGHT,
-					Vector2.ZERO, Vector2(1, 0), Vector2(1, 1), Vector2(0, 1), col)
-				for zz in [-0.3, 0.3]:
-					k.tri("vinyl_flat", p + Vector3(-hw, 0, zz), p + Vector3(hw, 0, zz), p + Vector3(hw, 0.35, zz), Vector3(0, 0, signf(zz)), Vector2.ZERO, Vector2(1, 0), Vector2(1, 1), col)
-				cl.convex(PackedVector3Array([p + Vector3(-hw, 0, -0.3), p + Vector3(hw, 0, -0.3), p + Vector3(hw, 0.35, -0.3),
-					p + Vector3(-hw, 0, 0.3), p + Vector3(hw, 0, 0.3), p + Vector3(hw, 0.35, 0.3)]))
-			"arch":
-				var pts := PackedVector3Array()
-				for i in 17:
-					var a := PI * float(i) / 16.0
-					pts.append(p + Vector3(0, sin(a) * 0.45, cos(a) * 0.45))
-				k.tube("vinyl_flat", pts, 0.12, 14, col, 1.0, true)
-				cl.box(p + Vector3(-0.12, 0, -0.58), p + Vector3(0.12, 0.58, 0.58))
+	# soft blocks (cubes, cylinders, a wedge) are pushable rigid bodies (garderie_physics.gd, GL.BLOCKS); the big
+	# foam arch stays put (folded vinyl over a heavy foam core)
+	c.blocks = GL.BLOCKS
+	var p := Vector3(-38.0, F, 6.6)
+	var pts := PackedVector3Array()
+	for i in 49:
+		var a := PI * float(i) / 48.0
+		pts.append(p + Vector3(0, sin(a) * 0.45, cos(a) * 0.45))
+	c.kit("play_wraps").tube("vinyl_flat", pts, 0.12, 24, FRAME_YELLOW, 1.0, true, func(i: int, ang: float) -> float:
+		return 1.0 + Kit.fold(ang, float(i) / 48.0 * 1.41, 0.7, 1.3, 0.0) / 0.12)
+	cl.box(p + Vector3(-0.12, 0, -0.58), p + Vector3(0.12, 0.58, 0.58))
 
 # ====================================================================== party tables
 
@@ -992,13 +1114,13 @@ static func _party(c) -> void:
 	var F := GL.HALL
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 314
-	var chair_cols := [Color(0.85, 0.2, 0.15), Color(0.15, 0.4, 0.8), Color(0.95, 0.75, 0.12), Color(0.2, 0.6, 0.3)]
+	var chair_cols := [Color(0.62, 0.08, 0.05), Color(0.08, 0.22, 0.55), Color(0.82, 0.6, 0.08), Color(0.08, 0.42, 0.15)]
 	for ti in 2:
 		var cz := 7.2 + ti * 1.9
 		var cx := -21.0
 		var hh := 0.55
 		# table top with a plastic tablecloth hanging over the edge, folding legs
-		k.box("steel", Vector3(cx - 1.2, F + hh - 0.035, cz - 0.38), Vector3(cx + 1.2, F + hh, cz + 0.38), Color(0.9, 0.9, 0.88))
+		k.rbox("steel", Vector3(cx - 1.2, F + hh - 0.035, cz - 0.38), Vector3(cx + 1.2, F + hh, cz + 0.38), 0.008, 1, Color(0.9, 0.9, 0.88))
 		k.box("vinyl_flat", Vector3(cx - 1.24, F + hh - 0.16, cz - 0.42), Vector3(cx + 1.24, F + hh + 0.004, cz + 0.42), [Color(0.95, 0.45, 0.55), Color(0.4, 0.75, 0.95)][ti], 1.0, Kit.ALL & ~Kit.FACE_NY)
 		for lx in [-1.05, 1.05]:
 			for lz in [-0.3, 0.3]:
@@ -1046,9 +1168,10 @@ static func _party(c) -> void:
 		k.sphere("fabric", plush + Vector3(ex, 0.28, 0.0), 0.035, 8, 6, Color(0.5, 0.34, 0.22))
 		k.sphere("rubber", plush + Vector3(ex * 0.6, 0.22, 0.085), 0.012, 6, 4, Color(0.05, 0.05, 0.05))
 
+## Moulded kid chair: rounded seat and back (8-12 mm radius), chamfered legs.
 static func _kid_chair(k, xf: Transform3D, col: Color) -> void:
-	k.box("plastic", Vector3(-0.15, 0.28, -0.15), Vector3(0.15, 0.31, 0.15), col, 1.0, Kit.ALL, xf)
-	k.box("plastic", Vector3(-0.15, 0.31, 0.12), Vector3(0.15, 0.58, 0.15), col, 1.0, Kit.ALL, xf)
+	k.rbox("plastic", Vector3(-0.15, 0.28, -0.15), Vector3(0.15, 0.31, 0.15), 0.012, 2, col, 1.0, xf)
+	k.rbox("plastic", Vector3(-0.15, 0.31, 0.12), Vector3(0.15, 0.58, 0.15), 0.012, 2, col, 1.0, xf)
 	for lx in [-0.12, 0.12]:
 		for lz in [-0.12, 0.12]:
-			k.box("plastic", Vector3(lx - 0.015, 0.0, lz - 0.015), Vector3(lx + 0.015, 0.28, lz + 0.015), col * 0.9, 1.0, Kit.ALL, xf)
+			k.rbox("plastic", Vector3(lx - 0.015, 0.0, lz - 0.015), Vector3(lx + 0.015, 0.28, lz + 0.015), 0.006, 1, col * 0.9, 1.0, xf)

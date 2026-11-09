@@ -23,7 +23,11 @@ Downloaded through the Poly Haven API (2K or 1K JPEG), re-encoded at quality 86�
 
 ## Generated (original, this project)
 `noise_rgba.png`, `eva_grain_n.png`, `vinyl_wrinkle_n.png`, `plastic_scratch.png`, `net.png`, `mat_edge.png`,
-`ceiling_tiles.jpg`, `ceiling_tiles_n.png`, `cork.jpg` — procedural (numpy / PIL).
+`ceiling_tiles.jpg`, `ceiling_tiles_n.png`, `cork.jpg`, `decal_scuffs.png`, `decal_spill.png`, `decal_footprints.png`,
+`decal_crayon.png`, `decal_grime.png`, `decal_water.png` — procedural (numpy / PIL). `mat_edge.png` is a signed-distance
+field of the 7-tooth dovetail edge, `net.png` a 3 mm knotted cord. `neon_text.png` — our own neon lettering
+"Les Petits Soleils" (Caveat Bold, OFL, baked into a tube mask). The louver projector of the troffers is generated at
+runtime (garderie_shell.gd).
 `sign_garderie.jpg`, `sortie_red.png`, `sortie_green.png`, `rules.jpg`, `notice_board.jpg`, `cubby_labels.png`,
 `drawings.jpg`, `mural.jpg`, `banner.png`, `signin.jpg`, `labels.jpg`, `sun_decal.png` — original artwork drawn by
 `gen_signs.py` (the daycare "Les Petits Soleils", its sun mascot, kids' names, notes, mural). Nothing is copied from

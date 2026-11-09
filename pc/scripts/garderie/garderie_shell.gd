@@ -16,9 +16,31 @@ const VIS_HALL := 2048         # hall shell, play frame, slides, balls, hall pro
 const MASK_FRONT := 1 | 1024
 const MASK_HALL := 1 | 2048
 const CREAM := Color(0.88, 0.85, 0.76)
-const YELLOW := Color(0.93, 0.73, 0.12)
-const STEEL_DARK := Color(0.13, 0.13, 0.14)
+const YELLOW := Color(0.8, 0.58, 0.1)
+const STEEL_DARK := Color(0.07, 0.07, 0.075)
 const COPPER := Color(0.78, 0.5, 0.33)
+const COL_BLUE := Color(0.08, 0.2, 0.52)
+const COL_RED := Color(0.6, 0.07, 0.05)
+const TAPE := Color(0.62, 0.62, 0.6)
+
+## Fixture photometry (Godot energies at the look module's AgX exposure 1.0). Pools, not a lit room: narrow cones
+## with steep angular falloff (measured reference: floor p90/p50 ≈ 4.9), +30 % at the pool centre vs the old wide
+## wash, neutral-warm white (≈5700-6250 K on near-white surfaces), every working fixture shadowed with a shadow LOD
+## (distance fade). Retuned against the hall / vestibule median display luma targets (0.10-0.13 / 0.13-0.16).
+const HB_ENERGY := 6.5
+const HB_ANGLE := 60.0
+const HB_ANGLE_ATT := 1.7
+const TROFFER_ENERGY := 7.0
+const TROFFER_ANGLE := 65.0
+const TROFFER_ANGLE_ATT := 1.2
+const SPILL_ENERGY := 0.14            # was 0.35 (-60 %)
+const FIXTURE_COLOR := Color(1.0, 0.96, 0.9)
+const FADE_BEGIN := 20.0
+const FADE_LENGTH := 4.0
+const FADE_SHADOW := 12.0
+const KEY_ENERGY := 2.0               # SORTIE signs + our neon: the only key lights once the power is cut
+const SIGN_IDLE := 0.3                # SORTIE sign glow while the power is on (emergency heads off)
+const KEY_RANGE := 5.0
 
 static func build(c) -> void:
 	_doorway(c)
@@ -72,40 +94,77 @@ static func board(k, mat: String, ctr: Vector3, nrm: Vector3, w: float, h: float
 	var xf := Transform3D(Basis(Vector3.UP, yaw), ctr - nrm * t * 0.5)
 	k.box(mat, Vector3(-w * 0.5, -h * 0.5, -t * 0.5), Vector3(w * 0.5, h * 0.5, t * 0.5), col, 1.0, Kit.ALL, xf)
 
-## Padded column: banded bulging vinyl segments between yellow "donut" rings (original design), from y0 to y1.
+## Padded column: banded bulging vinyl wraps between yellow "donut" rings (original design), from y0 to y1. The wraps
+## carry real geometric folds (Kit.fold: 1.2 cm @ 11 cm + 0.6 cm @ 5 cm, spiral creases), 44 sides and a ring every
+## 2 cm (LOD'd at commit), with a 3D tape band (2 cm proud) at each junction between two wraps.
 static func padded_column(c, region: String, mat: String, x: float, z: float, y0: float, y1: float, r: float, seed: int) -> void:
-	var k = c.kit(region)
+	var k = c.kit("%s_wraps_%d" % [region, absi(seed) % 1000])
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed
 	var ring_h := 0.16
-	var cols := [Color(0.18, 0.5, 0.74), Color(0.85, 0.24, 0.17)]
+	var cols := [COL_BLUE, COL_RED]
 	var top := y1 - ring_h
 	var bot := y0 + ring_h
 	var nseg := maxi(1, int(round((top - bot) / 0.8)))
 	var seg_h := (top - bot) / float(nseg)
+	var sides := 44
 	for s in nseg:
 		var a := bot + s * seg_h
 		var b := a + seg_h
 		var pts := PackedVector3Array()
-		var rows := 18
+		var rows := maxi(8, int(ceil((b - a) / 0.02)))
 		for i in rows + 1:
 			pts.append(Vector3(x, a + (b - a) * float(i) / float(rows), z))
 		var ph := rng.randf() * TAU
+		var L := b - a
 		var rf := func(i: int, ang: float) -> float:
 			var t := float(i) / float(rows)
 			var bulge := pow(sin(PI * t), 0.45)
-			var wob := 0.06 * sin(ang * 3.0 + ph + t * 2.0) + 0.035 * sin(ang * 7.0 - ph * 2.0 + t * 5.0) + 0.02 * sin(ang * 13.0 + t * 9.0 + ph)
-			return 0.8 + 0.2 * bulge + wob * bulge
-		k.tube(mat, pts, r, 28, cols[s % 2], 1.0, false, rf)
+			var wob := 0.03 * sin(ang * 2.0 + ph + t * 2.0)
+			return 0.84 + 0.16 * bulge + wob * bulge + Kit.fold(ang, t * L, 1.0, ph, 0.7) * (0.35 + 0.65 * bulge) / r
+		k.tube(mat, pts, r, sides, cols[s % 2], 1.0, false, rf)
+		# tape band over the junction with the next wrap (silver duct tape, wrinkled)
+		if s < nseg - 1:
+			var tp := PackedVector3Array()
+			for i in 5:
+				tp.append(Vector3(x, b - 0.035 + 0.07 * float(i) / 4.0, z))
+			var tph := rng.randf() * TAU
+			k.tube("tape", tp, r * 0.86 + 0.02, sides, TAPE, 1.0, false, func(i: int, ang: float) -> float:
+				return 1.0 + (0.004 * sin(ang * 6.0 + tph) + 0.003 * sin(ang * 13.0 - tph) - 0.006 * absf(float(i) - 2.0) / 2.0) / (r * 0.86 + 0.02))
 	for yy in [y0, top]:
 		var pts := PackedVector3Array()
-		for i in 9:
-			pts.append(Vector3(x, yy + ring_h * float(i) / 8.0, z))
-		var rf2 := func(i: int, _ang: float) -> float:
-			var t := float(i) / 8.0
-			return 0.9 + 0.22 * pow(sin(PI * t), 0.7)
-		k.tube(mat, pts, r * 1.08, 28, YELLOW, 1.0, true, rf2)
+		for i in 13:
+			pts.append(Vector3(x, yy + ring_h * float(i) / 12.0, z))
+		var rph := rng.randf() * TAU
+		var rf2 := func(i: int, ang: float) -> float:
+			var t := float(i) / 12.0
+			return 0.9 + 0.22 * pow(sin(PI * t), 0.7) + Kit.fold(ang, t * ring_h, 0.4, rph) * pow(sin(PI * t), 0.7) / r
+		k.tube(mat, pts, r * 1.08, sides, YELLOW, 1.0, true, rf2)
 	c.col(region).box(Vector3(x - r * 1.1, y0, z - r * 1.1), Vector3(x + r * 1.1, y1, z + r * 1.1))
+
+## Generated louver projector of the parabolic troffers (3 x 6 cells, soft blade shadows, angular cut-off): the fog
+## under a troffer shows slatted shafts and its pool a faint grid, like a real parabolic louver.
+static var _louver_tex: ImageTexture = null
+
+static func louver_projector() -> ImageTexture:
+	if _louver_tex != null:
+		return _louver_tex
+	var n := 96
+	var img := Image.create(n, n, false, Image.FORMAT_L8)
+	for py in n:
+		for px in n:
+			var u := (float(px) + 0.5) / float(n)
+			var v := (float(py) + 0.5) / float(n)
+			var cu := absf(fposmod(u * 3.0, 1.0) - 0.5) * 2.0       # 0 at a cell centre, 1 on a blade
+			var cv := absf(fposmod(v * 6.0, 1.0) - 0.5) * 2.0
+			var blade := maxf(smoothstep(0.72, 1.0, cu), smoothstep(0.72, 1.0, cv))
+			var rr := Vector2(u - 0.5, v - 0.5).length() * 2.0
+			var cut := 1.0 - smoothstep(0.75, 1.0, rr)
+			var val := (1.0 - 0.4 * blade) * (0.72 + 0.28 * cut)
+			img.set_pixel(px, py, Color(val, val, val))
+	img.generate_mipmaps()
+	_louver_tex = ImageTexture.create_from_image(img)
+	return _louver_tex
 
 ## High-bay / troffer light: registers a Light3D (+ its emissive material) in ctx.lights.
 static func add_light(c, parent: Node3D, pos: Vector3, state: String, kind: String, emit_mat: Material = null) -> Light3D:
@@ -123,26 +182,28 @@ static func add_light(c, parent: Node3D, pos: Vector3, state: String, kind: Stri
 		var s := SpotLight3D.new()
 		var hall := kind == "highbay"
 		s.spot_range = 12.5 if hall else 6.5
-		s.spot_angle = 74.0 if hall else 80.0
-		s.spot_angle_attenuation = 1.7 if hall else 0.6
+		s.spot_angle = HB_ANGLE if hall else TROFFER_ANGLE
+		s.spot_angle_attenuation = HB_ANGLE_ATT if hall else TROFFER_ANGLE_ATT
 		s.spot_attenuation = 1.15 if hall else 0.85
-		s.light_energy = 10.0 if hall else 6.5
-		s.light_color = Color(0.93, 0.97, 1.0) if hall else Color(0.96, 0.98, 1.0)
-		s.light_size = 0.5 if hall else 0.3
-		s.shadow_enabled = state == "shadow"
+		s.light_energy = HB_ENERGY if hall else TROFFER_ENERGY
+		s.light_color = FIXTURE_COLOR
+		s.light_size = 0.2
+		s.shadow_enabled = state != "dead"            # every working fixture shadows (shadow LOD = distance fade)
 		s.rotation = Vector3(-PI * 0.5, 0.0, 0.0)
+		if not hall:
+			s.light_projector = louver_projector()
 		l = s
 		if state == "dim":
 			s.light_energy *= 0.45
 	l.position = pos
 	l.shadow_bias = 0.04
 	l.shadow_normal_bias = 1.2
-	l.shadow_blur = 1.6
-	l.light_volumetric_fog_energy = 1.4
+	l.shadow_blur = 1.0
+	l.light_volumetric_fog_energy = 2.0 if kind == "highbay" else 1.4
 	l.distance_fade_enabled = true
-	l.distance_fade_begin = 38.0
-	l.distance_fade_length = 6.0
-	l.distance_fade_shadow = 26.0
+	l.distance_fade_begin = FADE_BEGIN
+	l.distance_fade_length = FADE_LENGTH
+	l.distance_fade_shadow = FADE_SHADOW
 	l.name = "%s_%s" % [kind, state]
 	l.light_cull_mask = MASK_HALL if kind == "highbay" else MASK_FRONT
 	if state == "dead":
@@ -397,27 +458,25 @@ static func _vestibule(c) -> void:
 		var ax := x0 + int(tl[0]) * cell
 		var az := z0 + int(tl[1]) * cell
 		var state: String = tl[2]
-		k.box("enamel", Vector3(ax + 0.01, ch, az + 0.01), Vector3(ax + cell - 0.01, ch + 0.1, az + cell * 2.0 - 0.01), Color.WHITE)
 		var em_id := "fluo_on" if state == "on" or state == "shadow" else "fluo_dead"
 		var em: Material = c.mats.mat(em_id)
 		if state == "flicker":
 			em = c.mats.emissive_instance("fluo_on")
-		var lens_k = c.kit("vest") if state != "flicker" else Kit.new()
-		lens_k.quad(em_id if state != "flicker" else "flick", Vector3(ax + 0.03, ch - 0.004, az + 0.03), Vector3(ax + cell - 0.03, ch - 0.004, az + 0.03),
-			Vector3(ax + cell - 0.03, ch - 0.004, az + cell * 2.0 - 0.03), Vector3(ax + 0.03, ch - 0.004, az + cell * 2.0 - 0.03), Vector3.DOWN,
-			Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1))
+		var refl: Material = c.mats.mat("fluo_refl" if state != "dead" else "enamel")
 		if state == "flicker":
-			lens_k.commit(c.region("vest"), {"flick": em}, "flicker_lens", {"no_shadow": ["flick"]})
-		k.box("enamel", Vector3(ax + 0.03, ch - 0.008, az + cell - 0.015), Vector3(ax + cell - 0.03, ch - 0.002, az + cell + 0.015), Color(0.9, 0.9, 0.88))
+			refl = c.mats.emissive_instance("fluo_refl")
+		_troffer(c, k, ax, az, cell, ch, em_id if state != "flicker" else "flick", em, refl)
 		add_light(c, c.region("vest"), Vector3(ax + cell * 0.5, ch - 0.06, az + cell), state, "troffer", em)
+		if state != "dead":
+			c.lights[c.lights.size() - 1]["emit2"] = refl
 		if state != "dead":
 			var o := OmniLight3D.new()
 			o.name = "troffer_spill_%s" % state
 			o.position = Vector3(ax + cell * 0.5, ch - 0.35, az + cell)
 			o.omni_range = 2.2
 			o.omni_attenuation = 1.6
-			o.light_energy = 0.35
-			o.light_color = Color(0.92, 0.96, 1.0)
+			o.light_energy = SPILL_ENERGY
+			o.light_color = FIXTURE_COLOR
 			o.light_specular = 0.0
 			o.light_cull_mask = MASK_FRONT
 			o.shadow_enabled = false
@@ -426,6 +485,196 @@ static func _vestibule(c) -> void:
 	# padded columns
 	for p in GL.VEST_COLUMNS:
 		padded_column(c, "vest", "vinyl_up", p.x, p.y, 0.0, ch, 0.2, int(p.x * 13.0 + p.y * 7.0))
+
+## 2' x 4' recessed parabolic-louver troffer in the T-bar grid cell (ax, az): enamel flange + housing, a softly glowing
+## reflector, two emissive tubes (emission 10), and an 18-cell (3 x 6) specular aluminium louver whose curved blades
+## catch the tubes' light. em_id / em: tube material (a per-fixture instance for the flickering one), refl: reflector.
+static func _troffer(c, k, ax: float, az: float, cell: float, ch: float, em_id: String, em: Material, refl: Material) -> void:
+	var bx := ax + cell
+	var bz := az + cell * 2.0
+	var depth := 0.1
+	var fl := 0.022
+	# flange (sits on the T-bars) + inner walls of the housing
+	k.box("enamel", Vector3(ax + 0.004, ch - 0.006, az + 0.004), Vector3(bx - 0.004, ch, az + 0.004 + fl), Color.WHITE)
+	k.box("enamel", Vector3(ax + 0.004, ch - 0.006, bz - 0.004 - fl), Vector3(bx - 0.004, ch, bz - 0.004), Color.WHITE)
+	k.box("enamel", Vector3(ax + 0.004, ch - 0.006, az + 0.004), Vector3(ax + 0.004 + fl, ch, bz - 0.004), Color.WHITE)
+	k.box("enamel", Vector3(bx - 0.004 - fl, ch - 0.006, az + 0.004), Vector3(bx - 0.004, ch, bz - 0.004), Color.WHITE)
+	var ix0 := ax + 0.004 + fl
+	var ix1 := bx - 0.004 - fl
+	var iz0 := az + 0.004 + fl
+	var iz1 := bz - 0.004 - fl
+	for side in [[Vector3(ix0 - 0.01, ch, iz0), Vector3(ix0, ch + depth, iz1)], [Vector3(ix1, ch, iz0), Vector3(ix1 + 0.01, ch + depth, iz1)],
+			[Vector3(ix0, ch, iz0 - 0.01), Vector3(ix1, ch + depth, iz0)], [Vector3(ix0, ch, iz1), Vector3(ix1, ch + depth, iz1 + 0.01)]]:
+		k.box("enamel", side[0], side[1], Color(0.9, 0.9, 0.88))
+	# reflector (a shallow W over the two tubes): lit from the inside
+	var rk = Kit.new()
+	var wv := ix1 - ix0
+	var prof := PackedVector2Array([Vector2(-wv * 0.5, depth - 0.03), Vector2(-wv * 0.17, depth), Vector2(0.0, depth - 0.022),
+		Vector2(wv * 0.17, depth), Vector2(wv * 0.5, depth - 0.03)])
+	var path: Array = []
+	for zz in [iz0, iz1]:
+		path.append(Transform3D(Basis(Vector3.RIGHT, Vector3.UP, Vector3.BACK), Vector3((ix0 + ix1) * 0.5, ch, zz)))
+	rk.sweep("refl", path, prof, Color.WHITE, 1.0, false)
+	_fix_facing(rk, "refl", Vector3.DOWN)
+	rk.commit(c.region("vest"), {"refl": refl}, "troffer_refl", {"no_shadow": ["refl"]})
+	# tubes
+	var tk = c.kit("vest") if em_id != "flick" else Kit.new()
+	for tx in [ix0 + wv / 3.0, ix0 + wv * 2.0 / 3.0]:
+		tk.tube(em_id, PackedVector3Array([Vector3(tx, ch + depth - 0.035, iz0 + 0.02), Vector3(tx, ch + depth - 0.035, iz1 - 0.02)]), 0.013, 10, Color.WHITE)
+	if em_id == "flick":
+		tk.commit(c.region("vest"), {"flick": em}, "flicker_tubes_vest", {"no_shadow": ["flick"]})
+	# louver: 2 longitudinal + 5 transverse curved blades (thin at the bottom edge, flaring at the top)
+	var lk = c.kit("louvers")
+	var bprof := PackedVector2Array([Vector2(-0.007, 0.068), Vector2(-0.003, 0.03), Vector2(0.0, 0.002), Vector2(0.003, 0.03), Vector2(0.007, 0.068)])
+	for i in [1, 2]:
+		var x := ix0 + wv * float(i) / 3.0
+		lk.sweep("alu", [Transform3D(Basis(Vector3.RIGHT, Vector3.UP, Vector3.BACK), Vector3(x, ch, iz0)),
+			Transform3D(Basis(Vector3.RIGHT, Vector3.UP, Vector3.BACK), Vector3(x, ch, iz1))], bprof, Color.WHITE, 1.0, false)
+	var ln := iz1 - iz0
+	for j in range(1, 6):
+		var z := iz0 + ln * float(j) / 6.0
+		lk.sweep("alu", [Transform3D(Basis(Vector3.BACK, Vector3.UP, Vector3.LEFT), Vector3(ix0, ch, z)),
+			Transform3D(Basis(Vector3.BACK, Vector3.UP, Vector3.LEFT), Vector3(ix1, ch, z))], bprof, Color.WHITE, 1.0, false)
+
+## Re-orients the whole bin so most normals face `want` (single-sided sweeps).
+static func _fix_facing(kit, mat: String, want: Vector3) -> void:
+	var b = kit.bin(mat)
+	var votes := 0
+	for nn in b.n:
+		votes += 1 if (nn as Vector3).dot(want) >= 0.0 else -1
+	if votes >= 0:
+		return
+	for i in b.n.size():
+		b.n[i] = -b.n[i]
+	for t in b.idx.size() / 3:
+		var tmp: int = b.idx[t * 3 + 1]
+		b.idx[t * 3 + 1] = b.idx[t * 3 + 2]
+		b.idx[t * 3 + 2] = tmp
+
+## Battery-backed key light of a sign (SORTIE signs, our neon): saturated, shadowed, in the fog. Always on.
+static func sign_light(c, parent: Node3D, pos: Vector3, dir: Vector3, color: Color, mask: int, name: String, energy := KEY_ENERGY, rng := KEY_RANGE, angle := 80.0) -> SpotLight3D:
+	var o := SpotLight3D.new()
+	o.name = name
+	o.position = pos
+	o.light_color = color
+	o.light_energy = energy
+	o.spot_range = rng
+	o.spot_angle = angle
+	o.spot_angle_attenuation = 1.1
+	o.spot_attenuation = 1.3
+	o.shadow_enabled = true
+	o.shadow_bias = 0.05
+	o.shadow_normal_bias = 1.2
+	o.shadow_blur = 1.0
+	o.light_size = 0.12
+	o.light_volumetric_fog_energy = 1.5
+	o.distance_fade_enabled = true
+	o.distance_fade_begin = FADE_BEGIN
+	o.distance_fade_length = FADE_LENGTH
+	o.distance_fade_shadow = FADE_SHADOW
+	o.light_cull_mask = mask
+	parent.add_child(o)
+	o.basis = Basis.looking_at(dir.normalized(), Vector3.UP if absf(dir.normalized().y) < 0.95 else Vector3.BACK)
+	c.signs.append(o)
+	return o
+
+## Our own neon sign "Les Petits Soleils" (original lettering + a neon sun made of real tube) on a black backboard
+## above the party tables, south wall: warm orange glass tubes on standoffs, buzzing. It stays lit on its own
+## circuit when the house power dies (a key light of the dark hall with the SORTIE signs).
+static func _neon(c) -> void:
+	var k = c.kit("hall")
+	var nk = c.kit("neon")
+	var N: Dictionary = GL.NEON
+	var cx: float = N.x
+	var cy: float = N.y
+	var zw: float = float(N.z) - 0.01
+	var w: float = N.w
+	var h: float = N.h
+	# backboard: black painted plywood with a rounded edge, 4 cm proud of the wall
+	k.rbox("dark", Vector3(cx - w * 0.5, cy - h * 0.5, zw - 0.04), Vector3(cx + w * 0.5, cy + h * 0.5, zw), 0.012, 1, Color.WHITE)
+	# the sun (left): ring + 10 rays, tubes 9 mm on 3 cm standoffs
+	var sc := Vector3(cx - w * 0.5 + 0.42, cy + 0.02, zw - 0.075)
+	var ring := PackedVector3Array()
+	for i in 33:
+		var a := TAU * float(i) / 32.0
+		ring.append(sc + Vector3(cos(a) * 0.17, sin(a) * 0.17, 0.0))
+	nk.tube("neon", ring, 0.009, 8, Color.WHITE)
+	for i in 10:
+		var a := TAU * float(i) / 10.0 + 0.2
+		var d := Vector3(cos(a), sin(a), 0.0)
+		nk.tube("neon", PackedVector3Array([sc + d * 0.23, sc + d * (0.33 if i % 2 == 0 else 0.29)]), 0.009, 8, Color.WHITE, 1.0, true)
+	for i in 3:
+		var a := TAU * float(i) / 3.0 + 0.5
+		k.tube("metal", PackedVector3Array([sc + Vector3(cos(a) * 0.17, sin(a) * 0.17, 0.0), sc + Vector3(cos(a) * 0.17, sin(a) * 0.17, 0.035)]), 0.004, 6, Color(0.6, 0.6, 0.6))
+	# the lettering (tube mask texture, alpha-scissored, 1.5 cm in front of the board)
+	var tw := w - 0.95
+	var tc := Vector3(cx + 0.4, cy - 0.02, zw - 0.06)
+	sign_quad(nk, "neon_text", tc, Vector3.FORWARD, tw, tw * 0.25)
+	# transformer box under the board + its cable
+	k.rbox("steel", Vector3(cx + w * 0.5 - 0.3, cy - h * 0.5 - 0.16, zw - 0.09), Vector3(cx + w * 0.5 - 0.08, cy - h * 0.5 - 0.02, zw), 0.008, 1, Color(0.2, 0.2, 0.21))
+	k.tube("rubber", PackedVector3Array([Vector3(cx + w * 0.5 - 0.19, cy - h * 0.5 - 0.16, zw - 0.03), Vector3(cx + w * 0.5 - 0.19, GL.HALL + 0.3, zw - 0.03),
+		Vector3(cx + w * 0.5 - 0.1, GL.HALL + 0.02, zw - 0.03)]), 0.006, 6, Color(0.05, 0.05, 0.05))
+	var o := sign_light(c, c.region("hall_lights"), Vector3(cx, cy - 0.15, zw - 0.35), Vector3(0, -0.55, -1.0), Color(1.0, 0.5, 0.16), MASK_HALL, "NeonSign",
+		KEY_ENERGY, KEY_RANGE + 0.5, 110.0)
+	o.light_specular = 0.6
+	c.neon = {"light": o}
+
+
+## Ceiling services: two 60 cm galvanised spiral ducts across the hall (helical seams, hangers to the trusses, a drop
+## with a round diffuser) and two ladder cable trays with cables sagging between hangers. They sit in the dark above
+## the high-bays' cones: black silhouettes against the black roof, catching only bounce and the odd highlight.
+static func _services(c) -> void:
+	var k = c.kit("ceiling")
+	var H: Dictionary = GL.HALLB
+	var x0: float = float(H.x0) + 0.2
+	var x1: float = -17.6
+	var y: float = GL.DUCT_Y
+	var r: float = GL.DUCT_R
+	var bottom_chord: float = float(H.roof) - 0.72
+	var galv := Color(0.62, 0.62, 0.6)
+	for dz in GL.DUCTS:
+		k.tube("duct", PackedVector3Array([Vector3(x1, y, float(dz)), Vector3(x0, y, float(dz))]), r, 20, galv, 1.0, true)
+		# coupling collars every 1.5 m (the spiral seam reads in the duct's normal / roughness breakup)
+		var cx := x1 - 0.4
+		while cx > x0 + 0.2:
+			k.tube("duct", PackedVector3Array([Vector3(cx + 0.03, y, float(dz)), Vector3(cx - 0.03, y, float(dz))]), r + 0.008, 20, galv)
+			cx -= 1.5
+		# hangers (galvanised straps) up to the bottom chords of the trusses
+		var tx := -18.6
+		while tx > x0 + 0.5:
+			for sz: float in [-1.0, 1.0]:
+				k.box("duct", Vector3(tx - 0.015, y, float(dz) + sz * r - 0.002), Vector3(tx + 0.015, bottom_chord, float(dz) + sz * r + 0.002), galv)
+			k.tube("duct", PackedVector3Array([Vector3(tx - 0.02, y, float(dz)), Vector3(tx + 0.02, y, float(dz))]), r + 0.006, 20, galv)
+			tx -= 2.4
+		# a drop to a round diffuser above the play frame
+		var dx := -28.6
+		var drop := PackedVector3Array([Vector3(dx, y, float(dz)), Vector3(dx, y - 0.9, float(dz))])
+		k.tube("duct", drop, 0.16, 16, galv)
+		k.tube("duct", PackedVector3Array([Vector3(dx, y - 0.9, float(dz)), Vector3(dx, y - 1.0, float(dz))]), 0.26, 16, galv, 1.0, true)
+	# ladder cable trays along z
+	for txx in GL.TRAYS:
+		var tx: float = txx
+		var z0: float = float(H.z0) + 0.2
+		var z1: float = float(H.z1) - 0.2
+		for sx: float in [-0.15, 0.15]:
+			k.box("duct", Vector3(tx + sx - 0.004, GL.TRAY_Y - 0.06, z0), Vector3(tx + sx + 0.004, GL.TRAY_Y, z1), galv)
+		var zz := z0 + 0.15
+		while zz < z1:
+			k.box("duct", Vector3(tx - 0.15, GL.TRAY_Y - 0.06, zz - 0.012), Vector3(tx + 0.15, GL.TRAY_Y - 0.05, zz + 0.012), galv)
+			zz += 0.3
+		for ci in 4:
+			var cxo := -0.1 + ci * 0.065
+			var cpts := PackedVector3Array()
+			for i in 41:
+				var t := float(i) / 40.0
+				cpts.append(Vector3(tx + cxo + 0.01 * sin(t * 37.0 + ci), GL.TRAY_Y - 0.035 + 0.006 * float(ci % 2), lerpf(z0, z1, t)))
+			k.tube("rubber", cpts, 0.008 + 0.003 * (ci % 2), 6, [Color(0.06, 0.06, 0.06), Color(0.55, 0.12, 0.08), Color(0.08, 0.08, 0.1), Color(0.75, 0.75, 0.72)][ci])
+		# a loose cable loop hanging out of the tray (catches a little light under the dark roof)
+		var lp := PackedVector3Array()
+		for i in 25:
+			var t := float(i) / 24.0
+			lp.append(Vector3(tx + 0.12, GL.TRAY_Y - 0.04 - sin(t * PI) * 0.9, lerpf(1.6, 3.4, t)))
+		k.tube("rubber", lp, 0.009, 6, Color(0.06, 0.06, 0.06))
 
 # ====================================================================== hall
 
@@ -506,6 +755,8 @@ static func _hall(c) -> void:
 	sign_quad(k, "mural", Vector3((float(Mu.x0) + float(Mu.x1)) * 0.5, (float(Mu.y0) + float(Mu.y1)) * 0.5, z0 + 0.004), Vector3.BACK,
 		float(Mu.x1) - float(Mu.x0), float(Mu.y1) - float(Mu.y0))
 	sign_quad(k, "cut_banner.png", Vector3(-20.8, F + 2.55, z1 - 0.012), Vector3.FORWARD, 4.2, 0.53)
+	_neon(c)
+	_services(c)
 	for i in 3:
 		sign_quad(k, "tex_drawings.jpg", Vector3(x0 + 0.004, F + 1.25 + (i % 2) * 0.12, 5.2 + i * 0.75), Vector3.RIGHT, 0.42, 0.42,
 			Rect2(0.5 * float(i % 2), 0.5 * float(i / 2), 0.5, 0.5))
@@ -546,20 +797,8 @@ static func _exit_sign(c, pos: Vector3, nrm: Vector3, kind: String) -> void:
 	var h := 0.16 if kind == "red" else 0.23
 	board(k, "steel", pos, nrm, w + 0.05, h + 0.05, 0.08, Color(0.85, 0.85, 0.82) if kind == "green" else Color(0.2, 0.2, 0.2))
 	sign_quad(k, "emit_sortie_red.png" if kind == "red" else "emit_sortie_green.png", pos + nrm * 0.002, nrm, w, h)
-	var o := SpotLight3D.new()
-	o.position = pos + nrm * 0.06 + Vector3(0, -0.12, 0)
-	o.light_color = Color(1.0, 0.18, 0.12) if kind == "red" else Color(0.2, 1.0, 0.45)
-	o.light_energy = 0.9
-	o.spot_range = 3.2
-	o.spot_angle = 75.0
-	o.spot_angle_attenuation = 1.2
-	o.shadow_enabled = false
-	o.light_volumetric_fog_energy = 0.8
-	o.light_cull_mask = MASK_HALL
-	o.name = "Sortie_%s" % kind
-	o.basis = Basis.looking_at(nrm + Vector3(0, -0.35, 0), Vector3.UP)
-	c.region("hall_lights").add_child(o)
-	c.signs.append(o)
+	sign_light(c, c.region("hall_lights"), pos + nrm * 0.12 + Vector3(0, -0.12, 0), nrm + Vector3(0, -0.45, 0),
+		Color(1.0, 0.14, 0.08) if kind == "red" else Color(0.15, 1.0, 0.38), MASK_HALL, "Sortie_%s" % kind)
 
 # ====================================================================== landing + steps
 

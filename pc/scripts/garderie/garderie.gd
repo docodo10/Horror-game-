@@ -25,6 +25,14 @@
 ##   scare(kind)                    giggle_slide | tube_dies | ball_roll | hum (also scheduled by itself in the area)
 ##   ambient_scares                 false: its own scheduler stops (the fear module calls scare() itself)
 ##   interaction_entries() -> Array the entries registered with Game.interaction (registered as soon as it exists)
+##   physics: Node3D                garderie_physics.gd — ball-pit bubble (pooled rigid balls around the player's legs),
+##                                  pushable foam blocks, impact sounds; active only while the camera is in the hall
+##   dressing                       garderie_dressing.gd — MultiMesh debris, decals, dust motes, lifted mat corners
+##   play_impact(kind, pos, vol)    impact sound of a physics body ("ball_bounce" | "foam_thud", vol 0..1)
+##   apply_quality(q)               optional preset hook (low | medium | high | ultra) for the look module
+## Look (subliminal gap analysis): pools of light (60° high-bays, 65° louvered troffers), every working fixture
+##   shadowed (fade 20 m / shadows 12 m), warm-neutral whites, black roof, HallDust 0.025, fog energy 2.0; after a
+##   power cut the SORTIE signs + our neon sign ("Les Petits Soleils") are the only key lights.
 ## Debug args (after --): --garderie-cam=x,y,z,yawDeg,pitchDeg  --garderie-ride=wave|spiral  --garderie-scare=<kind>
 ## Render layers: corridor / door / vestibule meshes 1024, hall meshes 2048; light cull masks keep each room's lights
 ##   out of the other (no light leaking through walls without shadows). Physics: opaque colliders WORLD|SIGHT (1|16),
@@ -42,6 +50,8 @@ const Shell := preload("res://scripts/garderie/garderie_shell.gd")
 const Play := preload("res://scripts/garderie/garderie_play.gd")
 const Props := preload("res://scripts/garderie/garderie_props.gd")
 const Ride := preload("res://scripts/garderie/garderie_ride.gd")
+const Physics := preload("res://scripts/garderie/garderie_physics.gd")
+const Dressing := preload("res://scripts/garderie/garderie_dressing.gd")
 
 const LAYER_WORLD := 1
 const LAYER_INTERACT := 2
@@ -56,6 +66,7 @@ const SFX := {
 	"slide_land": ["slide_land", "land_thump"],
 	"ball_rustle": ["ballpit_rustle", "cloth_move"],
 	"ball_bounce": ["ball_bounce", "bump"],
+	"foam_thud": ["foam_thud", "land_thump", "bump"],
 	"door_open": ["door_creak_open"],
 	"door_close": ["door_close"],
 	"fluo_buzz": ["fluo_buzz", "light_buzz"],
@@ -95,6 +106,8 @@ var _pit_noise_t := 0.0
 var _pit_area: Area3D = null
 var _balls_mat: ShaderMaterial = null
 var _ride: Node = null
+var physics: Node3D = null           # garderie_physics.gd (ball bubble, foam blocks, impact sounds)
+var dressing = null                  # garderie_dressing.gd (debris, decals, motes, lifted mats)
 var _buzz_handles: Array = []
 var _dead_tube := -1
 var _rng := RandomNumberGenerator.new()
@@ -114,20 +127,42 @@ func build(world = null) -> void:
 	ctx.mats = Mats.new()
 	carve_report = recarve()
 	var tg := Time.get_ticks_usec()
+	var ms := {}
+	var tt := Time.get_ticks_usec()
 	Shell.build(ctx)
+	ms["shell"] = (Time.get_ticks_usec() - tt) / 1000.0
+	tt = Time.get_ticks_usec()
 	Play.build(ctx)
+	ms["play"] = (Time.get_ticks_usec() - tt) / 1000.0
+	tt = Time.get_ticks_usec()
 	Props.build(ctx)
+	dressing = Dressing.new()
+	dressing.build(ctx)
+	ms["props"] = (Time.get_ticks_usec() - tt) / 1000.0
+	tt = Time.get_ticks_usec()
 	if not (carve_report.get("moved", []) as Array).any(func(n): return String(n).to_lower().contains("switch")):
 		_switch_plate(ctx.kit("door"))
 	var tris: int = ctx.commit_all({
 		"trusses": {"no_shadow": ["steel"]},
 		"fixtures": {"no_shadow": ["enamel", "metal", "fluo_on", "fluo_dead"]},
-		"balls": {"no_shadow": ["balls"]},
+		"balls": {"no_shadow": ["balls", "dark"]},
 		"props_v": {"vis_end": 28.0},
 		"props_h": {"vis_end": 40.0},
-		"play_small": {"vis_end": 45.0, "no_shadow": ["metal"]},
+		"play_small": {"vis_end": 45.0, "no_shadow": ["metal", "rubber"]},
+		"louvers": {"no_shadow": ["alu"], "vis_end": 30.0},
+		"ceiling": {"no_shadow": ["duct", "rubber"]},
+		"neon": {"no_shadow": ["neon", "neon_text"]},
+		"dress_h": {"no_shadow": ["mats_hall", "dark"], "vis_end": 12.0},
+		"dress_v": {"no_shadow": ["mats_vest", "dark"], "vis_end": 12.0},
 	})
 	var tgeo := Time.get_ticks_usec()
+	ms["commit"] = (tgeo - tt) / 1000.0
+	var kit_tris := {}
+	for kn in ctx.kits:
+		kit_tris[kn] = int(ctx.kits[kn].tri_count)
+	physics = Physics.new()
+	add_child(physics)
+	physics.setup(self, ctx)
 	_env_nodes()
 	_setup_door()
 	_setup_nav()
@@ -150,6 +185,10 @@ func build(world = null) -> void:
 		"ball_triangles": find_children("*", "MultiMeshInstance3D", true, false).reduce(func(acc, m): return acc + (m as MultiMeshInstance3D).multimesh.instance_count * 80, 0),
 		"colliders": find_children("*", "CollisionShape3D", true, false).size(),
 		"missing_textures": ctx.mats.missing,
+		"physics": physics.stats() if physics != null else {},
+		"dressing": dressing.counts if dressing != null else {},
+		"wrap_chunks": find_children("*_wraps_*", "MeshInstance3D", true, false).size(),
+		"stage_ms": ms, "kit_tris": kit_tris, "commit_ms": ctx.commit_ms,
 	}
 	_update_zone(true)
 	_debug_args()
@@ -256,9 +295,9 @@ func _env_nodes() -> void:
 	fog.position = Vector3((GL.HALLB.x0 + GL.HALLB.x1) * 0.5, (GL.HALL + GL.HALLB.roof) * 0.5, (GL.HALLB.z0 + GL.HALLB.z1) * 0.5)
 	fog.shape = RenderingServer.FOG_VOLUME_SHAPE_BOX
 	var fm := FogMaterial.new()
-	fm.density = 0.018
-	fm.albedo = Color(0.85, 0.83, 0.78)
-	fm.height_falloff = 0.08
+	fm.density = 0.025
+	fm.albedo = Color(0.78, 0.76, 0.72)
+	fm.height_falloff = 0.3          # the dust hangs low, in the light cones over the play floor; the roof stays black
 	fm.edge_fade = 0.4
 	fog.material = fm
 	add_child(fog)
@@ -444,15 +483,13 @@ func _set_pit(on: bool) -> void:
 		p.set("speed_scale", 0.55 if on else 1.0)
 	if on:
 		_play("ball_rustle", p.global_position if p else Vector3.ZERO, -2.0, 1.0)
-	elif _balls_mat:
-		_balls_mat.set_shader_parameter("push_pos", Vector3(0, -100, 0))
 
 # ====================================================================== lights, zones, power
 
 func _setup_flicker() -> void:
 	for l in ctx.lights:
 		if l.state == "flicker" and l.kind != "spill":
-			var f := {"light": l.light, "emit": l.emit, "base": float(l.base), "t": _rng.randf_range(0.0, 3.0), "phase": 0, "extra": []}
+			var f := {"light": l.light, "emit": l.emit, "emit2": l.get("emit2"), "base": float(l.base), "t": _rng.randf_range(0.0, 3.0), "phase": 0, "extra": []}
 			# the ceiling spill of a flickering troffer follows it
 			for o in ctx.lights:
 				if o.kind == "spill" and o.state == "flicker" and Vector2(o.pos.x, o.pos.z).distance_to(Vector2(l.pos.x, l.pos.z)) < 0.5:
@@ -465,6 +502,14 @@ func set_power(on: bool) -> void:
 		return
 	if not on:
 		_ambience(false)
+	if dressing != null:
+		dressing.set_motes(on and _zone == "hall")
+	# SORTIE signs: a faint glow while the fixtures are on; when the power dies their battery emergency heads come on
+	# and, with our neon (its own circuit), they become the only key lights of the dark garderie
+	for s in ctx.signs:
+		var sl := s as Light3D
+		if sl != null and String(sl.name).begins_with("Sortie"):
+			sl.light_energy = (Shell.KEY_ENERGY if not on else Shell.SIGN_IDLE) * (0.85 if String(sl.name).ends_with("vest") else 1.0)
 	for l in ctx.lights:
 		var lt: Light3D = l.light
 		var dead: bool = l.state == "dead"
@@ -472,12 +517,48 @@ func set_power(on: bool) -> void:
 		lt.light_energy = float(l.base) * light_scale
 		var em = l.emit
 		if em is StandardMaterial3D and l.state != "dead":
-			(em as StandardMaterial3D).emission_energy_multiplier = (5.0 if l.kind == "highbay" else (9.0 if l.kind == "bulb" else 3.2)) * (1.0 if on else 0.0)
+			(em as StandardMaterial3D).emission_energy_multiplier = _emit_energy(l.kind) * (1.0 if on else 0.0)
+		var em2 = l.get("emit2")
+		if em2 is StandardMaterial3D:
+			(em2 as StandardMaterial3D).emission_energy_multiplier = REFL_EMIT * (1.0 if on else 0.0)
 	_update_zone(true)
+
+## Emission of the tubes behind the fixtures (bright cores behind louvers / reflectors, like the reference).
+const TUBE_EMIT := 10.0
+const REFL_EMIT := 1.3
+
+static func _emit_energy(kind: String) -> float:
+	return 9.0 if kind == "bulb" else TUBE_EMIT
 
 func set_light_scale(k: float) -> void:
 	light_scale = k
 	set_power(power)
+
+## Optional quality hook (the look module may call it with its preset): "low" drops the dust motes, the key lights'
+## shadows (the neon keeps its own) and the fixtures' PCSS size, and shortens the debris range; "medium" keeps the
+## motes but no PCSS; "high" / "ultra" = everything (the budgeted look).
+var quality := "high"
+
+func apply_quality(q: String) -> void:
+	quality = q
+	if ctx == null:
+		return
+	var low := q == "low"
+	var pcss := q == "high" or q == "ultra"
+	for l in ctx.lights:
+		if l.kind == "highbay" or l.kind == "troffer":
+			(l.light as Light3D).light_size = 0.2 if pcss else 0.0
+	for s in ctx.signs:
+		var sl := s as Light3D
+		if sl != null:
+			sl.shadow_enabled = not low or String(sl.name) == "NeonSign"
+	if dressing != null:
+		for m in dressing.motes:
+			if is_instance_valid(m):
+				m.amount_ratio = 0.0 if low else 1.0
+	for mmi in find_children("Debris_*", "MultiMeshInstance3D", true, false):
+		var big := String(mmi.name).contains("cup") or String(mmi.name).contains("sock")
+		(mmi as GeometryInstance3D).visibility_range_end = (14.0 if big else 10.0) if low else (22.0 if big else 16.0)
 
 ## Lights of rooms the camera cannot see are hidden (shadow maps and clustered cost), zone by zone.
 func _update_zone(force := false) -> void:
@@ -492,6 +573,10 @@ func _update_zone(force := false) -> void:
 		return
 	_zone = z
 	_ambience(z != "house")
+	if physics != null:
+		physics.set_active(z == "hall")
+	if dressing != null:
+		dressing.set_motes(z == "hall" and power)
 	for l in ctx.lights:
 		var lt: Light3D = l.light
 		var on: bool = power and l.state != "dead" and not l.get("killed", false)
@@ -538,26 +623,31 @@ func _tick_flicker(dt: float) -> void:
 		if f.get("dead", false):
 			continue
 		f.t -= dt
-		var on := true
+		if f.t >= 0.0 and f.get("set", false):
+			continue                    # only touch the light when its phase changes (a shadowed light whose
+										# parameters change every frame would re-render its shadow map every frame)
+		f["set"] = true
 		if f.t < 0.0:
 			f.phase = (int(f.phase) + 1) % 12
 			f.t = _rng.randf_range(0.03, 0.18) if int(f.phase) % 2 == 1 else _rng.randf_range(0.1, 2.6)
-		on = int(f.phase) % 2 == 0
+		var on: bool = int(f.phase) % 2 == 0
 		var k := 1.0 if on else _rng.randf_range(0.0, 0.15)
 		lt.light_energy = float(f.base) * light_scale * k
 		for e in f.extra:
 			(e[0] as Light3D).light_energy = float(e[1]) * light_scale * k
 		var em = f.emit
 		if em is StandardMaterial3D:
-			(em as StandardMaterial3D).emission_energy_multiplier = 5.0 * k
+			(em as StandardMaterial3D).emission_energy_multiplier = TUBE_EMIT * k
+		var em2 = f.emit2
+		if em2 is StandardMaterial3D:
+			(em2 as StandardMaterial3D).emission_energy_multiplier = REFL_EMIT * k
 
 func _tick_pit(dt: float) -> void:
 	var p := _player()
 	if p == null:
 		return
+	# (the balls around the legs are real rigid bodies now: garderie_physics.gd)
 	var feet: Vector3 = (p as Node3D).global_position
-	if _balls_mat:
-		_balls_mat.set_shader_parameter("push_pos", feet)
 	var spd := float(p.get("speed")) if p.get("speed") != null else 0.0
 	_pit_noise_t -= dt
 	if spd > 0.3 and _pit_noise_t <= 0.0:
@@ -619,8 +709,8 @@ func _ball_roll() -> void:
 	var P: Dictionary = GL.PIT
 	var ball := RigidBody3D.new()
 	ball.name = "RollingBall"
-	ball.collision_layer = 0
-	ball.collision_mask = LAYER_WORLD
+	ball.collision_layer = 32
+	ball.collision_mask = LAYER_WORLD | 32
 	ball.mass = 0.05
 	ball.linear_damp = 0.35
 	ball.angular_damp = 0.4
@@ -634,10 +724,11 @@ func _ball_roll() -> void:
 	sm.radius = 0.037
 	sm.height = 0.074
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.85, 0.12, 0.1)
+	mat.albedo_color = Color(0.72, 0.08, 0.06)
 	mat.roughness = 0.25
 	sm.material = mat
 	mi.mesh = sm
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	ball.add_child(mi)
 	add_child(ball)
 	ball.global_position = Vector3(float(P.x1) - 0.12, GL.HALL + float(P.wall_h) + 0.06, float(P.gate_z0) + 0.4)
@@ -676,6 +767,8 @@ func reset_after_caught() -> void:
 	_scare_t = 40.0
 	if in_ball_pit:
 		_set_pit(false)
+	if physics != null:
+		physics.release_all()
 
 ## Teleports the player into the area with the right floor height (the house's ground_height_at knows nothing
 ## about the 1.05 m lower hall or the play decks): Game.world answers with this node during the call.
@@ -784,6 +877,28 @@ func _loop(key: String, pos: Vector3, vol_db := 0.0) -> Variant:
 
 func _noise(pos: Vector3, loudness: float, source: String) -> void:
 	Events.noise.emit(pos, loudness, source)
+
+## Impact sound of a physics body (garderie_physics.gd): vol 0..1 from the contact impulse. "ball_bounce" (a light
+## plastic tick: the fallback "bump" is pitched up) or "foam_thud" (soft, muffled). Big foam impacts are heard by
+## La Gardienne.
+func play_impact(kind: String, pos: Vector3, vol: float) -> void:
+	var n := _sfx_name(kind)
+	var a := _audio()
+	if n == "" or a == null or not a.has_method("play"):
+		return
+	var opts := {"position": pos, "volume": clampf(vol, 0.0, 1.0)}
+	if kind == "ball_bounce":
+		opts["pitch"] = _rng.randf_range(0.92, 1.08) * (2.0 if n != "ball_bounce" else 1.0)
+		if n != "ball_bounce":
+			opts["volume_db"] = -10.0
+	else:
+		opts["pitch"] = _rng.randf_range(0.9, 1.05) * (1.25 if n != "foam_thud" else 1.0)
+		if n != "foam_thud":
+			opts["filter_hz"] = 900.0
+			opts["volume_db"] = -6.0
+		if vol > 0.45:
+			_noise(pos, 0.15 + 0.2 * vol, "foam")
+	a.call("play", n, opts)
 
 ## Positional loops of the area (started while the camera is in the area, stopped in the house so they hold no
 ## voices): flickering tubes' buzz, two working high-bays' hum, the hall's room tone.

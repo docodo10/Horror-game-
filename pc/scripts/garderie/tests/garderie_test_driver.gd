@@ -63,6 +63,9 @@ func _run() -> void:
 	_test_interact(fake)
 	await _test_deferred_registration(fake)
 	_test_ground_api()
+	_test_lighting()
+	_test_dressing()
+	await _test_physics()
 	check(ms < 3000, "build() under 3 s (%d ms)" % ms)
 	for e in _log.errors:
 		print("logged error: ", e)
@@ -313,6 +316,233 @@ func _test_deferred_registration(first: Node) -> void:
 	_g.get_parent().add_child(late)
 	await get_tree().process_frame
 	check(late.entries.has("garderie.door") and late.entries.has("garderie.tunnel.exit"), "entries registered when the Interaction node appears later")
+
+# ---------------------------------------------------------------- lighting, dressing
+
+func _test_lighting() -> void:
+	var working := 0
+	var shadowed := 0
+	for l in _g.ctx.lights:
+		var lt: Light3D = l.light
+		if l.state == "dead" or l.kind == "spill":
+			continue
+		working += 1
+		if lt.shadow_enabled:
+			shadowed += 1
+		if lt is SpotLight3D and l.kind == "highbay":
+			var s := lt as SpotLight3D
+			check(s.spot_angle >= 58.0 and s.spot_angle <= 62.0, "high-bay cone 58-62° (%.0f)" % s.spot_angle)
+		if lt is SpotLight3D and l.kind == "troffer":
+			var s := lt as SpotLight3D
+			check(absf(s.spot_angle - 65.0) < 0.5 and absf(s.spot_angle_attenuation - 1.2) < 0.01 and s.light_projector != null, "troffer 65°, attenuation 1.2, louver projector")
+		if l.kind != "bulb":
+			check(absf(lt.light_size - 0.2) < 0.001 and absf(lt.shadow_blur - 1.0) < 0.001, "%s light_size 0.2, shadow_blur 1.0" % l.kind)
+			check(lt.distance_fade_enabled and absf(lt.distance_fade_begin - 20.0) < 0.01 and absf(lt.distance_fade_shadow - 12.0) < 0.01, "%s distance fade 20 / shadow 12 m" % l.kind)
+			var lc := lt.light_color
+			check(lc.r >= lc.b and lc.r >= lc.g, "%s white is neutral-warm, not bluish (%s)" % [l.kind, lc])
+	check(working > 0 and shadowed == working, "every working fixture casts shadows (%d / %d)" % [shadowed, working])
+	# key lights of the dark state: SORTIE signs + our neon, shadowed, energy 1.5-2.5, range 4-6 m once the power is cut
+	_g.set_power(false)
+	var keys := 0
+	for s in _g.ctx.signs:
+		var sl := s as SpotLight3D
+		if sl == null:
+			continue
+		keys += 1
+		check(sl.shadow_enabled and sl.light_energy >= 1.5 and sl.light_energy <= 2.5 and sl.spot_range >= 4.0 and sl.spot_range <= 6.0,
+			"key light %s: shadows, energy %.1f, range %.1f" % [sl.name, sl.light_energy, sl.spot_range])
+	check(keys >= 4 and not _g.ctx.neon.is_empty(), "SORTIE signs + neon key lights (%d)" % keys)
+	var lit_after := 0
+	for l in _g.ctx.lights:
+		if (l.light as Light3D).visible:
+			lit_after += 1
+	var signs_on: bool = _g.ctx.signs.all(func(s): return (s as Light3D).visible)
+	check(lit_after == 0 and signs_on, "power cut: fixtures off (%d left), key lights on" % lit_after)
+	_g.set_power(true)
+	var fog := _g.find_child("HallDust", true, false) as FogVolume
+	check(fog != null and absf((fog.material as FogMaterial).density - 0.025) < 0.0005, "HallDust density 0.025")
+
+func _test_dressing() -> void:
+	var counts: Dictionary = _g.dressing.counts
+	check(int(counts.get("debris", 0)) >= 300 and int(counts.get("debris", 0)) <= 600, "300-600 debris instances (%d)" % counts.get("debris", 0))
+	check(int(counts.get("decals", 0)) >= 25 and int(counts.get("decals", 0)) <= 45, "25-40ish decals (%d)" % counts.get("decals", 0))
+	check(int(counts.get("motes", 0)) >= 3, "dust motes under 3-4 fixtures (%d)" % counts.get("motes", 0))
+	var decals: Array = _g.find_children("*", "Decal", true, false)
+	check(decals.all(func(d): return (d as Decal).texture_albedo != null and (d as Decal).distance_fade_enabled), "decals textured, distance-faded")
+	var mmis: Array = _g.find_children("Debris_*", "MultiMeshInstance3D", true, false)
+	check(mmis.all(func(m): return (m as GeometryInstance3D).cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF and (m as GeometryInstance3D).visibility_range_end > 0.0), "debris MultiMeshes: no shadows, visibility range")
+	var wraps: Array = _g.find_children("*_wraps_*", "MeshInstance3D", true, false)
+	var lods := 0
+	for w in wraps:
+		var m := (w as MeshInstance3D).mesh as ArrayMesh
+		if m != null and m.get_surface_count() > 0:
+			lods += 1
+	check(wraps.size() >= 6, "hero padded columns built as LOD'd meshes (%d)" % wraps.size())
+	_g.apply_quality("low")
+	var low_ok: bool = not _g.ctx.signs.any(func(s): return (s as Light3D).shadow_enabled and String((s as Node).name) != "NeonSign")
+	_g.apply_quality("high")
+	var high_ok: bool = _g.ctx.signs.all(func(s): return (s as Light3D).shadow_enabled)
+	check(low_ok and high_ok, "apply_quality low / high")
+
+# ---------------------------------------------------------------- physics
+
+var _fake: CharacterBody3D = null
+
+func _make_fake() -> CharacterBody3D:
+	var f := CharacterBody3D.new()
+	f.name = "FakePlayer"
+	f.collision_layer = 4
+	f.collision_mask = LAYER_WORLD
+	var cs := CollisionShape3D.new()
+	var sh := CapsuleShape3D.new()
+	sh.radius = 0.25
+	sh.height = 1.75
+	cs.shape = sh
+	cs.position = Vector3(0, 0.875, 0)
+	f.add_child(cs)
+	var cam := Camera3D.new()
+	cam.position = Vector3(0, 1.62, 0)
+	f.add_child(cam)
+	_g.get_parent().add_child(f)
+	cam.current = true
+	return f
+
+var _body_hits := 0
+
+func _walk(v: Vector3, frames: int) -> void:
+	for i in frames:
+		_fake.velocity = v + Vector3(0, -2.0, 0)
+		_fake.move_and_slide()
+		for k in _fake.get_slide_collision_count():
+			var kc := _fake.get_slide_collision(k)
+			if kc.get_collider() is RigidBody3D:
+				_body_hits += 1
+				if _body_hits < 4:
+					print("[dbg] hit %s n %s rem %s vel %s script %s" % [(kc.get_collider() as Node).name, kc.get_normal(), kc.get_remainder(), _fake.velocity, (kc.get_collider() as Object).get_script()])
+		await get_tree().physics_frame
+
+func _wait(frames: int) -> void:
+	for i in frames:
+		await get_tree().physics_frame
+
+func _test_physics() -> void:
+	var ph = _g.physics
+	check(ph != null, "physics module built")
+	if ph == null:
+		return
+	var P: Dictionary = GL.PIT
+	_fake = _make_fake()
+	ph.actor = _fake
+	# balls never cast shadows
+	var meshes: Array = ph.get_node("BallPool").find_children("Mesh", "MeshInstance3D", true, false)
+	check(not meshes.is_empty() and meshes.all(func(m): return (m as GeometryInstance3D).cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF), "physics balls cast no shadows")
+	check(ph.stats().pool >= 160 and ph.stats().pool <= 240, "ball pool 160-240 (%d)" % ph.stats().pool)
+	# into the pit: the bubble promotes the balls around the legs
+	_fake.global_position = Vector3(-27.6, GL.HALL, 6.6)
+	await _wait(45)
+	var promoted: int = ph.active_balls()
+	print("[garderie] physics: %d balls promoted around the feet" % promoted)
+	check(promoted >= 60 and promoted <= GL.BALL_POOL, "ball bubble around the player (%d rigid balls)" % promoted)
+	# wade 1.6 m east through the pit
+	var sample := _first_active_ball_pos(ph)
+	await _walk(Vector3(1.0, 0, 0), 96)
+	var s1 = ph.stats()
+	print("[garderie] physics after wading: ", s1)
+	check(int(s1.pushes) > 0, "the legs push the balls (%d nudges)" % s1.pushes)
+	check(int(s1.promoted) > promoted, "the bubble follows the player (%d promotions)" % s1.promoted)
+	# settle
+	_fake.velocity = Vector3.ZERO
+	await _wait(300)
+	var awake: int = ph.awake_balls()
+	if awake > 0:
+		var speeds: Array = []
+		for slot in ph._used:
+			var b: RigidBody3D = ph._pool[slot]
+			if not b.sleeping:
+				speeds.append([snappedf(b.linear_velocity.length(), 0.001), snappedf(b.angular_velocity.length(), 0.01), b.global_position, b.get_contact_count()])
+		speeds.sort_custom(func(a, b): return a[0] > b[0])
+		print("[dbg] awake balls (v, w, pos, contacts): ", speeds.slice(0, 6), " ... ", speeds.slice(speeds.size() - 3))
+	check(awake == 0, "balls settle and sleep (%d still awake after 5 s)" % awake)
+	check(_balls_inside(ph, P), "no ball below the pit bed / floor or through a wall after wading")
+	# tunnelling stress: slam balls into the bed and into the pit's north wall
+	var thrown := 0
+	for slot in ph._used:
+		var b: RigidBody3D = ph._pool[slot]
+		if thrown < 10:
+			b.global_position = Vector3(b.global_position.x, GL.HALL + 0.75, b.global_position.z)
+			b.linear_velocity = Vector3(0.0, -9.0, 0.0)
+		elif thrown < 20:
+			b.global_position = Vector3(clampf(b.global_position.x, float(P.x0) + 0.5, float(P.x1) - 0.5), GL.HALL + 0.47, float(P.z0) + 0.6)
+			b.linear_velocity = Vector3(0.0, 0.0, -8.0)
+		else:
+			break
+		b.sleeping = false
+		thrown += 1
+	await _wait(150)
+	check(_balls_inside(ph, P), "no tunnelling: balls slammed at 8-9 m/s stay in the pit (escaped %d)" % ph.escaped)
+	check(ph.escaped == 0, "no ball reset for leaving the area (%d)" % ph.escaped)
+	check(int(ph.stats().impacts) > 0, "impacts play sounds (%d)" % ph.stats().impacts)
+	# leave the pit (still in the hall): every rigid ball sleeps and goes back into its MultiMesh
+	_fake.global_position = Vector3(-21.0, GL.HALL, -0.5)
+	await _wait(240)
+	check(ph.active_balls() == 0, "bodies sleep and return to the MultiMesh when the player leaves (%d left)" % ph.active_balls())
+	# foam blocks: pushable, never through a wall, asleep afterwards
+	var blocks: Array = ph.blocks()
+	check(blocks.size() >= 6, "pushable foam blocks (%d)" % blocks.size())
+	var big: RigidBody3D = null
+	for b in blocks:
+		if (b as Node).name.begins_with("Block6"):
+			big = b
+	check(big != null and big.mass >= 1.2 and big.mass <= 3.0 and absf(big.physics_material_override.friction - 0.9) < 0.01 and absf(big.angular_damp - 2.0) < 0.01,
+		"foam block 1.2-3 kg, friction 0.9, angular damp 2")
+	if big != null:
+		var z0b := big.global_position.z
+		_fake.global_position = Vector3(big.global_position.x, GL.HALL, z0b + 0.95)
+		await _wait(3)
+		await _walk(Vector3(0, 0, -1.4), 90)
+		var moved := z0b - big.global_position.z
+		print("[garderie] physics: block pushed %.2f m (%d contacts with rigid bodies, fake at %s)" % [moved, _body_hits, _fake.global_position])
+		check(moved > 0.4, "the player pushes a foam block (%.2f m)" % moved)
+	# jam a toddler block against the west wall: it must not go through
+	var tb: RigidBody3D = blocks[0]
+	_fake.global_position = Vector3(tb.global_position.x + 0.8, GL.HALL, tb.global_position.z)
+	await _wait(3)
+	await _walk(Vector3(-1.9, 0, 0), 150)
+	check(tb.global_position.x > float(GL.HALLB.x0) + 0.1 and tb.global_position.y > GL.HALL - 0.02, "a block jammed against the wall stays in the hall (x %.2f)" % tb.global_position.x)
+	await _wait(240)
+	check(blocks.all(func(b): return (b as RigidBody3D).sleeping), "blocks sleep once at rest")
+	# out of the hall: everything released
+	_fake.global_position = Vector3(-8.0, 0.0, 2.1)
+	await _wait(30)
+	check(ph.active_balls() == 0 and not ph._active, "physics idle outside the hall")
+	ph.actor = null
+	_fake.queue_free()
+
+func _first_active_ball_pos(ph) -> Vector3:
+	for slot in ph._used:
+		return (ph._pool[slot] as Node3D).global_position
+	return Vector3.ZERO
+
+## Pit balls stay inside the pit's walls (or spilled through the gate onto the floor east of it), floor balls on
+## the floor inside the hall; none below the floor / bed.
+func _balls_inside(ph, P: Dictionary) -> bool:
+	var H: Dictionary = GL.HALLB
+	for slot in ph._used:
+		var b = ph._pool[slot]
+		var p: Vector3 = (b as Node3D).global_position
+		var bad := p.y < GL.HALL + 0.02 or p.x < float(H.x0) or p.z < float(H.z0) or p.z > float(H.z1)
+		var t: float = P.wall_t
+		var in_outer := p.x > float(P.x0) and p.x < float(P.x1) and p.z > float(P.z0) and p.z < float(P.z1)
+		var in_inner := p.x > float(P.x0) + t and p.x < float(P.x1) - t and p.z > float(P.z0) + t and p.z < float(P.z1) - t
+		if in_inner and p.y < GL.HALL + 0.2:
+			bad = true              # under the bed
+		var in_gate := p.z > float(P.gate_z0) and p.z < float(P.gate_z1)
+		if in_outer and not in_inner and not in_gate and p.y < GL.HALL + float(P.wall_h) - 0.01:
+			bad = true              # inside a pit wall
+		if bad:
+			printerr("  ball outside: %s (source %d)" % [p, b.src])
+			return false
+	return true
 
 func _test_ground_api() -> void:
 	check(absf(_g.ground_height_at(-8.0, 2.1) - 0.0) < 0.001, "ground_height_at corridor")

@@ -34,10 +34,16 @@ func run(log) -> void:
 	check(Game.state == "playing", "game reached 'playing' (autostart)")
 	Events.noise.connect(func(p: Vector3, l: float, s: String) -> void: _noises.append([p, l, s]))
 	var t0 := Time.get_ticks_msec()
-	g = Garderie.new()
-	main.add_child(g)
-	await g.build(Game.world)
-	print("[game] garderie build ", Time.get_ticks_msec() - t0, " ms ", g.stats)
+	var existing = Game.get("garderie")
+	if existing is Node3D and is_instance_valid(existing) and existing.get("built") == true:
+		# main.gd builds the garderie itself now: drive that one (a second copy would double every light)
+		g = existing
+		print("[game] using main.gd's garderie (built in %.0f ms) %s" % [g.build_ms, g.stats])
+	else:
+		g = Garderie.new()
+		main.add_child(g)
+		await g.build(Game.world)
+		print("[game] garderie build ", Time.get_ticks_msec() - t0, " ms ", g.stats)
 	var it: Node = Game.interaction
 	var pl: Node3D = Game.player
 	check(it != null and pl != null, "real interaction + player present")
@@ -96,7 +102,47 @@ func run(log) -> void:
 	g.teleport_player(Vector3(-22.0, GL.HALL, 5.0), PI * 0.5)
 	await _frames(30)
 	check(not g.in_ball_pit, "ball pit releases the player")
+	await _test_physics(pl)
 	_finish()
+
+## The real player (player.gd, untouched) wades through the pit and pushes a foam block, through real input actions.
+func _test_physics(pl: Node3D) -> void:
+	var ph = g.get("physics")
+	check(ph != null, "garderie physics present")
+	if ph == null:
+		return
+	g.teleport_player(Vector3(-28.4, GL.HALL, 6.6), -PI * 0.5)      # facing east (+x)
+	await _frames(40)
+	var promoted: int = ph.active_balls()
+	check(promoted > 40, "rigid balls around the real player in the pit (%d)" % promoted)
+	var pushes0: int = ph.stats().pushes
+	Input.action_press("move_forward")
+	await _frames(70)
+	Input.action_release("move_forward")
+	await _frames(20)
+	var s = ph.stats()
+	print("[game] physics after wading: ", s, " player at ", pl.global_position)
+	check(int(s.pushes) > pushes0, "the player's legs push the balls (%d nudges)" % (int(s.pushes) - pushes0))
+	check(int(s.escaped) == 0, "no ball escaped the area")
+	# a foam block: walk into it (north)
+	var blk: RigidBody3D = null
+	for b in ph.blocks():
+		if String((b as Node).name).begins_with("Block1_"):
+			blk = b
+	if blk != null:
+		var z0 := blk.global_position.z
+		g.teleport_player(Vector3(blk.global_position.x, GL.HALL, z0 + 0.95), 0.0)
+		await _frames(20)
+		Input.action_press("move_forward")
+		await _frames(100)
+		Input.action_release("move_forward")
+		await _frames(10)
+		print("[game] block pushed %.2f m (player at %s)" % [z0 - blk.global_position.z, pl.global_position])
+		check(z0 - blk.global_position.z > 0.3, "the real player pushes a foam block (%.2f m)" % (z0 - blk.global_position.z))
+	# leave the hall: everything goes back to sleep / the MultiMesh
+	g.teleport_player(Vector3(-6.0, 0.0, 2.1), PI * 0.5)
+	await _frames(60)
+	check(ph.active_balls() == 0, "no rigid ball left once the player is out of the hall (%d)" % ph.active_balls())
 
 func _finish() -> void:
 	var mine: Array = []
