@@ -175,6 +175,9 @@ static func _walls(c) -> void:
 	# a red SORTIE sign over the way back to the house (inside the vestibule, over the corridor opening)
 	Shell.board(k, "steel_up", Vector3(float(V.x1) - 0.06, 2.42, 1.35), Vector3.LEFT, 0.42, 0.17, 0.08, Color(0.2, 0.2, 0.2))
 	Shell.sign_quad(k, "emit_sortie_red.png", Vector3(float(V.x1) - 0.101, 2.42, 1.35), Vector3.LEFT, 0.38, 0.14)
+	# battery-backed: with the neon and the hall's SORTIE signs, the only key light once the power is cut
+	Shell.sign_light(c, c.region("vest"), Vector3(float(V.x1) - 0.22, 2.3, 1.35), Vector3(-1.0, -0.55, 0.0), Color(1.0, 0.14, 0.08), Shell.MASK_FRONT, "Sortie_vest",
+		Shell.KEY_ENERGY * 0.85, Shell.KEY_RANGE - 0.5)
 
 static func _gate_and_doors(c) -> void:
 	var k = c.kit("props_v")

@@ -32,7 +32,7 @@ const VEST_OUT := {"z0": 1.2, "z1": 3.0, "h": 2.2}         # double doors to the
 const VEST_COLUMNS := [Vector2(-14.1, 0.55), Vector2(-14.1, 3.65)]
 ## 2' x 4' troffers in the 2' ceiling grid: (cell i along x from VEST.x0, cell j along z from VEST.z0, state)
 ## state: on | shadow | flicker | dead
-const VEST_LIGHTS := [[7, 1, "shadow"], [2, 6, "on"], [2, 1, "flicker"], [7, 6, "dead"]]
+const VEST_LIGHTS := [[7, 1, "shadow"], [2, 6, "on"], [2, 1, "flicker"], [7, 6, "dead"], [5, 4, "on"]]
 
 # ---------------------------------------------------------------- hall
 const HALLB := {"x0": -39.0, "x1": -17.2, "z0": -7.0, "z1": 11.0, "roof": 7.0, "wall": 0.3}
@@ -89,6 +89,40 @@ const PIT := {"x0": -29.8, "x1": -24.6, "z0": 4.6, "z1": 8.6, "wall_h": 0.55, "w
 const PARTY := {"x0": -23.6, "x1": -18.4, "z0": 6.0, "z1": 10.2}
 const TODDLER := {"x0": -38.6, "x1": -35.6, "z0": 3.6, "z1": 10.4}
 const MURAL := {"x0": -36.5, "x1": -20.5, "y0": HALL + 0.7, "y1": HALL + 4.7, "z": -7.0}
+
+# ---------------------------------------------------------------- set dressing / fixtures
+## Footpath wear on the EVA mats (ax, az, bx, bz): where years of kids walked (lighter, polished mats).
+const WEAR_HALL := [
+	[-21.4, 2.1, -22.4, -1.0], [-21.4, 2.1, -24.2, 6.6], [-21.4, 2.1, -21.0, 7.6], [-24.0, 3.2, -34.6, 3.2],
+	[-20.0, -4.3, -21.4, 1.6], [-31.0, 6.4, -29.6, 6.6], [-34.6, 3.2, -35.4, 6.8], [-21.6, -1.2, -20.6, -1.2],
+]
+const WEAR_VEST := [[-11.2, 2.1, -17.0, 2.1], [-14.1, 2.1, -14.1, 4.2], [-13.0, 2.1, -15.6, 0.6]]
+## Spiral ducts (60 cm) across the hall under the roof, ladder cable trays (x, z0, z1).
+const DUCT_Y := 5.9
+const DUCTS := [-1.6, 4.4]
+const DUCT_R := 0.3
+const TRAY_Y := 6.18
+const TRAYS := [-22.6, -34.0]
+## Our own neon sign (south wall, above the party tables): centre, size of the backboard.
+const NEON := {"x": -21.0, "z": 11.0, "y": HALL + 3.55, "w": 2.9, "h": 0.95}
+## Pushable foam blocks (rigid bodies): [kind, position (floor), size, colour index, yaw]. kind: cube | cyl | wedge.
+## (off La Gardienne's nav links: the test sweeps her capsule along them)
+const BLOCKS := [
+	["cube", Vector3(-37.6, HALL, 5.0), Vector3(0.42, 0.42, 0.42), 2, 0.3],
+	["cube", Vector3(-36.4, HALL, 9.0), Vector3(0.36, 0.36, 0.36), 0, 0.0],
+	["cube", Vector3(-36.3, HALL, 4.4), Vector3(0.34, 0.34, 0.34), 3, 0.5],
+	["cyl", Vector3(-38.0, HALL, 9.3), Vector3(0.36, 0.42, 0.36), 3, 0.0],
+	["cyl", Vector3(-36.9, HALL, 6.05), Vector3(0.3, 0.4, 0.3), 4, 0.0],
+	["wedge", Vector3(-37.4, HALL, 7.9), Vector3(0.6, 0.35, 0.6), 1, 0.0],
+	["cube", Vector3(-22.3, HALL, 4.6), Vector3(0.5, 0.5, 0.5), 1, 0.04],
+	["cube", Vector3(-22.85, HALL, 4.15), Vector3(0.45, 0.45, 0.45), 0, -0.4],
+	["cube", Vector3(-22.4, HALL + 0.5, 4.55), Vector3(0.36, 0.36, 0.36), 2, 0.9],
+]
+## Ball-pit physics bubble: rigid balls around the player's legs (pool), promotion / demotion radii (m).
+const BALL_POOL := 200
+const BUBBLE_R := 0.45
+const BUBBLE_R_FLOOR := 1.6
+const BUBBLE_DEMOTE := 0.8
 
 # ---------------------------------------------------------------- navigation (ground level, La Gardienne)
 ## y is the floor height at the node.

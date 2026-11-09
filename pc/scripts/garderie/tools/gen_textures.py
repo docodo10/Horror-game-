@@ -4,7 +4,8 @@
     python3 -I pc/scripts/garderie/tools/gen_textures.py <out_dir> [--fonts DIR] [--only name,name] [--ph DIR]
 
 Writes PNG/JPEG maps into <out_dir> (pc/assets/garderie/textures): tileable noise, EVA foam grain, vinyl wrinkles,
-plastic scratches, knotted net, puzzle-mat edge mask, acoustic ceiling tiles, and every French sign / drawing / mural.
+plastic scratches, knotted net, puzzle-mat edge SDF, acoustic ceiling tiles, decals (scuffs, spill, footprints, crayon,
+grime, water stain), the neon lettering, and every French sign / drawing / mural.
 --ph DIR: folder of the downloaded Poly Haven 2K/1K JPEGs -> re-encoded copies (smaller) under their own names.
 Fonts (OFL / Apache, see CREDITS.md) are only used to bake text into the textures; they are not shipped.
 """
@@ -50,6 +51,7 @@ def font(name, size):
     cands = {
         "fredoka": ["Fredoka.ttf"], "chewy": ["Chewy-Regular.ttf"], "patrick": ["PatrickHand-Regular.ttf"],
         "gaegu": ["Gaegu-Bold.ttf"], "gaegu_r": ["Gaegu-Regular.ttf"], "caveat": ["Caveat.ttf"], "oswald": ["Oswald.ttf"],
+        "caveat_b": ["Caveat-Bold.ttf", "Caveat.ttf"],
     }.get(name, [name])
     for c in cands:
         for d in [FONTS, "/usr/share/fonts/truetype/dejavu"]:
@@ -235,57 +237,62 @@ def gen_plastic_scratch():
 
 
 def gen_net():
-    """Knotted square net, 8 x 8 cells per tile (RGBA, alpha = rope)."""
-    S = 2048
+    """Knotted square net, 8 x 8 cells per tile (RGBA, alpha = rope). At the game's uv_scale 2.5 a cell is 5 cm and the
+    cord 3 mm (Subliminal measure: 5-7 cm mesh, 3-4 mm cord), with 1 cm knots at the crossings, grey-black twisted
+    cord (albedo ~0.07)."""
+    S = 4096
     cells = 8
     cs = S / cells
     img = Image.new("L", (S, S), 0)
     d = ImageDraw.Draw(img)
     rng = random.Random(51)
-    w = int(cs * 0.11)
+    w = max(2, int(cs * 0.06))
     for i in range(cells + 1):
         for j in range(cells):
             # vertical strand segment i between knots j and j+1 (slight sag / waviness)
-            x0 = i * cs + rng.uniform(-2, 2)
+            x0 = i * cs + rng.uniform(-4, 4)
             pts = []
             for k in range(9):
                 t = k / 8
                 y = (j + t) * cs
-                x = x0 + math.sin(t * math.pi) * rng.uniform(-3, 3)
+                x = x0 + math.sin(t * math.pi) * rng.uniform(-6, 6)
                 pts.append((x, y))
             for a, b in zip(pts, pts[1:]):
                 d.line([a, b], fill=255, width=w)
-            y0 = i * cs + rng.uniform(-2, 2)
+            y0 = i * cs + rng.uniform(-4, 4)
             pts = []
             for k in range(9):
                 t = k / 8
                 x = (j + t) * cs
-                y = y0 + math.sin(t * math.pi) * rng.uniform(-3, 3)
+                y = y0 + math.sin(t * math.pi) * rng.uniform(-6, 6)
                 pts.append((x, y))
             for a, b in zip(pts, pts[1:]):
                 d.line([a, b], fill=255, width=w)
-    kr = cs * 0.1
+    kr = cs * 0.095
     for i in range(cells + 1):
         for j in range(cells + 1):
-            cx, cy = i * cs, j * cs
-            d.ellipse([cx - kr, cy - kr, cx + kr, cy + kr], fill=255)
-    # rope twist: thin dark diagonal hatching inside the strands
-    a = np.asarray(img.filter(ImageFilter.GaussianBlur(1.2)), np.float32) / 255.0
+            cx, cy = i * cs + rng.uniform(-3, 3), j * cs + rng.uniform(-3, 3)
+            rx, ry = kr * rng.uniform(0.85, 1.15), kr * rng.uniform(0.75, 1.05)
+            d.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=255)
+    a = np.asarray(img.filter(ImageFilter.GaussianBlur(1.5)), np.float32) / 255.0
     yy, xx = np.mgrid[0:S, 0:S].astype(np.float32)
-    twist = (np.sin((xx + yy) * 0.55) * 0.5 + 0.5) * 0.35 + 0.65
-    col = np.clip(twist * 0.9, 0, 1)
-    rgb = np.stack([col * 0.07, col * 0.075, col * 0.1], -1)
+    twist = (np.sin((xx + yy) * 0.33) * 0.5 + 0.5) * 0.4 + 0.6
+    col = np.clip(twist, 0, 1)
+    rgb = np.stack([col * 0.068, col * 0.07, col * 0.078], -1)
     img = Image.fromarray(np.clip(np.concatenate([rgb, a[..., None]], -1) * 255 + 0.5, 0, 255).astype(np.uint8), "RGBA")
-    img = img.resize((512, 512), Image.LANCZOS)
+    img = img.resize((1024, 1024), Image.LANCZOS)
     save(img, "net.png")
 
 
 def gen_mat_edge():
-    """Puzzle-mat (EVA tile) edge mask across one tile edge.
+    """Puzzle-mat (EVA tile) edge across one tile edge, as a signed-distance field.
     u (x, 128 px) = -D .. +D tile units across the edge, t (y, 1024 px) = 0..1 along it.
-    White = the tile on the negative side owns the point. Six dovetail teeth, plain near the corners."""
+    Value 0.5 + sd / (2 DM): sd = signed distance to the seam in tile units (> 0 where the tile on the negative side
+    owns the point), DM = 0.04. Seven dovetail teeth ~4 cm deep (60 cm tiles), plain near the corners."""
+    from scipy import ndimage
     W, H = 128 * 4, 1024 * 4
     D = 0.1
+    DM = 0.04
     img = Image.new("L", (W, H), 0)
     d = ImageDraw.Draw(img)
 
@@ -293,29 +300,168 @@ def gen_mat_edge():
         return (u + D) / (2 * D) * W
 
     d.rectangle([0, 0, u2x(0.0), H], fill=255)
-    teeth = 6
-    t0, t1 = 0.13, 0.87
+    teeth = 7
+    t0, t1 = 0.1, 0.9
     span = (t1 - t0) / teeth
-    depth = 0.068
+    depth = 0.062
     for k in range(teeth):
         tc = t0 + span * (k + 0.5)
-        neck = span * 0.36
-        head = span * 0.46
+        neck = span * 0.2
+        head = span * 0.33
         sign = 1 if k % 2 == 0 else -1  # +: tooth of the negative-side tile bulging into +u
-        rr = span * 0.12 * H
+        rr = span * 0.1 * H
         if sign > 0:
-            poly = [(u2x(-0.01), (tc - neck) * H), (u2x(depth * 0.55), (tc - neck) * H), (u2x(depth), (tc - head) * H),
-                    (u2x(depth), (tc + head) * H), (u2x(depth * 0.55), (tc + neck) * H), (u2x(-0.01), (tc + neck) * H)]
+            poly = [(u2x(-0.01), (tc - neck) * H), (u2x(depth * 0.5), (tc - neck) * H), (u2x(depth), (tc - head) * H),
+                    (u2x(depth), (tc + head) * H), (u2x(depth * 0.5), (tc + neck) * H), (u2x(-0.01), (tc + neck) * H)]
             d.polygon(poly, fill=255)
-            d.rounded_rectangle([u2x(depth * 0.45), (tc - head) * H, u2x(depth), (tc + head) * H], radius=rr, fill=255)
+            d.rounded_rectangle([u2x(depth * 0.42), (tc - head) * H, u2x(depth), (tc + head) * H], radius=rr, fill=255)
         else:
-            poly = [(u2x(0.01), (tc - neck) * H), (u2x(-depth * 0.55), (tc - neck) * H), (u2x(-depth), (tc - head) * H),
-                    (u2x(-depth), (tc + head) * H), (u2x(-depth * 0.55), (tc + neck) * H), (u2x(0.01), (tc + neck) * H)]
+            poly = [(u2x(0.01), (tc - neck) * H), (u2x(-depth * 0.5), (tc - neck) * H), (u2x(-depth), (tc - head) * H),
+                    (u2x(-depth), (tc + head) * H), (u2x(-depth * 0.5), (tc + neck) * H), (u2x(0.01), (tc + neck) * H)]
             d.polygon(poly, fill=0)
-            d.rounded_rectangle([u2x(-depth), (tc - head) * H, u2x(-depth * 0.45), (tc + head) * H], radius=rr, fill=0)
-    img = img.filter(ImageFilter.GaussianBlur(6))
-    img = img.resize((128, 1024), Image.LANCZOS)
-    save(img, "mat_edge.png")
+            d.rounded_rectangle([u2x(-depth), (tc - head) * H, u2x(-depth * 0.42), (tc + head) * H], radius=rr, fill=0)
+    m = np.asarray(img.filter(ImageFilter.GaussianBlur(2)), np.float32) > 127
+    # signed distance in tile units (pixels are anisotropic: x 2D/W, y 1/H tile units per pixel)
+    sx, sy = 2 * D / W, 1.0 / H
+    din = ndimage.distance_transform_edt(m, sampling=(sy, sx))
+    dout = ndimage.distance_transform_edt(~m, sampling=(sy, sx))
+    sd = np.where(m, din, -dout)
+    v = np.clip(0.5 + sd / (2 * DM), 0.0, 1.0).astype(np.float32)
+    small = np.asarray(Image.fromarray(v, "F").resize((128, 1024), Image.BILINEAR), np.float32)
+    save(Image.fromarray(np.clip(small * 255 + 0.5, 0, 255).astype(np.uint8), "L"), "mat_edge.png")
+
+
+def _radial(size, power=1.0):
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32)
+    r = np.sqrt((xx - size / 2) ** 2 + (yy - size / 2) ** 2) / (size / 2)
+    return np.clip(1.0 - r, 0, 1) ** power
+
+
+def _rgba(rgb, a):
+    a = np.clip(a, 0, 1).astype(np.float32)
+    arr = np.concatenate([np.broadcast_to(np.asarray(rgb, np.float32), a.shape + (3,)), a[..., None]], -1)
+    return Image.fromarray(np.clip(arr * 255 + 0.5, 0, 255).astype(np.uint8), "RGBA")
+
+
+def gen_decals():
+    """Garderie decals (RGBA, alpha = coverage, transparent border): rubber scuffs, a dried juice spill, dusty kid
+    sneaker prints, crayon scribbles, floor grime, a ceiling water stain."""
+    S = 512
+    rng = random.Random(77)
+    yy, xx = np.mgrid[0:S, 0:S].astype(np.float32)
+    edge = _radial(S, 0.6)
+    # --- scuffs: dark rubber streaks (sneakers, chair legs dragged)
+    sc = Image.new("L", (S, S), 0)
+    d = ImageDraw.Draw(sc)
+    for _ in range(26):
+        x, y = rng.uniform(70, S - 70), rng.uniform(70, S - 70)
+        ang = rng.uniform(0, math.pi)
+        ln = rng.uniform(20, 95)
+        bend = rng.uniform(-0.4, 0.4)
+        pts = []
+        for k in range(8):
+            t = k / 7
+            a = ang + bend * t
+            pts.append((x + math.cos(a) * ln * t, y + math.sin(a) * ln * t))
+        d.line(pts, fill=rng.randint(120, 255), width=rng.randint(3, 9), joint="curve")
+    a = np.asarray(sc.filter(ImageFilter.GaussianBlur(1.6)), np.float32) / 255.0
+    a = a * (0.55 + 0.45 * fft_noise(S, 1.2, 701, lo=8)) * edge * 0.85
+    save(_rgba((0.05, 0.045, 0.04), a), "decal_scuffs.png")
+    # --- dried juice spill: irregular puddle, darker coffee-ring rim
+    n = fft_noise(S, 2.4, 702, lo=1, hi=24)
+    blob = np.clip((n * 0.8 + _radial(S, 1.3) * 0.9 - 0.62) * 9.0, 0, 1)
+    blob_b = np.asarray(Image.fromarray((blob * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(5)), np.float32) / 255.0
+    rim = np.clip(blob - blob_b, 0, 1) * 3.0
+    a = np.clip(blob * 0.5 + rim * 0.5, 0, 0.9) * (0.75 + 0.25 * fft_noise(S, 1.0, 703, lo=20))
+    rgb = np.stack([0.28 - rim * 0.12, 0.15 - rim * 0.08, 0.05 + 0 * rim], -1)
+    arr = np.concatenate([np.clip(rgb, 0, 1), a[..., None]], -1)
+    save(Image.fromarray(np.clip(arr * 255 + 0.5, 0, 255).astype(np.uint8), "RGBA"), "decal_spill.png")
+    # --- footprints: four small sneaker prints walking up the texture, grey dust with a tread pattern
+    fp = Image.new("L", (S, S), 0)
+    for k in range(4):
+        cx = S * 0.5 + (-38 if k % 2 == 0 else 38)
+        cy = S * (0.84 - k * 0.22)
+        rot = rng.uniform(-0.15, 0.15)
+        sole = Image.new("L", (90, 200), 0)
+        sd = ImageDraw.Draw(sole)
+        sd.ellipse([8, 0, 82, 120], fill=255)
+        sd.ellipse([14, 125, 76, 198], fill=255)
+        sd.rectangle([20, 60, 70, 150], fill=255)
+        tread = Image.new("L", (90, 200), 0)
+        td = ImageDraw.Draw(tread)
+        for ty in range(0, 200, 12):
+            td.line([(0, ty), (90, ty + 6)], fill=255, width=5)
+        sole = ImageChops.multiply(sole, tread.point(lambda v: int(90 + v * 0.65)))
+        sole = sole.rotate(math.degrees(rot), expand=True)
+        fp.paste(sole, (int(cx - sole.width / 2), int(cy - sole.height / 2)), sole)
+    a = np.asarray(fp.filter(ImageFilter.GaussianBlur(1.2)), np.float32) / 255.0
+    a = a * (0.35 + 0.4 * fft_noise(S, 1.4, 704, lo=6)) * 0.55
+    save(_rgba((0.5, 0.48, 0.44), a), "decal_footprints.png")
+    # --- crayon scribbles (waxy, grainy strokes in three colours)
+    cols = [(0.62, 0.06, 0.05), (0.08, 0.2, 0.55), (0.1, 0.42, 0.12)]
+    rgb = np.zeros((S, S, 3), np.float32)
+    acc = np.zeros((S, S), np.float32)
+    for ci, colr in enumerate(cols):
+        im = Image.new("L", (S, S), 0)
+        d = ImageDraw.Draw(im)
+        x, y = rng.uniform(140, S - 140), rng.uniform(140, S - 140)
+        pts = []
+        for k in range(40):
+            x += rng.uniform(-40, 40)
+            y += rng.uniform(-22, 22) + (14 if k % 2 else -14)
+            x = min(max(x, 60), S - 60)
+            y = min(max(y, 60), S - 60)
+            pts.append((x, y))
+        d.line(pts, fill=255, width=7, joint="curve")
+        m = np.asarray(im, np.float32) / 255.0
+        grain = (fft_noise(S, 0.2, 705 + ci, lo=100) > 0.42).astype(np.float32)
+        m = m * (0.4 + 0.6 * grain)
+        rgb += m[..., None] * np.asarray(colr, np.float32)
+        acc += m
+    a = np.clip(acc, 0, 1) * edge * 0.9
+    rgb = rgb / np.maximum(acc[..., None], 1e-3)
+    arr = np.concatenate([np.clip(rgb, 0, 1), a[..., None]], -1)
+    save(Image.fromarray(np.clip(arr * 255 + 0.5, 0, 255).astype(np.uint8), "RGBA"), "decal_crayon.png")
+    # --- floor grime: soft dark blotches
+    n = fft_noise(S, 2.0, 706, lo=2)
+    a = np.clip((n - 0.42) / 0.58, 0, 1) * _radial(S, 0.9) * 1.1
+    save(_rgba((0.12, 0.1, 0.075), np.clip(a, 0, 0.75)), "decal_grime.png")
+    # --- ceiling water stain: tide lines (rings of a dried leak) around a brown core
+    n = fft_noise(S, 2.2, 707, lo=1, hi=16)
+    r = np.sqrt((xx - S / 2) ** 2 + (yy - S / 2) ** 2) / (S / 2) + (n - 0.5) * 0.45
+    core = np.clip(1.0 - r / 0.75, 0, 1)
+    rings = np.clip(1.0 - np.abs(np.sin(r * 19.0)) * 3.0, 0, 1) * (r < 0.8)
+    a = np.clip(core * 0.45 + rings * 0.35, 0, 0.85)
+    rgb = np.stack([0.42 - rings * 0.12, 0.32 - rings * 0.1, 0.18 - rings * 0.06], -1)
+    arr = np.concatenate([np.clip(rgb, 0, 1), a[..., None]], -1)
+    save(Image.fromarray(np.clip(arr * 255 + 0.5, 0, 255).astype(np.uint8), "RGBA"), "decal_water.png")
+
+
+def gen_neon():
+    """Our own neon lettering "Les Petits Soleils" (handwritten script, Caveat Bold, OFL): glass-tube emission mask
+    (RGB = bright core falling off to the tube edge, A = tube coverage). The sign's sun is real 3D tubing."""
+    from scipy import ndimage
+    W, H = 2048, 512
+    size = 300
+    f = font("caveat_b", size)
+    img = Image.new("L", (W, H), 0)
+    d = ImageDraw.Draw(img)
+    text = "Les Petits Soleils"
+    bb = d.textbbox((0, 0), text, font=f)
+    tw, th = bb[2] - bb[0], bb[3] - bb[1]
+    s = min((W - 80) / tw, (H - 70) / th, 1.0)
+    if s < 1.0:
+        f = font("caveat_b", int(size * s))
+        bb = d.textbbox((0, 0), text, font=f)
+        tw, th = bb[2] - bb[0], bb[3] - bb[1]
+    d.text(((W - tw) / 2 - bb[0], (H - th) / 2 - bb[1]), text, font=f, fill=255)
+    m = np.asarray(img, np.float32) > 127
+    dist = ndimage.distance_transform_edt(m).astype(np.float32)
+    a = np.clip(dist / 1.5, 0, 1)
+    prof = np.clip(dist / 6.0, 0, 1) ** 0.6
+    rgb = np.clip(0.5 + 0.5 * prof, 0, 1)
+    arr = np.stack([rgb, rgb, rgb, a], -1)
+    save(Image.fromarray(np.clip(arr * 255 + 0.5, 0, 255).astype(np.uint8), "RGBA"), "neon_text.png")
 
 
 def gen_ceiling_tiles():
@@ -399,6 +545,7 @@ def reencode_polyhaven():
 if __name__ == "__main__":
     steps = [("noise", gen_noise), ("eva", gen_eva_grain), ("wrinkle", gen_vinyl_wrinkles), ("scratch", gen_plastic_scratch),
              ("net", gen_net), ("matedge", gen_mat_edge), ("ceiling", gen_ceiling_tiles), ("cork", gen_cork),
+             ("decals", gen_decals), ("neon", gen_neon),
              ("ph", reencode_polyhaven)]
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     try:

@@ -13,12 +13,25 @@ const SH_MATS := "res://shaders/garderie_mats.gdshader"
 const SH_NET := "res://shaders/garderie_net.gdshader"
 const SH_BALLS := "res://shaders/garderie_balls.gdshader"
 
-## Paint colours (sRGB) of the daycare: sky blue walls, sunflower band, tomato stripe, teal/tomato trims.
-const SKY := Color(0.62, 0.77, 0.88)
-const SUN := Color(0.93, 0.71, 0.2)
-const TOMATO := Color(0.78, 0.2, 0.15)
-const CREAM := Color(0.9, 0.87, 0.78)
+## Paint / plastic colours (sRGB) of the daycare: deep saturated primaries measured on the reference (Subliminal:
+## red S 0.76-0.91 / V 0.16-0.51, blue S 0.56-0.80 / V 0.11-0.35, yellow S 0.63-0.81 / V 0.28-0.62), steel-blue
+## block walls, sunflower band, tomato trims. Whites stay neutral-warm (5700-6250 K under the fixtures).
+const SKY := Color(0.32, 0.46, 0.58)        # wall blue
+const SUN := Color(0.8, 0.58, 0.1)          # yellow
+const TOMATO := Color(0.6, 0.07, 0.05)      # red
+const BLUE := Color(0.08, 0.2, 0.52)
+const GREEN := Color(0.07, 0.4, 0.14)
+const ORANGE := Color(0.82, 0.34, 0.05)
+const CREAM := Color(0.86, 0.82, 0.72)
 const OLIVE := Color(0.34, 0.42, 0.3)
+## EVA mats: two colours per zone (hall yellow / blue, toddler corner red / green, vestibule blue / ochre, decks blue / red).
+const MAT_YELLOW := Color(0.64, 0.46, 0.09)
+const MAT_BLUE := Color(0.1, 0.2, 0.44)
+const MAT_RED := Color(0.58, 0.08, 0.06)
+const MAT_GREEN := Color(0.09, 0.38, 0.15)
+## Fluorescent tubes (linear): neutral-warm like the reference ceilings, not bluish.
+const FLUO := Color(1.0, 0.97, 0.92)
+const NEON := Color(1.0, 0.52, 0.12)        # our sign's warm neon
 
 var _cache := {}
 var _tex := {}
@@ -47,7 +60,7 @@ func _sm(path: String, params: Dictionary) -> ShaderMaterial:
 	m.shader = _shader(path)
 	for k in params:
 		var v: Variant = params[k]
-		if v is String and (v as String).ends_with(".png") or v is String and (v as String).ends_with(".jpg"):
+		if v is String and ((v as String).ends_with(".png") or (v as String).ends_with(".jpg")):
 			v = tex(v)
 			if v == null:
 				continue
@@ -98,7 +111,7 @@ func _make(id: String) -> Material:
 				"floor_y": GL.UP, "grime": 0.3, "rough_mul": 0.75, "normal_strength": 0.8, "blotch": 0.14})
 		"hall_wall":
 			return _paint("ph_concrete_block_wall_diff_2k.jpg", "ph_concrete_block_wall_nor_gl_2k.jpg", "ph_concrete_block_wall_arm_2k.jpg", {
-				"uv_scale": 0.5, "paint": 1.0, "band_y": GL.HALL + 1.35, "tint_low": SUN, "tint_high": SKY.lerp(CREAM, 0.25),
+				"uv_scale": 0.5, "paint": 1.0, "band_y": GL.HALL + 1.35, "tint_low": SUN, "tint_high": SKY,
 				"stripe_color": TOMATO, "stripe_w": 0.16, "lum_ref": 0.3, "lum_contrast": 0.35, "floor_y": GL.HALL, "grime": 0.45,
 				"grime_h": 1.0, "rough_mul": 0.75, "normal_strength": 0.9, "blotch": 0.2})
 		"mural":
@@ -119,8 +132,22 @@ func _make(id: String) -> Material:
 				"uv_scale": 0.6, "floor_y": GL.HALL, "grime": 0.4, "grime_h": 0.5, "tint_low": Color(0.85, 0.83, 0.8), "tint_high": Color(0.85, 0.83, 0.8)})
 		"roof":
 			return _paint("", "ph_corrugated_iron_02_nor_gl_1k.jpg", "ph_corrugated_iron_02_arm_1k.jpg", {
-				"uv_scale": 0.45, "tint_low": Color(0.16, 0.16, 0.17), "tint_high": Color(0.16, 0.16, 0.17), "grime": 0.0, "metal_mul": 0.0,
+				"uv_scale": 0.45, "tint_low": Color(0.03, 0.03, 0.032), "tint_high": Color(0.03, 0.03, 0.032), "grime": 0.0, "metal_mul": 0.0,
 				"rough_mul": 0.7, "blotch": 0.3})
+		"duct":
+			# galvanised spiral ducts / cable trays under the black roof
+			return _paint("", "", "", {"rough_mul": 0.36, "metal_mul": 0.85, "grime": 0.0, "blotch": 0.35,
+				"tint_low": Color(0.5, 0.5, 0.5), "tint_high": Color(0.5, 0.5, 0.5)})
+		"tape":
+			# silver duct tape / straps on the padded wraps
+			return _paint("", "", "", {"rough_mul": 0.42, "metal_mul": 0.25, "grime": 0.3, "floor_y": GL.HALL, "grime_h": 0.6, "blotch": 0.3})
+		"alu":
+			# parabolic louver blades of the troffers (specular aluminium)
+			var a := StandardMaterial3D.new()
+			a.albedo_color = Color(0.86, 0.86, 0.84)
+			a.metallic = 1.0
+			a.roughness = 0.25
+			return a
 		"steel":
 			return _paint("", "", "", {"rough_mul": 0.42, "grime": 0.25, "floor_y": GL.HALL, "grime_h": 0.4, "blotch": 0.12})
 		"steel_up":
@@ -142,30 +169,71 @@ func _make(id: String) -> Material:
 		"vinyl_flat":
 			return _sm(SH_VINYL, {"grain_n": "ph_leather_white_nor_gl_1k.jpg", "grain_orm": "ph_leather_white_arm_1k.jpg",
 				"wrinkle_n": "vinyl_wrinkle_n.png", "noise_tex": "noise_rgba.png", "scratch_tex": "plastic_scratch.png", "floor_y": GL.HALL,
-				"wrinkle_strength": 0.35, "rough_base": 0.42, "clearcoat_amt": 0.35})
+				"wrinkle_strength": 0.4, "wrinkle_scale": 0.9, "rough_min": 0.3, "rough_max": 0.5, "clearcoat_amt": 0.4})
 		"plastic":
 			return _sm(SH_PLASTIC, {"scratch_tex": "plastic_scratch.png", "noise_tex": "noise_rgba.png"})
 		"plastic_tube":
-			return _sm(SH_PLASTIC, {"scratch_tex": "plastic_scratch.png", "noise_tex": "noise_rgba.png", "backlight_amt": 0.45, "rough_base": 0.14})
+			return _sm(SH_PLASTIC, {"scratch_tex": "plastic_scratch.png", "noise_tex": "noise_rgba.png", "backlight_amt": 0.35})
+		"slide":
+			# the wave slide: long run scratches, smudges, dust in the lane corners (COLOR.a cavity)
+			return _sm(SH_PLASTIC, {"scratch_tex": "plastic_scratch.png", "noise_tex": "noise_rgba.png", "scratch_amt": 1.2, "dust": 0.7})
+		"debris":
+			return _sm(SH_PLASTIC, {"scratch_tex": "plastic_scratch.png", "noise_tex": "noise_rgba.png", "rough_min": 0.25, "rough_max": 0.55,
+				"clearcoat_amt": 0.2, "dust": 0.8})
+		"debris_film":
+			# candy wrappers / chip bags: crumpled metallised film, both sides visible
+			var w := StandardMaterial3D.new()
+			w.vertex_color_use_as_albedo = true
+			w.metallic = 0.55
+			w.roughness = 0.32
+			w.cull_mode = BaseMaterial3D.CULL_DISABLED
+			return w
+		"debris_paper":
+			var pp := StandardMaterial3D.new()
+			pp.vertex_color_use_as_albedo = true
+			pp.roughness = 0.9
+			pp.cull_mode = BaseMaterial3D.CULL_DISABLED
+			return pp
 		"mats_hall":
-			return _sm(SH_MATS, {"edge_tex": "mat_edge.png", "grain_n": "eva_grain_n.png", "noise_tex": "noise_rgba.png",
+			var T: Dictionary = GL.TODDLER
+			var H: Dictionary = GL.HALLB
+			var mh := _sm(SH_MATS, {"edge_tex": "mat_edge.png", "grain_n": "eva_grain_n.png", "noise_tex": "noise_rgba.png",
 				"scratch_tex": "plastic_scratch.png", "concrete_tex": "ph_concrete_floor_worn_001_diff_1k.jpg", "floor_y": GL.HALL,
-				"weights": Vector4(0.3, 0.62, 0.84, 1.0), "missing": 0.03})
+				"col_a": MAT_YELLOW, "col_b": MAT_BLUE, "col_c": MAT_RED, "col_d": MAT_GREEN, "missing": 0.025,
+				"zone": Vector4(float(T.x0), float(T.z0), float(T.x1), float(T.z1)),
+				"room": Vector4(float(H.x0), float(H.z0), float(H.x1), float(H.z1))})
+			_set_wear(mh, GL.WEAR_HALL)
+			return mh
 		"mats_vest":
-			return _sm(SH_MATS, {"edge_tex": "mat_edge.png", "grain_n": "eva_grain_n.png", "noise_tex": "noise_rgba.png",
+			var V: Dictionary = GL.VEST
+			var mv := _sm(SH_MATS, {"edge_tex": "mat_edge.png", "grain_n": "eva_grain_n.png", "noise_tex": "noise_rgba.png",
 				"scratch_tex": "plastic_scratch.png", "concrete_tex": "ph_concrete_floor_worn_001_diff_1k.jpg", "floor_y": GL.UP,
-				"checker": 1.0, "col_a": Color(0.86, 0.42, 0.12), "col_b": Color(0.16, 0.5, 0.52), "missing": 0.04, "offset": Vector2(0.37, 0.12)})
+				"col_a": MAT_BLUE, "col_b": MAT_YELLOW.darkened(0.08), "missing": 0.03, "offset": Vector2(0.37, 0.12),
+				"room": Vector4(float(V.x0), float(V.z0), float(V.x1), float(V.z1))})
+			_set_wear(mv, GL.WEAR_VEST)
+			return mv
 		"mats_deck":
 			return _sm(SH_MATS, {"edge_tex": "mat_edge.png", "grain_n": "eva_grain_n.png", "noise_tex": "noise_rgba.png",
 				"scratch_tex": "plastic_scratch.png", "concrete_tex": "ph_concrete_floor_worn_001_diff_1k.jpg", "floor_y": GL.UP,
-				"weights": Vector4(0.0, 0.7, 0.7, 1.0), "missing": 0.0, "tile": 0.5, "dirt": 0.25})
+				"col_a": MAT_BLUE, "col_b": MAT_RED, "missing": 0.0, "tile": 0.5, "dirt": 0.25})
 		"net":
 			return _sm(SH_NET, {"net_tex": "net.png", "uv_scale": 2.5})
+		"neon":
+			return _emit(NEON, 4.5)
+		"neon_text":
+			var nt := _emit_tex("neon_text.png")
+			nt.albedo_color = Color(0.05, 0.03, 0.02)
+			nt.emission = NEON
+			nt.emission_energy_multiplier = 4.5
+			nt.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+			nt.alpha_scissor_threshold = 0.35
+			return nt
 		"balls":
 			return _sm(SH_BALLS, {"noise_tex": "noise_rgba.png"})
 		"ceiltile":
 			var m := StandardMaterial3D.new()
 			m.albedo_texture = tex("ceiling_tiles.jpg")
+			m.albedo_color = Color(0.84, 0.82, 0.78)     # aged, dulled tiles
 			m.normal_enabled = true
 			m.normal_texture = tex("ceiling_tiles_n.png")
 			m.normal_scale = 0.8
@@ -173,7 +241,13 @@ func _make(id: String) -> Material:
 			m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 			return m
 		"fluo_on":
-			return _emit(Color(0.93, 0.97, 1.0), 5.0)
+			return _emit(FLUO, 10.0)
+		"fluo_refl":
+			# troffer reflector lit by its own tubes (white enamel glowing softly behind the louver)
+			var fr := _emit(FLUO, 1.3)
+			fr.albedo_color = Color(0.9, 0.9, 0.88)
+			fr.roughness = 0.35
+			return fr
 		"fluo_warm":
 			return _emit(Color(1.0, 0.95, 0.85), 4.0)
 		"fluo_dead":
@@ -189,6 +263,16 @@ func _make(id: String) -> Material:
 	g.albedo_color = Color(0.5, 0.5, 0.5)
 	g.vertex_color_use_as_albedo = true
 	return g
+
+## Footpath wear segments (garderie_layout.gd WEAR_*) -> the mats shader's uniform array.
+func _set_wear(m: ShaderMaterial, segs: Array) -> void:
+	var arr := PackedVector4Array()
+	for sg in segs:
+		arr.append(Vector4(float(sg[0]), float(sg[1]), float(sg[2]), float(sg[3])))
+	while arr.size() < 8:
+		arr.append(Vector4.ZERO)
+	m.set_shader_parameter("wear", arr)
+	m.set_shader_parameter("wear_n", mini(segs.size(), 8))
 
 func _emit(c: Color, energy: float) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
@@ -219,7 +303,7 @@ func _emit_tex(name: String) -> StandardMaterial3D:
 	m.emission_enabled = true
 	m.emission_texture = t
 	m.emission = Color.WHITE
-	m.emission_energy_multiplier = 2.5
+	m.emission_energy_multiplier = 4.0
 	m.roughness = 0.25
 	return m
 

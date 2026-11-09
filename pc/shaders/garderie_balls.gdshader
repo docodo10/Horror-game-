@@ -1,6 +1,6 @@
-// Garderie: ball-pit balls (MultiMesh, per-instance colour). Glossy plastic with dust; balls within push_r of
-// push_pos (the player's feet, set every frame while wading) are shoved aside and lifted, so walking through the
-// pit parts the balls around the legs.
+// Garderie: ball-pit balls (MultiMesh, per-instance colour; physics balls of garderie_physics.gd use the instance
+// uniform ball_tint instead). Glossy plastic with dust. Legacy vertex push: balls within push_r of push_pos are shoved
+// aside (unused while the physics bubble runs: push_pos stays far away).
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
@@ -8,6 +8,7 @@ uniform vec3 push_pos = vec3(0.0, -100.0, 0.0);
 uniform float push_r = 0.5;
 uniform sampler2D noise_tex : hint_default_white, filter_linear_mipmap, repeat_enable;
 uniform float rough = 0.26;
+instance uniform vec4 ball_tint = vec4(0.0);   // a > 0: colour of a physics ball (sRGB)
 
 varying vec3 inst_o;
 
@@ -30,7 +31,7 @@ void vertex() {
 
 void fragment() {
 	vec4 nz = texture(noise_tex, inst_o.xz * 3.1 + vec2(inst_o.y * 7.0));
-	vec3 c = srgb_to_lin(COLOR.rgb) * (0.85 + nz.g * 0.25);
+	vec3 c = srgb_to_lin(ball_tint.a > 0.0 ? ball_tint.rgb : COLOR.rgb) * (0.85 + nz.g * 0.25);
 	vec3 wn = normalize((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	float dust = clamp(wn.y, 0.0, 1.0) * nz.b * 0.5;
 	ALBEDO = mix(c, vec3(0.7, 0.68, 0.64), dust * 0.4);
