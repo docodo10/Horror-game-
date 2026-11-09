@@ -971,6 +971,9 @@ func _on_settings(key: String, v: Variant) -> void:
 	if key == "quality" and model:
 		await get_tree().process_frame   # the look module applies the preset to the viewport first
 		if is_instance_valid(model): model.apply_quality(String(v))
+	elif key == "upscale" and model:
+		await get_tree().process_frame   # FSR 2 on/off switches the viewport's AA path
+		if is_instance_valid(model): model.refresh_aa()
 
 # ====================================================================== movement
 

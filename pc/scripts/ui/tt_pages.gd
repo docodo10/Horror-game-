@@ -32,10 +32,11 @@ const TIPS := [
 	"La télé fait beaucoup de bruit quand elle est allumée.",
 ]
 const TICKER_MENU := "MÉTÉO : −24 °C, RESSENTI −33. VERGLAS SUR LA 20   ·   AVIS DE RECHERCHE : GARDIENNE D’ENFANTS, 19 ANS, VUE POUR LA DERNIÈRE FOIS RUE DES ÉRABLES   ·   RAPPEL AUX PARENTS : VERROUILLEZ LA PORTE DU SOUS-SOL   ·   ÉCOLES FERMÉES DEMAIN   ·   BONNE NUIT LES PETITS. PAS UN BRUIT"
-const DIGIT_PAGES := {"100": "main", "150": "pause", "160": "notes", "200": "options", "201": "options", "300": "controls", "301": "controls", "400": "credits", "999": "quit"}
+const DIGIT_PAGES := {"100": "main", "150": "pause", "160": "notes", "200": "options", "201": "options", "202": "options", "300": "controls", "301": "controls", "400": "credits", "999": "quit"}
 
 var ui: Node
 var opt_sub := 0
+const OPT_PAGES := 3
 var ctl_sub := -1
 
 func _init(ui_: Node) -> void:
@@ -106,7 +107,7 @@ func _on_digit(k: String, b: TT) -> void:
 	if target == "notes" and ui.all_notes().is_empty(): ok = false
 	b.typed = ""
 	if ok:
-		if target == "options": opt_sub = 1 if typed == "201" else 0
+		if target == "options": opt_sub = {"201": 1, "202": 2}.get(typed, 0)
 		if target == "controls": ctl_sub = 1 if typed == "301" else 0
 		ui.goto_page(b, target)
 	else:
@@ -139,7 +140,7 @@ func _set_ctl(v: int) -> void:
 	ctl_sub = v
 
 func _lr_opt(d: int, b: TT) -> void:
-	opt_sub = (opt_sub + d + 2) % 2
+	opt_sub = (opt_sub + d + OPT_PAGES) % OPT_PAGES
 	b.dirty = true
 	b.flick = 1.0
 	ui.sfx("value")
@@ -175,9 +176,9 @@ func main(b: TT) -> void:
 func options(b: TT) -> void:
 	var sub := opt_sub
 	b.header()
-	b.pnum("201" if sub else "200", "%d/2" % (sub + 1), Y)
+	b.pnum(str(200 + sub), "%d/%d" % [sub + 1, OPT_PAGES], Y)
 	b.text(2, 1, "OPTIONS", Y, true)
-	b.text(3, "r", "SON ET COMMANDES" if sub else "IMAGE", C)
+	b.text(3, "r", ["IMAGE", "SON ET COMMANDES", "PERFORMANCE ET EFFETS"][sub], C)
 	if sub == 0:
 		var r := 4
 		var qi := 2
@@ -197,12 +198,24 @@ func options(b: TT) -> void:
 			"change": func(_d: int) -> void: ui.set_fullscreen(not bool(_S("fullscreen", true)))}); r += 1
 		b.item(r, {"id": "vsync", "label": "SYNCHRO VERTICALE", "kind": "value", "right": _oui(_S("vsync", true)),
 			"change": func(_d: int) -> void: ui.set_vsync(not bool(_S("vsync", true)))}); r += 1
+	elif sub == 2:
+		var r := 4
 		var fps_caps := [0, 60, 120, 144, 165, 240]
 		var fi := maxi(0, fps_caps.find(int(_S("max_fps", 0))))
 		b.item(r, {"id": "max_fps", "label": "IMAGES / SECONDE", "kind": "value", "right": "ILLIMITÉ" if fps_caps[fi] == 0 else str(fps_caps[fi]),
 			"change": func(d: int) -> void: _setv("max_fps", fps_caps[(fi + d + fps_caps.size()) % fps_caps.size()])}); r += 1
 		b.item(r, {"id": "show_fps", "label": "COMPTEUR FPS", "kind": "value", "right": _oui(_S("show_fps", false)),
 			"change": func(_d: int) -> void: _setv("show_fps", not bool(_S("show_fps", false)))}); r += 1
+		var ups := [["off", "NON"], ["fsr2_quality", "FSR2 QUALITÉ"], ["fsr2_balanced", "FSR2 ÉQUILIBRÉ"], ["fsr2_performance", "FSR2 PERF."]]
+		var ui_i := 0
+		for i in ups.size():
+			if ups[i][0] == str(_S("upscale", "off")): ui_i = i
+		b.item(r, {"id": "upscale", "label": "MISE À L'ÉCHELLE", "kind": "value", "right": ups[ui_i][1],
+			"change": func(d: int) -> void: _setv("upscale", ups[(ui_i + d + ups.size()) % ups.size()][0])}); r += 1
+		for t in [["depth_of_field", "FLOU DE PROFONDEUR"], ["film_grain", "GRAIN DE FILM"], ["chromatic_aberration", "ABERRATION"]]:
+			var key: String = t[0]
+			b.item(r, {"id": key, "label": t[1], "kind": "value", "right": _oui(_S(key, true)),
+				"change": func(_d: int) -> void: _setv(key, not bool(_S(key, true)))}); r += 1
 	else:
 		var r := 5
 		var vol := float(_S("volume", 0.85))
@@ -217,7 +230,7 @@ func options(b: TT) -> void:
 			"change": func(_d: int) -> void: _setv("invert_y", not bool(_S("invert_y", false)))}); r += 1
 		b.item(r, {"id": "hud", "label": "INTERFACE", "kind": "value", "right": "COMPLÈTE" if str(_S("hud", "none")) == "full" else "AUCUNE",
 			"change": func(_d: int) -> void: _setv("hud", "none" if str(_S("hud", "none")) == "full" else "full")}); r += 1
-	_sub_switch(b, b.rows - 3, 2, _get_opt, _set_opt)
+	_sub_switch(b, b.rows - 3, OPT_PAGES, _get_opt, _set_opt)
 	b.item(b.rows - 2, {"id": "back", "label": "RETOUR", "right": _home_num(b), "on": _back_home.bind(b)})
 	b.hint(ui.nav_hint("options"))
 	b.back(_back_home.bind(b))

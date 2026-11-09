@@ -342,7 +342,8 @@ func apply_quality(q: String) -> void:
 func refresh_aa() -> void:
 	var vp := get_viewport()
 	var msaa := vp != null and vp.msaa_3d != Viewport.MSAA_DISABLED
-	var taa := vp != null and vp.use_taa
+	# FSR 2 does its own temporal accumulation (use_taa is off while it runs): treat it like TAA
+	var taa := vp != null and (vp.use_taa or vp.scaling_3d_mode == Viewport.SCALING_3D_MODE_FSR2)
 	for m in _alpha_mats:
 		if msaa:
 			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR

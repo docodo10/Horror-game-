@@ -16,6 +16,11 @@ var values := {
 	"vsync": true,
 	"max_fps": 0,              # frame-rate cap: 0 = unlimited (vsync still limits to the monitor refresh)
 	"show_fps": false,         # small frame counter in the corner
+	"upscale": "off",          # off | fsr2_quality | fsr2_balanced | fsr2_performance (look module)
+	"render_scale": 1.0,       # 0.5..1.0 when upscale is off
+	"depth_of_field": true,
+	"film_grain": true,
+	"chromatic_aberration": true,
 	"hud": "none",             # none (no prompts / dot / meters; looked-at objects brighten) | full
 }
 
