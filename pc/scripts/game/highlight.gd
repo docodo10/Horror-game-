@@ -1,19 +1,20 @@
-## Looked-at feedback without any HUD (the default: Settings "hud" = "none"). The targeted interactable gets a faint,
-## light-dependent brightening (an additive *lit* overlay plus a soft rim, so nothing glows in total darkness) that
+## Looked-at feedback without any HUD (the default: Settings "hud" = "none"). The targeted interactable gets a faint
+## brightening relative to its own lit colour (+~15–35 %, stronger at the rim, so nothing glows in total darkness) that
 ## fades in and out; holding a hold-to-use interaction makes it swell. Owned by Interaction (scripts/game/interaction.gd).
 extends RefCounted
 
 const SHADER_CODE := """
 shader_type spatial;
-render_mode blend_add, depth_draw_never, cull_back, diffuse_lambert, specular_disabled;
+render_mode blend_add, unshaded, depth_draw_never, cull_back, fog_disabled;
 
+uniform sampler2D screen_tex : hint_screen_texture, filter_linear;
 uniform float strength = 0.0;
 
 void fragment() {
+	// Relative brightening: add a fraction of the object's own lit colour (nothing appears in darkness).
 	float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 2.0);
-	ALBEDO = vec3(1.0, 0.95, 0.86) * strength * (0.12 + 0.28 * rim);
-	ROUGHNESS = 1.0;
-	METALLIC = 0.0;
+	vec3 base = textureLod(screen_tex, SCREEN_UV, 0.0).rgb;
+	ALBEDO = base * strength * (0.14 + 0.20 * rim);
 }
 """
 const FADE_IN := 0.18
