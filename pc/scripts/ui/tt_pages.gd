@@ -197,6 +197,12 @@ func options(b: TT) -> void:
 			"change": func(_d: int) -> void: ui.set_fullscreen(not bool(_S("fullscreen", true)))}); r += 1
 		b.item(r, {"id": "vsync", "label": "SYNCHRO VERTICALE", "kind": "value", "right": _oui(_S("vsync", true)),
 			"change": func(_d: int) -> void: ui.set_vsync(not bool(_S("vsync", true)))}); r += 1
+		var fps_caps := [0, 60, 120, 144, 165, 240]
+		var fi := maxi(0, fps_caps.find(int(_S("max_fps", 0))))
+		b.item(r, {"id": "max_fps", "label": "IMAGES / SECONDE", "kind": "value", "right": "ILLIMITÉ" if fps_caps[fi] == 0 else str(fps_caps[fi]),
+			"change": func(d: int) -> void: _setv("max_fps", fps_caps[(fi + d + fps_caps.size()) % fps_caps.size()])}); r += 1
+		b.item(r, {"id": "show_fps", "label": "COMPTEUR FPS", "kind": "value", "right": _oui(_S("show_fps", false)),
+			"change": func(_d: int) -> void: _setv("show_fps", not bool(_S("show_fps", false)))}); r += 1
 	else:
 		var r := 5
 		var vol := float(_S("volume", 0.85))
