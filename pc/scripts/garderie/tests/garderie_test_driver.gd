@@ -61,6 +61,7 @@ func _run() -> void:
 	_test_slides()
 	_test_hide()
 	_test_interact(fake)
+	await _test_deferred_registration(fake)
 	_test_ground_api()
 	check(ms < 3000, "build() under 3 s (%d ms)" % ms)
 	for e in _log.errors:
@@ -298,6 +299,20 @@ func _test_interact(fake: FakeInteraction) -> void:
 		var node: Node3D = fake.entries[id].node
 		var bodies := node.find_children("*", "CollisionObject3D", true, false)
 		check(bodies.any(func(b): return (b as CollisionObject3D).collision_layer & LAYER_INTERACT), "%s has an INTERACT body" % id)
+
+## main.gd builds the garderie BEFORE it creates the Interaction node: the entries must be registered the moment that
+## node is ready (before the puzzles register the closet, so the tunnel's "Sortir" entry comes first).
+func _test_deferred_registration(first: Node) -> void:
+	first.get_parent().remove_child(first)
+	first.queue_free()
+	Game.interaction = null
+	_g.set("_registered_with", null)
+	_g.call("_register_or_wait")
+	var late := FakeInteraction.new()
+	late.name = "Interaction"
+	_g.get_parent().add_child(late)
+	await get_tree().process_frame
+	check(late.entries.has("garderie.door") and late.entries.has("garderie.tunnel.exit"), "entries registered when the Interaction node appears later")
 
 func _test_ground_api() -> void:
 	check(absf(_g.ground_height_at(-8.0, 2.1) - 0.0) < 0.001, "ground_height_at corridor")
