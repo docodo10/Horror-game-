@@ -16,6 +16,8 @@ const LANE_COLS := [Color(0.86, 0.15, 0.12), Color(0.96, 0.74, 0.1), Color(0.12,
 const BALL_COLS := [Color(0.86, 0.12, 0.1), Color(0.97, 0.78, 0.08), Color(0.1, 0.38, 0.85), Color(0.12, 0.62, 0.25),
 	Color(0.95, 0.45, 0.08), Color(0.55, 0.22, 0.68)]
 const POST_R := 0.072
+const CARGO_Z0 := -0.35
+const CARGO_Z1 := 0.55
 
 ## Outline of the frame's footprint (counter-clockwise from the south-east corner): [a, b] segments on the floor plan.
 const OUTLINE := [
@@ -63,6 +65,9 @@ static func _opening(p: Vector2, y: float) -> bool:
 	# hall floor -> L1 flight arrival
 	var f0: Array = GL.FLIGHTS[0]
 	if absf(p.x - float(f0[1])) < 0.05 and p.y > float(f0[2]) - 0.02 and p.y < float(f0[3]) + 0.02 and y > GL.L1 - 0.05:
+		return true
+	# cargo net climbing onto deck A (east edge)
+	if absf(p.x - float(f0[1])) < 0.05 and p.y > CARGO_Z0 - 0.02 and p.y < CARGO_Z1 + 0.02 and y < GL.L1 + 1.0:
 		return true
 	# wave slide start (deck L3, east edge of the tower)
 	if absf(p.x - float(W.x_start)) < 0.05 and p.y > float(W.z0) and p.y < float(W.z1) and y > GL.L3 - 0.05:
@@ -129,6 +134,20 @@ static func _frame(c) -> void:
 	var f2: Array = GL.FLIGHTS[2]
 	_net_panel(kn, Vector3(float(f2[0]), GL.L2, float(f2[3])), Vector3(float(f2[1]), GL.L3 + GL.RAIL_H, float(f2[3])))
 	c.col_see("play").box(Vector3(float(f2[1]), GL.L2, float(f2[3]) - 0.03), Vector3(float(f2[0]), GL.L3 + GL.RAIL_H, float(f2[3]) + 0.03))
+	# cargo net sloping from the hall floor up to deck A's edge (climbing net), padded side rails
+	var cx0 := -23.8
+	var cx1 := -23.0
+	var na := Vector3(cx1, F, CARGO_Z0)
+	var nb := Vector3(cx1, F, CARGO_Z1)
+	var nc := Vector3(cx0, GL.L1, CARGO_Z1)
+	var nd := Vector3(cx0, GL.L1, CARGO_Z0)
+	var slope_n := Vector3(GL.L1 - F, cx1 - cx0, 0.0).normalized()
+	var Ls := Vector2(cx1 - cx0, GL.L1 - F).length()
+	kn.quad("net", na, nb, nc, nd, slope_n, Vector2(0, 0), Vector2(CARGO_Z1 - CARGO_Z0, 0), Vector2(CARGO_Z1 - CARGO_Z0, Ls), Vector2(0, Ls))
+	for zz in [CARGO_Z0, CARGO_Z1]:
+		k.tube("vinyl", PackedVector3Array([Vector3(cx1, F + 0.05, zz), Vector3(cx0, GL.L1 + 0.05, zz)]), 0.05, 10, FRAME_YELLOW)
+	k.tube("vinyl", PackedVector3Array([Vector3(cx1, F + 0.05, CARGO_Z0), Vector3(cx1, F + 0.05, CARGO_Z1)]), 0.05, 10, FRAME_RED)
+	c.col_see("play").convex(PackedVector3Array([na, nb, nc, nd, Vector3(cx0, F, CARGO_Z0), Vector3(cx0, F, CARGO_Z1)]))
 	# a few punching bags hanging under the upper decks (soft obstacles), roof canopy over the slide start
 	for pb in [Vector3(-29.4, GL.L2 - GL.DECK_T, 0.2), Vector3(-33.2, GL.L2 - GL.DECK_T, -3.4), Vector3(-33.0, GL.L3 - GL.DECK_T, 0.8)]:
 		var pts := PackedVector3Array()
@@ -245,8 +264,25 @@ static func _net_wall(c, kn, k, a: Vector2, b: Vector2, posts: Dictionary) -> vo
 		for lv in levels:
 			if float(lv) <= ytop - 0.3 and not _opening(pm, float(lv) + 0.1):
 				k.tube("vinyl", PackedVector3Array([Vector3(pa.x, float(lv), pa.y), Vector3(pb.x, float(lv), pb.y)]), 0.05, 10, FRAME_RED)
-		k.tube("vinyl", PackedVector3Array([Vector3(pa.x, ytop - 0.06, pa.y), Vector3(pb.x, ytop - 0.06, pb.y)]), 0.055, 10, FRAME_YELLOW)
+		for run in _runs(pa, pb, ytop - 0.3):
+			var ra: Vector2 = run[0]
+			var rb: Vector2 = run[1]
+			k.tube("vinyl", PackedVector3Array([Vector3(ra.x, ytop - 0.06, ra.y), Vector3(rb.x, ytop - 0.06, rb.y)]), 0.055, 10, FRAME_YELLOW)
 	posts = posts
+
+## Pieces of the segment a->b that are not inside an opening at height y (24 samples).
+static func _runs(a: Vector2, b: Vector2, y: float) -> Array:
+	var out: Array = []
+	var steps := 24
+	var start := -1
+	for s in steps + 1:
+		var open := s < steps and _opening(a.lerp(b, (float(s) + 0.5) / float(steps)), y)
+		if not open and start < 0 and s < steps:
+			start = s
+		if (open or s == steps) and start >= 0:
+			out.append([a.lerp(b, float(start) / float(steps)), a.lerp(b, float(s) / float(steps))])
+			start = -1
+	return out
 
 static func _col_strip(cl, a: Vector2, b: Vector2, y0: float, y1: float) -> void:
 	var mn := Vector3(minf(a.x, b.x) - 0.03, y0, minf(a.y, b.y) - 0.03)

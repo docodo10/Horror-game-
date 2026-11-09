@@ -13,11 +13,11 @@ const VIEWS := {
 	"vestibule": [-11.5, 1.6, 2.4, 96.0, -6.0, 0.0],
 	"cubbies": [-13.0, 1.35, 1.6, 140.0, -14.0, 1.6],
 	"hall": [-17.9, 1.62, 2.7, 94.0, -11.0, 0.0],
-	"hall_wide": [-17.9, 1.62, -1.6, 115.0, -10.0, 0.0],
-	"wavetop": [-31.6, GL.L3 + 1.55, -4.16, -90.0, -24.0, 0.0],
+	"hall_wide": [-18.3, 1.62, 3.9, 72.0, -9.0, 0.0],
+	"wavetop": [-31.75, GL.L3 + 1.2, -4.16, -90.0, -20.0, 0.0],
 	"wavebottom": [-19.0, GL.HALL + 1.0, -4.2, 92.0, 6.0, 0.0],
 	"ballpit": [-23.7, GL.HALL + 1.3, 5.6, 105.0, -28.0, 2.2],
-	"spiral": [-28.5, GL.HALL + 1.6, 9.6, 125.0, 2.0, 0.0],
+	"spiral": [-27.6, GL.HALL + 1.6, 9.8, 48.0, 6.0, 0.0],
 	"structure": [-26.0, GL.L1 + 1.5, 1.2, 80.0, -5.0, 0.0],
 	"mural": [-27.0, GL.HALL + 1.6, -1.0, 15.0, 8.0, 0.0],
 	"party": [-23.4, GL.HALL + 1.6, 5.2, -125.0, -14.0, 0.0],
@@ -82,10 +82,25 @@ func run() -> void:
 	_torch.visible = false
 	_cam.add_child(_torch)
 	for v in views:
-		if not VIEWS.has(v):
+		var c: Array = []
+		if v.begins_with("ride_"):
+			# camera on a slide (sitting eye height), `ride_wave_0.35` = 35 % down the wave slide
+			var parts := v.split("_")
+			var sl: Dictionary = _g.ctx.slides.get(parts[1], {})
+			if sl.is_empty():
+				continue
+			var cv: Curve3D = sl.curve
+			var L := cv.get_baked_length()
+			var d := L * (float(parts[2]) if parts.size() > 2 else 0.3)
+			var p := cv.sample_baked(d) + Vector3(0, 0.74, 0)
+			var ahead := cv.sample_baked(minf(d + 2.2, L)) + Vector3(0, 0.3, 0)
+			var dir := (ahead - p).normalized()
+			c = [p.x, p.y, p.z, rad_to_deg(atan2(-dir.x, -dir.z)), rad_to_deg(asin(dir.y)), 0.0]
+		elif VIEWS.has(v):
+			c = VIEWS[v]
+		else:
 			printerr("unknown view ", v)
 			continue
-		var c: Array = VIEWS[v]
 		var dark := v == "dark"
 		_g.set_power(not dark)
 		_room_light.visible = not dark
@@ -125,7 +140,7 @@ func _make_env(root: Node3D) -> void:
 	_env.background_color = Color.BLACK
 	_env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	_env.ambient_light_color = Color(0.5, 0.52, 0.56)
-	_env.ambient_light_energy = 0.03
+	_env.ambient_light_energy = 0.06
 	_env.reflected_light_source = Environment.REFLECTION_SOURCE_BG
 	_env.tonemap_mode = Environment.TONE_MAPPER_AGX
 	_env.tonemap_exposure = 1.0

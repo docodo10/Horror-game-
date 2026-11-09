@@ -44,7 +44,7 @@ const HALL_LIGHTS := [
 	[-19.8, -4.6, "on"], [-19.8, 1.4, "on"], [-19.8, 7.4, "dead"],
 	[-25.4, -4.6, "shadow"], [-25.4, 1.4, "shadow"], [-25.4, 7.4, "shadow"],
 	[-31.0, -4.6, "shadow"], [-31.0, 1.4, "dead"], [-31.0, 7.4, "flicker"],
-	[-36.6, -4.6, "dead"], [-36.6, 1.4, "dim"], [-36.6, 7.4, "dead"],
+	[-36.6, -4.6, "dead"], [-36.6, 1.4, "dead"], [-36.6, 7.4, "on"],
 ]
 const HALL_COLUMNS := [Vector2(-23.0, 4.0), Vector2(-38.4, 0.8), Vector2(-17.95, 8.6)]
 const EXIT_DOOR := {"x": -39.0, "z0": -2.6, "z1": -1.4, "h": 2.1}   # emergency exit, west wall (chained)

@@ -54,7 +54,7 @@ func _run() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	_test_carve()
-	_test_doorway()
+	await _test_doorway()
 	await get_tree().physics_frame
 	_test_path()
 	_test_nav()

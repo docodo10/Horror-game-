@@ -21,6 +21,13 @@
 ##   ride(slide_id) -> void (await) camera ride down "wave" (lane 2) or "spiral"; ride_active: bool
 ##   in_area(pos) -> bool, in_ball_pit: bool, stats: Dictionary (build ms, triangles, lights, draw calls estimate)
 ##   reset_after_caught()           cancels a ride, resets scares
+##   teleport_player(pos, yaw, pitch := 0.0)   player teleport with the area's floors (deck level picked from pos.y)
+##   scare(kind)                    giggle_slide | tube_dies | ball_roll | hum (also scheduled by itself in the area)
+##   interaction_entries() -> Array the entries registered with Game.interaction (registered as soon as it exists)
+## Debug args (after --): --garderie-cam=x,y,z,yawDeg,pitchDeg  --garderie-ride=wave|spiral  --garderie-scare=<kind>
+## Render layers: corridor / door / vestibule meshes 1024, hall meshes 2048; light cull masks keep each room's lights
+##   out of the other (no light leaking through walls without shadows). Physics: opaque colliders WORLD|SIGHT (1|16),
+##   nets / railings / posts / chairs WORLD only (La Gardienne sees through them).
 ## Calls defensively (all optional): Game.interaction.register, Game.player (camera_override, teleport, enter_hide,
 ##   exit_hide, speed_scale), Game.entity.state, Audio.play/loop (names checked against the manifest), Events.noise.
 class_name Garderie
@@ -137,6 +144,9 @@ func build(world = null) -> void:
 		"lights": ctx.lights.size(), "shadowed_lights": ctx.lights.filter(func(l): return (l.light as Light3D).shadow_enabled).size(),
 		"mesh_instances": find_children("*", "MeshInstance3D", true, false).size(),
 		"multimesh_instances": find_children("*", "MultiMeshInstance3D", true, false).size(),
+		"balls": find_children("*", "MultiMeshInstance3D", true, false).reduce(func(acc, m): return acc + (m as MultiMeshInstance3D).multimesh.instance_count, 0),
+		"ball_triangles": find_children("*", "MultiMeshInstance3D", true, false).reduce(func(acc, m): return acc + (m as MultiMeshInstance3D).multimesh.instance_count * 80, 0),
+		"colliders": find_children("*", "CollisionShape3D", true, false).size(),
 		"missing_textures": ctx.mats.missing,
 	}
 	_update_zone(true)
@@ -309,7 +319,7 @@ func _setup_hide() -> void:
 	var H: Dictionary = GL.HIDE
 	var spot := {
 		"id": H.id, "door": null, "hide_pos": H.hide_pos, "hide_yaw": float(H.hide_yaw), "exit_pos": H.exit_pos,
-		"kind": "tunnel", "check_pos": Vector3(H.exit_pos.x - 0.4, 0.0, H.exit_pos.z),
+		"kind": "tunnel", "check_pos": Vector3(H.exit_pos.x + 0.07, 0.0, H.exit_pos.z), "check_yaw": -PI * 0.5,
 		"minX": float(GL.TUBE.mouth_x), "maxX": float(GL.TUBE.end_x), "minZ": float(GL.TUBE.z) - 0.6, "maxZ": float(GL.TUBE.z) + 0.6,
 	}
 	hide_spots = [spot]
@@ -446,14 +456,13 @@ func _setup_flicker() -> void:
 				if o.kind == "spill" and o.state == "flicker" and Vector2(o.pos.x, o.pos.z).distance_to(Vector2(l.pos.x, l.pos.z)) < 0.5:
 					f.extra.append([o.light, float(o.base)])
 			_flicker.append(f)
-			var h = _loop("fluo_buzz", (l.light as Node3D).global_position, -14.0)
-			if h != null:
-				_buzz_handles.append(h)
 
 func set_power(on: bool) -> void:
 	power = on
 	if ctx == null:
 		return
+	if not on:
+		_ambience(false)
 	for l in ctx.lights:
 		var lt: Light3D = l.light
 		var dead: bool = l.state == "dead"
@@ -480,6 +489,7 @@ func _update_zone(force := false) -> void:
 	if z == _zone and not force:
 		return
 	_zone = z
+	_ambience(z != "house")
 	for l in ctx.lights:
 		var lt: Light3D = l.light
 		var on: bool = power and l.state != "dead" and not l.get("killed", false)
@@ -752,6 +762,32 @@ func _loop(key: String, pos: Vector3, vol_db := 0.0) -> Variant:
 
 func _noise(pos: Vector3, loudness: float, source: String) -> void:
 	Events.noise.emit(pos, loudness, source)
+
+## Positional loops of the area (started while the camera is in the area, stopped in the house so they hold no
+## voices): flickering tubes' buzz, two working high-bays' hum, the hall's room tone.
+func _ambience(on: bool) -> void:
+	if on == (not _buzz_handles.is_empty()):
+		return
+	if not on:
+		for h in _buzz_handles:
+			if h is Object and is_instance_valid(h) and (h as Object).has_method("stop"):
+				h.stop(0.6)
+		_buzz_handles.clear()
+		return
+	if not power:
+		return
+	var spots: Array = []
+	for l in ctx.lights:
+		if l.state == "flicker" and l.kind != "spill":
+			spots.append([(l.light as Node3D).global_position, -14.0, "fluo_buzz"])
+	for l in ctx.lights:
+		if l.kind == "highbay" and l.state == "shadow" and spots.size() < 4:
+			spots.append([(l.light as Node3D).global_position, -24.0, "fluo_buzz"])
+	spots.append([Vector3((GL.HALLB.x0 + GL.HALLB.x1) * 0.5, GL.HALL + 3.0, (GL.HALLB.z0 + GL.HALLB.z1) * 0.5), -16.0, "hall_tone"])
+	for sp in spots:
+		var h = _loop(String(sp[2]), sp[0], float(sp[1]))
+		if h != null:
+			_buzz_handles.append(h)
 
 func _exit_tree() -> void:
 	for h in _buzz_handles:

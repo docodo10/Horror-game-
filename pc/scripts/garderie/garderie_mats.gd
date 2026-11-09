@@ -142,7 +142,7 @@ func _make(id: String) -> Material:
 		"vinyl_flat":
 			return _sm(SH_VINYL, {"grain_n": "ph_leather_white_nor_gl_1k.jpg", "grain_orm": "ph_leather_white_arm_1k.jpg",
 				"wrinkle_n": "vinyl_wrinkle_n.png", "noise_tex": "noise_rgba.png", "scratch_tex": "plastic_scratch.png", "floor_y": GL.HALL,
-				"wrinkle_strength": 0.35, "rough_base": 0.3})
+				"wrinkle_strength": 0.35, "rough_base": 0.42, "clearcoat_amt": 0.35})
 		"plastic":
 			return _sm(SH_PLASTIC, {"scratch_tex": "plastic_scratch.png", "noise_tex": "noise_rgba.png"})
 		"plastic_tube":

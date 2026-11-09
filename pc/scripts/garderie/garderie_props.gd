@@ -219,7 +219,7 @@ static func _hall_extras(c) -> void:
 	var top: float = GL.HALLB.roof - 0.68
 	for p in [Vector2(-21.0, -1.0), Vector2(-24.6, 5.0), Vector2(-28.2, 9.0), Vector2(-33.0, -6.2), Vector2(-37.0, 2.4),
 			Vector2(-26.0, -6.3), Vector2(-21.6, 9.4), Vector2(-36.6, 8.6)]:
-		var y := rng.randf_range(4.2, 5.1)
+		var y := rng.randf_range(3.4, 4.3)
 		var s := rng.randf_range(0.7, 1.05)
 		var yaw := rng.randf_range(-PI, PI)
 		var n := Vector3(sin(yaw), 0.0, cos(yaw))
