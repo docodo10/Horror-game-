@@ -11,6 +11,7 @@ const Puzzles := preload("res://scripts/game/puzzles.gd")
 const Quality := preload("res://scripts/render/quality.gd")
 const SurfacesModule := preload("res://scripts/surfaces/surfaces.gd")
 const GarderieModule := preload("res://scripts/garderie/garderie.gd")
+const FearModule := preload("res://scripts/fear/fear_director.gd")
 
 func _ready() -> void:
 	InputSetup.setup()
@@ -41,6 +42,8 @@ func _ready() -> void:
 	var interaction := Interaction.new(); interaction.name = "Interaction"; add_child(interaction); Game.interaction = interaction
 	var puzzles := Puzzles.new(); puzzles.name = "Puzzles"; add_child(puzzles); Game.puzzles = puzzles
 	await puzzles.setup()
+	# Fear director: heart-rate model, tension pacing, scares (finds itself at Game.main.get_node("FearDirector"))
+	var fear := FearModule.new(); fear.name = "FearDirector"; add_child(fear); fear.setup()
 	Quality.apply(Settings.get_value("quality", "high"))
 	ui.show_loading(1.0, "Prêt")
 	await get_tree().process_frame

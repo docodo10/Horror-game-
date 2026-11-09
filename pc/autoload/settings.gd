@@ -21,6 +21,7 @@ var values := {
 	"depth_of_field": true,
 	"film_grain": true,
 	"chromatic_aberration": true,
+	"fear": "extreme",         # normal | extreme (fear director)
 	"hud": "none",             # none (no prompts / dot / meters; looked-at objects brighten) | full
 }
 

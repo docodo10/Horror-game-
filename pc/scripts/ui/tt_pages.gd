@@ -217,7 +217,7 @@ func options(b: TT) -> void:
 			b.item(r, {"id": key, "label": t[1], "kind": "value", "right": _oui(_S(key, true)),
 				"change": func(_d: int) -> void: _setv(key, not bool(_S(key, true)))}); r += 1
 	else:
-		var r := 5
+		var r := 4
 		var vol := float(_S("volume", 0.85))
 		b.item(r, {"id": "volume", "label": "VOLUME", "kind": "value", "right": "%s %d%%" % [_bar(vol), roundi(vol * 100.0)],
 			"change": _change_volume}); r += 1
@@ -230,6 +230,8 @@ func options(b: TT) -> void:
 			"change": func(_d: int) -> void: _setv("invert_y", not bool(_S("invert_y", false)))}); r += 1
 		b.item(r, {"id": "hud", "label": "INTERFACE", "kind": "value", "right": "COMPLÈTE" if str(_S("hud", "none")) == "full" else "AUCUNE",
 			"change": func(_d: int) -> void: _setv("hud", "none" if str(_S("hud", "none")) == "full" else "full")}); r += 1
+		b.item(r, {"id": "fear", "label": "PEUR", "kind": "value", "right": "EXTRÊME" if str(_S("fear", "extreme")) == "extreme" else "NORMALE",
+			"change": func(_d: int) -> void: _setv("fear", "normal" if str(_S("fear", "extreme")) == "extreme" else "extreme")}); r += 1
 	_sub_switch(b, b.rows - 3, OPT_PAGES, _get_opt, _set_opt)
 	b.item(b.rows - 2, {"id": "back", "label": "RETOUR", "right": _home_num(b), "on": _back_home.bind(b)})
 	b.hint(ui.nav_hint("options"))
