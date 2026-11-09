@@ -13,6 +13,7 @@
 ##   SoundHandle: set_volume(linear), set_pitch(p, seconds := 0.0) / set_rate(r, seconds := 0.15) (glide), set_filter(hz),
 ##     attach_to(node, offset), is_playing() / playing, name.
 ##   names (all sound names), has_sound(name), is_loaded() + signal library_loaded(stats), stats(), meter(),
+##   heartbeat_external (fear module beat-synced heartbeat), EXTRA_MANIFESTS (res://assets/audio/fear/manifest.json),
 ##   debug arg (after --): --audio-test runs res://scripts/audio/tests/audio_selftest.gd once the game is playing.
 ## Loops are idempotent per name (+ position within 1 m; `single` sounds share one instance): loop('clock_tick') twice
 ## returns two handles on ONE voice, which stops when every handle has been stopped. 'ambience' = 'room_tone'.
@@ -50,6 +51,8 @@ const LoopEntry := preload("res://scripts/audio/loop_entry.gd")
 const PovLayer := preload("res://scripts/audio/pov_layer.gd")
 
 const MANIFEST_PATH := "res://assets/audio/manifest.json"
+## Extra manifests merged into the library (same format, new names only): the fear module's synthesized sounds.
+const EXTRA_MANIFESTS := ["res://assets/audio/fear/manifest.json"]
 const SELFTEST_PATH := "res://scripts/audio/tests/audio_selftest.gd"
 const POOL_3D := 64
 const POOL_2D := 24
@@ -272,6 +275,9 @@ var _layers: Array = []
 
 var _args := {}
 var _selftest_started := false
+## true while an external heartbeat plays (fear module: one beat per simulated heart beat): the fear-driven heartbeat
+## loops stay silent (panting, scared / hidden breathing and the drone are unchanged).
+var heartbeat_external := false
 
 
 # ======================================================================================================== lifecycle
@@ -565,6 +571,12 @@ func _load_manifest() -> void:
 		push_warning("[audio] manifest indisponible (%s) — aucun son." % MANIFEST_PATH)
 		_loaded = true
 		return
+	for extra in EXTRA_MANIFESTS:
+		var ej = JSON.parse_string(FileAccess.get_file_as_string(extra)) if FileAccess.file_exists(extra) else null
+		if typeof(ej) == TYPE_DICTIONARY:
+			for k in ej:
+				if not j.has(k):
+					j[k] = ej[k]
 	for n in j:
 		var m = j[n]
 		if typeof(m) != TYPE_DICTIONARY or typeof(m.get("files")) != TYPE_ARRAY or m["files"].is_empty():
@@ -1517,7 +1529,7 @@ func _update_layers(dt: float) -> void:
 	var run_t := smoothstep(0.3, 1.0, ex) * 0.8 * (0.25 if hid else 1.0) if live else 0.0
 	_l_run.update(dt, run_t, 1.6, 0.32, 0.94 + 0.14 * _l_run.v)
 	# heartbeat (fear, and a little from exertion); crossfade to the fast loop above ~0.6
-	var hb := maxf(smoothstep(0.12, 0.7, f), smoothstep(0.55, 1.0, ex) * 0.32) if live else 0.0
+	var hb := maxf(smoothstep(0.12, 0.7, f), smoothstep(0.55, 1.0, ex) * 0.32) if live and not heartbeat_external else 0.0
 	var fast := smoothstep(0.55, 0.72, f)
 	_l_hb.update(dt, hb * (1.0 - fast) * 0.9, 1.4, 0.45, 0.9 + 0.32 * f)
 	_l_hbf.update(dt, hb * fast * 0.95, 1.4, 0.45, 0.95 + 0.22 * smoothstep(0.6, 1.0, f))

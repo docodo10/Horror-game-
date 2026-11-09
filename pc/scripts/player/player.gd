@@ -14,7 +14,8 @@
 ##   eye_position() -> Vector3; flinch(strength := 1.0); reset_after_caught()
 ## Extra public members:
 ##   moving, speed (horizontal m/s), exhausted, on_stairs, surface ("carpet"|"wood"|"concrete"), breath 0..1, stress 0..1,
-##   eye_height, radius, using_gamepad, flashlight_energy_scale (look module may tune the torch), set_crouch(on), is_in_alcove(),
+##   eye_height, radius, using_gamepad, flashlight_energy_scale (look module may tune the torch), stress_bias (fear module
+##   stress input), flashlight_stutter(seconds) (fear module), set_crouch(on), is_in_alcove(),
 ##   update_idle_camera(delta) (menu fallback while the UI does not own the camera), hide_busy() -> bool,
 ##   set_flashlight_shadows(on) (keep on: Godot 4.5 renders a spot projector only with shadows; off swaps the cookie for an
 ##   equivalent cone falloff)
@@ -95,6 +96,7 @@ var exhausted := false
 var on_stairs := false
 var surface := "carpet"
 var speed_scale := 1.0          # external slowdown (garderie ball pit: 0.55)
+var stress_bias := 0.0          # external stress input 0..1 (fear module heart rate): tremor, breathing, fear squeeze
 var breath := 0.0
 var stress := 0.0
 var eye_height := EYE_STAND
@@ -821,6 +823,15 @@ func _on_power_changed(on: bool) -> void:
 	if not on and Game.state == "playing":
 		flinch(0.55)
 
+## Fear module: the torch stutters for `seconds` (same filament flicker as a weak battery), if it is on.
+func flashlight_stutter(seconds := 0.5) -> void:
+	if not (flashlight.on and flashlight.has) or _die_t > 0.0:
+		return
+	var was := _flick_on
+	_flick_on = true
+	_flick_t = maxf(_flick_t if was else 0.0, clampf(seconds, 0.05, 2.0))
+	_flick_j = 0.0
+
 ## Quick camera jolt (~0.15 s): startle reaction. Scripted scares can call it.
 func flinch(strength := 1.0) -> void:
 	if _flinch_cd > 0.0 and strength < 1.0:
@@ -896,6 +907,7 @@ func _read_stress(dt: float) -> void:
 			s = 1.0
 	if _dbg_stress >= 0.0:
 		s = maxf(s, _dbg_stress)
+	s = maxf(s, clampf(stress_bias, 0.0, 1.0))
 	stress += (s - stress) * _damp(3.0 if s > stress else 0.6, dt)
 
 # ---------------------------------------------------------------- look

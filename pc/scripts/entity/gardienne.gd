@@ -5,7 +5,8 @@
 ## Extra public members: model (gardienne_model.gd), enabled, aggression, suspicion, yaw, seeing, state_log (transitions
 ##   {t, state, prev, pos}), stall_events, summon(target, reason, aggressive := false),
 ##   debug_place(pos, yaw, mode := "idle", t := -1.0, look := null), debug_release(), debug_jumpscare(freeze_t := -1.0),
-##   head_position() / eye_position() / face_position(), get_head_position() / get_feet_position() (audio module hooks).
+##   head_position() / eye_position() / face_position(), get_head_position() / get_feet_position() (audio module hooks),
+##   glimpse(pos, yaw, mode, look) -> bool / end_glimpse() / glimpsing (fear module apparitions, dormant only).
 ##
 ## Behaviour (same states, numbers and timings as the web version):
 ##  dormant    upstairs (hall), invisible. Noise raises suspicion (muffled by the floor, scaled by distance to the stairwell
@@ -299,6 +300,24 @@ func debug_release() -> void:
 	if model: model.debug_freeze = false
 	_set_pos(_home, true)
 	_apply_visibility()
+
+## Fear module hook (scripts/fear/fear_glimpse.gd): a silent, AI-frozen apparition shown only while she sleeps upstairs.
+## Her state stays "dormant" (no visit, no Events.entity_state, no sight / catch); end_glimpse() sends her home invisible.
+## Refused (false) when she is awake, disabled, debug-placed or not built.
+var glimpsing := false
+
+func glimpse(pos: Vector3, yaw_rad := 0.0, mode := "idle", look: Variant = "camera") -> bool:
+	if not _built or not enabled or state != "dormant" or not _debug_hold.is_empty() or Game.state != "playing":
+		return false
+	debug_place(pos, yaw_rad, mode, -1.0, look)
+	glimpsing = true
+	return true
+
+func end_glimpse() -> void:
+	if not glimpsing: return
+	glimpsing = false
+	if _debug_hold.is_empty() or state != "dormant": return   # released elsewhere (reset, debug): leave her be
+	debug_release()
 
 ## Debug: jumpscare on the current camera now (freeze_t >= 0 holds that frame: screenshots).
 func debug_jumpscare(freeze_t := -1.0) -> void:

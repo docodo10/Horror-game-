@@ -5,6 +5,7 @@
 ##   stage: "intro" | "dark" | "power" | "code" | "escape" | "win"     code: 4 digits 1..9 (debug: --code=1234 with Game.debug)
 ##   found: {duck, horse, clock, tv} -> digit String or null
 ## Additions: flags: Dictionary (progress flags), stats {code_attempts, rattles}, stage_time, objective() -> String, tension() -> 0..1,
+##   ambient_scares (false: the fear module runs the ambient scares),
 ##   STAGES, NOTES, NOISE (loudness table), CLUES.
 ## Emits: Events.stage_changed(stage, prev), Events.noise(position, loudness, source), Events.game_win.
 ## Uses (all optional, called defensively): Game.world {handles, items, clues, tv, hide_spots, power, set_power, set_clue_digits,
@@ -93,6 +94,7 @@ var flags := {
 	"rocked": false, "gnome_moved": false,
 }
 var stage_time := 0.0
+var ambient_scares := true        # false = the fear module (scripts/fear) paces the ambient scares instead
 var stats := {"code_attempts": 0, "rattles": 0}
 var interaction: Node = null
 
@@ -1063,6 +1065,7 @@ func _hints() -> void:
 	if text != "": _say(text, 4.5, {"critical": true, "hint": true})
 
 func _ambient(dt: float) -> void:
+	if not ambient_scares: return
 	var ent := Game.entity
 	if ent != null and is_instance_valid(ent) and ent.get(&"active") == true:
 		_scare_t = maxf(_scare_t, 8.0)

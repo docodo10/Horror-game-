@@ -97,6 +97,21 @@ const TABLE := {
 	# ---- music
 	"stinger": ["music", -3.0, {"max": 1, "gap": 2.5, "rv": 0.0, "jit": false}],
 	"chase_music": ["music", -4.0, {"rv": 0.0, "jit": false, "single": true}],
+	# ---- fear module (res://assets/audio/fear/manifest.json, synthesized CC0 by scripts/fear/tools/make_fear_sounds.py).
+	# The head-locked layers (heartbeat, rumble, drone, tinnitus, hits, stingers, riser) are played by scripts/fear on the
+	# Master bus (+12 dB = Buses.HEADROOM_DB, never muffled / silenced by the fear effects); the others are world sounds.
+	"fear_heartbeat": ["foley", -2.0, {"max": 3, "rv": 0.0, "jit": false}],
+	"fear_rumble": ["ambience", -6.0, {"rv": 0.0, "jit": false, "rnd": true}],
+	"fear_drone": ["ambience", -14.0, {"rv": 0.0, "jit": false, "rnd": true}],
+	"fear_tinnitus": ["foley", -24.0, {"max": 1, "gap": 2.0, "rv": 0.0, "jit": false}],
+	"fear_sub_hit": ["sfx", -3.0, {"max": 2, "gap": 0.3, "rv": 0.0, "jit": false}],
+	"fear_stinger": ["music", -2.0, {"max": 1, "gap": 2.0, "rv": 0.0, "jit": false}],
+	"fear_stinger_big": ["music", -3.0, {"max": 1, "gap": 1.5, "rv": 0.0, "jit": false}],
+	"fear_riser": ["music", -8.0, {"max": 1, "gap": 2.0, "rv": 0.0, "jit": false}],
+	"fear_crash": ["sfx", 3.0, {"max": 1, "gap": 0.5, "ref": 1.5}],
+	"fear_ball": ["sfx", -5.0, {"max": 3, "gap": 0.05, "ref": 1.0, "rv": 0.8}],
+	"fear_distant": ["sfx", -6.0, {"max": 1, "gap": 2.0, "ref": 2.0, "rv": 0.4}],
+	"fear_scratch": ["sfx", -8.0, {"max": 1, "gap": 1.0, "ref": 0.8, "pos": "wall"}],
 }
 
 ## Alternative names (web contract): 'ambience' is the room tone.
