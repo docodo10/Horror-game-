@@ -28,6 +28,7 @@
 ##                                  pushable foam blocks, impact sounds; active only while the camera is in the hall
 ##   dressing                       garderie_dressing.gd — MultiMesh debris, decals, dust motes, lifted mat corners
 ##   play_impact(kind, pos, vol)    impact sound of a physics body ("ball_bounce" | "foam_thud", vol 0..1)
+##   apply_quality(q)               optional preset hook (low | medium | high | ultra) for the look module
 ## Look (subliminal gap analysis): pools of light (60° high-bays, 65° louvered troffers), every working fixture
 ##   shadowed (fade 20 m / shadows 12 m), warm-neutral whites, black roof, HallDust 0.025, fog energy 2.0; after a
 ##   power cut the SORTIE signs + our neon sign ("Les Petits Soleils") are the only key lights.
@@ -531,6 +532,32 @@ func set_light_scale(k: float) -> void:
 	light_scale = k
 	set_power(power)
 
+## Optional quality hook (the look module may call it with its preset): "low" drops the dust motes, the key lights'
+## shadows (the neon keeps its own) and the fixtures' PCSS size, and shortens the debris range; "medium" keeps the
+## motes but no PCSS; "high" / "ultra" = everything (the budgeted look).
+var quality := "high"
+
+func apply_quality(q: String) -> void:
+	quality = q
+	if ctx == null:
+		return
+	var low := q == "low"
+	var pcss := q == "high" or q == "ultra"
+	for l in ctx.lights:
+		if l.kind == "highbay" or l.kind == "troffer":
+			(l.light as Light3D).light_size = 0.2 if pcss else 0.0
+	for s in ctx.signs:
+		var sl := s as Light3D
+		if sl != null:
+			sl.shadow_enabled = not low or String(sl.name) == "NeonSign"
+	if dressing != null:
+		for m in dressing.motes:
+			if is_instance_valid(m):
+				m.amount_ratio = 0.0 if low else 1.0
+	for mmi in find_children("Debris_*", "MultiMeshInstance3D", true, false):
+		var big := String(mmi.name).contains("cup") or String(mmi.name).contains("sock")
+		(mmi as GeometryInstance3D).visibility_range_end = (14.0 if big else 10.0) if low else (22.0 if big else 16.0)
+
 ## Lights of rooms the camera cannot see are hidden (shadow maps and clustered cost), zone by zone.
 func _update_zone(force := false) -> void:
 	var cam := get_viewport().get_camera_3d() if is_inside_tree() and get_viewport() else null
@@ -594,11 +621,14 @@ func _tick_flicker(dt: float) -> void:
 		if f.get("dead", false):
 			continue
 		f.t -= dt
-		var on := true
+		if f.t >= 0.0 and f.get("set", false):
+			continue                    # only touch the light when its phase changes (a shadowed light whose
+										# parameters change every frame would re-render its shadow map every frame)
+		f["set"] = true
 		if f.t < 0.0:
 			f.phase = (int(f.phase) + 1) % 12
 			f.t = _rng.randf_range(0.03, 0.18) if int(f.phase) % 2 == 1 else _rng.randf_range(0.1, 2.6)
-		on = int(f.phase) % 2 == 0
+		var on: bool = int(f.phase) % 2 == 0
 		var k := 1.0 if on else _rng.randf_range(0.0, 0.15)
 		lt.light_energy = float(f.base) * light_scale * k
 		for e in f.extra:

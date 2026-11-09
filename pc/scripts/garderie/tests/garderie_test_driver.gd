@@ -378,6 +378,11 @@ func _test_dressing() -> void:
 		if m != null and m.get_surface_count() > 0:
 			lods += 1
 	check(wraps.size() >= 6, "hero padded columns built as LOD'd meshes (%d)" % wraps.size())
+	_g.apply_quality("low")
+	var low_ok: bool = not _g.ctx.signs.any(func(s): return (s as Light3D).shadow_enabled and String((s as Node).name) != "NeonSign")
+	_g.apply_quality("high")
+	var high_ok: bool = _g.ctx.signs.all(func(s): return (s as Light3D).shadow_enabled)
+	check(low_ok and high_ok, "apply_quality low / high")
 
 # ---------------------------------------------------------------- physics
 
