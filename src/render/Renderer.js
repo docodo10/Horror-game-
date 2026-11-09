@@ -234,9 +234,12 @@ export class Renderer {
 
   /** Apply a preset. q: 'auto' | 'low' | 'medium' | 'high' | 'ultra'. Emits 'quality:changed'. */
   setQuality(q) {
-    const want = typeof q === 'string' ? q.toLowerCase() : 'auto';
+    let want = typeof q === 'string' ? q.toLowerCase() : 'auto';
     this.auto = !PRESETS[want];
     this.qualitySetting = this.auto ? 'auto' : want;
+    // Phones cannot run high/ultra (GTAO, MSAA x4, DOF, 2x pixel ratio): they stutter, heat up and lose the WebGL
+    // context. Touch devices are capped at medium even if a high preset was saved or picked.
+    if (this._isTouch && (want === 'high' || want === 'ultra')) want = 'medium';
     const a = this._auto;
     a.low = 0; a.high = 0; a.grace = 3; a.downgraded = false; a.upgraded = false; a.lowScaleT = 0;
     this.renderScale = 1;

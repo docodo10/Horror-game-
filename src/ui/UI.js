@@ -1730,8 +1730,10 @@ export class UI {
       b.text(3, 'r', sub ? 'SON ET COMMANDES' : 'IMAGE', C.c);
       let r = 5;
       if (!sub) {
-        const qIdx = () => Math.max(0, QUALITY.findIndex(([k]) => k === String(this._S('quality'))));
-        b.item(r++, { id: 'quality', label: 'QUALITÉ', kind: 'value', right: QUALITY[qIdx()][1], change: (d) => this._set('quality', QUALITY[(qIdx() + d + QUALITY.length) % QUALITY.length][0]) });
+        // phones only get Auto / Basse / Moyenne (high and ultra are capped to medium by the renderer anyway)
+        const QL = this._isTouch ? QUALITY.filter(([k]) => k !== 'high' && k !== 'ultra') : QUALITY;
+        const qIdx = () => Math.max(0, QL.findIndex(([k]) => k === String(this._S('quality'))));
+        b.item(r++, { id: 'quality', label: 'QUALITÉ', kind: 'value', right: QL[qIdx()][1], change: (d) => this._set('quality', QL[(qIdx() + d + QL.length) % QL.length][0]) });
         const br = Number(this._S('brightness'));
         b.item(r++, { id: 'brightness', label: 'LUMINOSITÉ', kind: 'value', right: `${this._barStr(br - 0.6)} ${Math.round(br * 100)}%`, change: (d) => this._num('brightness', d, 0.05, 0.6, 1.6) });
         b.item(r++, { id: 'fov', label: 'CHAMP DE VISION', kind: 'value', right: `${Math.round(Number(this._S('fov')))}°`, change: (d) => this._num('fov', d, 5, 55, 100) });
