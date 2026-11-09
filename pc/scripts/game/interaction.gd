@@ -71,6 +71,16 @@ func _ready() -> void:
 
 # ------------------------------------------------------------------ registration
 
+## Loading screen hooks (scenes/main.gd): build the looked-at highlight pipelines for every interactable before play.
+func prewarm_begin() -> Array:
+	var nodes: Array = []
+	for e in entries.values():
+		if e is Dictionary and e.get("node") != null: nodes.append(e.get("node"))
+	return _hl.prewarm_begin(nodes)
+
+func prewarm_end(meshes: Array) -> void:
+	_hl.prewarm_end(meshes)
+
 func register(e: Dictionary) -> Callable:
 	var id := str(e.get("id", ""))
 	if id == "":

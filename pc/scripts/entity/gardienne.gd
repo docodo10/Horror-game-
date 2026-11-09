@@ -295,6 +295,11 @@ func debug_place(pos: Vector3, yaw_rad := 0.0, mode := "idle", t := -1.0, look: 
 	root.visible = true
 	_place_root(0.0)
 
+## Loading screen (scenes/main.gd dress rehearsal): presents the debug-placed model for one frame exactly as in play,
+## although the game is not live yet (nothing else of her runs while loading).
+func prewarm_frame(dt: float) -> void:
+	if _built and not _debug_hold.is_empty(): _debug_present(dt)
+
 func debug_release() -> void:
 	_debug_hold = {}
 	if model: model.debug_freeze = false
@@ -976,6 +981,15 @@ func _on_hide(hidden: bool, spot_id: String) -> void:
 		_saw_hide = active and state != "returning" and (recently or seeing) and state != "jumpscare"
 	else:
 		_saw_hide = false
+
+## Call once the look module has applied the preset to the viewport (scenes/main.gd, before the loading-screen
+## rehearsal). Her materials take their final form here (alpha mode for the viewport's AA, skin features of the preset)
+## and not on the first frame of play: changing them there made the GPU rebuild every one of her pipelines at game
+## start and again the first time she appeared (measured: 18 + 6 blocking compilations, tools/hitch_hunt.gd).
+func apply_quality_now() -> void:
+	if model == null: return
+	_quality_applied = true
+	model.apply_quality(String(Settings.get_value("quality", "high")))
 
 func _on_game_state(s: String, _prev: String) -> void:
 	_apply_visibility()

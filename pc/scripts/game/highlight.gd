@@ -68,6 +68,22 @@ func update(dt: float, hold_k := -1.0) -> void:
 			_clear(_old, _mat_old)
 			_old = []
 
+## Loading screen: put the (invisible, strength 0) overlay on every mesh it can ever land on, so the GPU builds those
+## pipelines before play; otherwise the first look at each kind of object hitches. Returns the meshes for prewarm_end().
+func prewarm_begin(nodes: Array) -> Array:
+	var out: Array = []
+	_mat_old.set_shader_parameter("strength", 0.0)
+	for n in nodes:
+		for m in _collect(n):
+			var g := m as GeometryInstance3D
+			if g.material_overlay == null:
+				g.material_overlay = _mat_old
+				out.append(g)
+	return out
+
+func prewarm_end(meshes: Array) -> void:
+	_clear(meshes, _mat_old)
+
 func clear() -> void:
 	_clear(_cur, _mat_cur)
 	_clear(_old, _mat_old)

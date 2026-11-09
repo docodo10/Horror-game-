@@ -119,15 +119,20 @@ func set_power(on: bool) -> void:
 		_probe_tween.tween_property(p, "intensity", 1.0 if on else 0.0, 1.2 if on else 0.15)
 	if on: refresh(1.5)
 
-## Re-captures every probe (after `delay` s: let the lights settle).
+## Re-captures every probe (after `delay` s: let the lights settle). Setting UPDATE_ONCE again is enough to queue a new
+## capture, and the renderer then spends one cube face per frame on one probe at a time: about 40 slightly heavier
+## frames. (Holding the probes on UPDATE_ALWAYS instead renders all 6 faces of all probes every frame: 24 extra
+## scene renders per frame, i.e. a hard freeze at game start and each time the power comes back.)
+var _refresh_gen := 0
+
 func refresh(delay := 0.0) -> void:
+	_refresh_gen += 1
+	var gen := _refresh_gen
 	var waited := 0.0
 	while waited < delay and is_inside_tree():
 		await get_tree().process_frame
 		if not get_tree().paused: waited += get_process_delta_time()
-	if not is_inside_tree(): return
-	for p in probes: p.update_mode = ReflectionProbe.UPDATE_ALWAYS
-	for i in 3: await get_tree().process_frame
+	if not is_inside_tree() or gen != _refresh_gen: return        # a newer request replaces this one
 	for p in probes:
 		if is_instance_valid(p): p.update_mode = ReflectionProbe.UPDATE_ONCE
 

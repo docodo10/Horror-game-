@@ -190,7 +190,8 @@ func build(world = null) -> void:
 		"wrap_chunks": find_children("*_wraps_*", "MeshInstance3D", true, false).size(),
 		"stage_ms": ms, "kit_tris": kit_tris, "commit_ms": ctx.commit_ms,
 	}
-	_update_zone(true)
+	_collect_hall_nodes()
+	_update_zone(true, false)
 	_debug_args()
 
 ## Re-cuts the doorway through every mesh / collider / occluder of the room (idempotent).
@@ -513,7 +514,8 @@ func set_power(on: bool) -> void:
 	for l in ctx.lights:
 		var lt: Light3D = l.light
 		var dead: bool = l.state == "dead"
-		lt.visible = on and not dead and not (l.get("killed", false))
+		if not (on and not dead and not (l.get("killed", false))):
+			lt.visible = false
 		lt.light_energy = float(l.base) * light_scale
 		var em = l.emit
 		if em is StandardMaterial3D and l.state != "dead":
@@ -565,16 +567,77 @@ func apply_quality(q: String) -> void:
 		var big := String(mmi.name).contains("cup") or String(mmi.name).contains("sock")
 		(mmi as GeometryInstance3D).visibility_range_end = (14.0 if big else 10.0) if low else (22.0 if big else 16.0)
 
-## Lights of rooms the camera cannot see are hidden (shadow maps and clustered cost), zone by zone.
-func _update_zone(force := false) -> void:
+## What is drawn follows where the camera is (checked 4 times a second, with hysteresis on each threshold):
+##  * The hall (about a million triangles and 15 lights) is hidden while the camera is in the house or in the first
+##    metres of the corridor. The door is ajar and its three openings line up, so occlusion culling alone still drew
+##    the whole hall every time the doorway was on screen: the frame cost of the basement jumped 4x on a turn.
+##  * The house (and its lights: the fan makes the ceiling bulb re-render its shadow cube every frame) is hidden
+##    while the camera is deep in the hall.
+##  * High-bays follow the hall; lights that come on are queued and switched on one per frame (_process), so their
+##    shadow maps are never all rendered in the same frame.
+const HALL_SHOW_X := -6.0
+const HALL_HIDE_X := -5.4
+const HOUSE_HIDE_X := -17.8
+const HOUSE_SHOW_X := -17.2
+var _hall_nodes: Array = []
+var _hall_shown := true
+var _house_shown := true
+var _lights_on_queue: Array = []
+
+## Top-level nodes that stand in the hall (everything west of the vestibule), by where their geometry is. The neon
+## sign stays out of the list: it is what you see glowing at the far end from the doorway.
+func _collect_hall_nodes() -> void:
+	_hall_nodes.clear()
+	for ch in get_children():
+		if not (ch is Node3D) or ch is ReflectionProbe or ch is Area3D or ch is OccluderInstance3D:
+			continue
+		var nm := String(ch.name)
+		if nm == "Occluders" or nm == "TunnelMouth" or nm == "Neon" or nm.begins_with("SlideTop"):
+			continue
+		var min_x := INF
+		var max_x := -INF
+		for g in ch.find_children("*", "GeometryInstance3D", true, false):
+			var gi := g as GeometryInstance3D
+			var ab: AABB = gi.global_transform * gi.get_aabb()
+			if ab.size == Vector3.ZERO:
+				continue
+			min_x = minf(min_x, ab.position.x)
+			max_x = maxf(max_x, ab.end.x)
+		if nm.begins_with("Hall") or (min_x != INF and (max_x < float(GL.VEST.x0) or min_x < float(GL.VEST.x0) - 2.0)):
+			_hall_nodes.append(ch)
+
+func _show_house(on: bool) -> void:
+	if not (_world is Node) or not is_instance_valid(_world):
+		return
+	for nm in ["Level", "Lighting"]:
+		var n := (_world as Node).get_node_or_null(nm) as Node3D
+		if n != null and n.visible != on:
+			n.visible = on
+
+## Applies the visibility for the current camera now (loading screen tour, tests): no stagger, no quarter-second wait.
+func refresh_zone() -> void:
+	_lights_on_queue.clear()
+	_update_zone(true, false)
+
+func _update_zone(force := false, stagger := true) -> void:
 	var cam := get_viewport().get_camera_3d() if is_inside_tree() and get_viewport() else null
 	var p := cam.global_position if cam else Vector3(0, 1.6, 0)
+	var hall := p.x < (HALL_HIDE_X if _hall_shown else HALL_SHOW_X)
+	var house := p.x > (HOUSE_HIDE_X if _house_shown else HOUSE_SHOW_X)
+	var changed := force or hall != _hall_shown or house != _house_shown
+	if force or hall != _hall_shown:
+		_hall_shown = hall
+		for n in _hall_nodes:
+			if is_instance_valid(n): (n as Node3D).visible = hall
+	if force or house != _house_shown:
+		_house_shown = house
+		_show_house(house)
 	var z := "house"
 	if p.x < GL.VEST.x1 + 0.1:
 		z = "hall"
 	elif p.x < -3.6:
 		z = "corridor"
-	if z == _zone and not force:
+	if z == _zone and not changed:
 		return
 	_zone = z
 	_ambience(z != "house")
@@ -586,12 +649,22 @@ func _update_zone(force := false) -> void:
 		var lt: Light3D = l.light
 		var on: bool = power and l.state != "dead" and not l.get("killed", false)
 		if l.kind == "highbay":
-			on = on and z == "hall"
-		lt.visible = on
+			on = on and _hall_shown
+		if not on:
+			lt.visible = false
+			_lights_on_queue.erase(lt)
+		elif not lt.visible:
+			if stagger:
+				if not _lights_on_queue.has(lt): _lights_on_queue.append(lt)
+			else:
+				lt.visible = true
 
 func _process(dt: float) -> void:
 	if not built:
 		return
+	if not _lights_on_queue.is_empty():
+		var lq = _lights_on_queue.pop_front()
+		if is_instance_valid(lq): (lq as Light3D).visible = true
 	_zone_t -= dt
 	if _zone_t <= 0.0:
 		_zone_t = 0.25
@@ -774,6 +847,7 @@ func reset_after_caught() -> void:
 		_set_pit(false)
 	if physics != null:
 		physics.release_all()
+	_zone_t = 0.0        # the player is back in the house: show it again on the next frame
 
 ## Teleports the player into the area with the right floor height (the house's ground_height_at knows nothing
 ## about the 1.05 m lower hall or the play decks): Game.world answers with this node during the call.
@@ -786,6 +860,7 @@ func teleport_player(pos: Vector3, yaw: float, pitch := 0.0) -> void:
 	Game.world = self
 	p.call("teleport", Vector3(pos.x, ground_height_at(pos.x, pos.z, pos.y + 0.2), pos.z), yaw, pitch)
 	Game.world = w
+	_zone_t = 0.0
 
 ## Debug args (after --): --garderie-cam=x,y,z,yawDeg,pitchDeg (feet height y) teleports the player once the game
 ## plays; --garderie-ride=wave|spiral rides a slide right away; --garderie-scare=giggle_slide|tube_dies|ball_roll|hum.
