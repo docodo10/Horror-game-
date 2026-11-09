@@ -211,7 +211,13 @@ func _draw_objective(a: float) -> void:
 		if fmod(Style.now(), 0.7) < 0.35:
 			draw_rect(Rect2(caret.x + 2.0, caret.y - 22.0, 11.0, 27.0), Color(Style.NIGHTLIGHT, 0.8 * oa))
 
+## Settings "hud": "none" (default, the user's choice) hides the dot, prompts, keycaps, meters and the closet hint.
+func _full_hud() -> bool:
+	return str(Settings.get_value("hud", "none")) == "full"
+
 func _draw_center(a: float) -> void:
+	if not _full_hud():
+		return
 	var c := (size * 0.5).round()
 	var pa := _prompt_alpha
 	var dot_r := lerpf(2.0, 3.0, pa)
@@ -276,6 +282,8 @@ func _draw_alert(a: float) -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw_bars(a: float) -> void:
+	if not _full_hud():
+		return
 	# battery: thin bar top-right (blinks red when low)
 	var ba := _batt_alpha * a
 	if ba > 0.002 and battery >= 0.0:
@@ -296,7 +304,7 @@ func _draw_bars(a: float) -> void:
 		draw_rect(Rect2(r2.position, Vector2(w2 * Style.clamp01(stamina), r2.size.y)), Color(1.0, 0.47, 0.35, 0.85 * sa))
 
 func _draw_hidden_hint(a: float) -> void:
-	if not player_hidden:
+	if not player_hidden or not _full_hud():
 		return
 	var t := Style.now() - _hidden_t0
 	var k := 0.0

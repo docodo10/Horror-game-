@@ -210,3 +210,11 @@ Match their PHOTOGRAPHIC qualities, never their content (no copied rooms, signs,
   API: `Garderie.build(world) -> void` (builds the area, carves the doorway, adds colliders/occluders/interactables),
   `nav_nodes: Dictionary` (id → Vector3), `nav_links: Array` ([[a, b], …]), `hide_spots: Array` (same shape as world.hide_spots).
   The lead wires it into main.gd and the nav graph at merge time.
+
+## 8. User choice (2026-11-09 00:05): no HUD
+The user does not want interaction prompts ("Ouvrir la porte" + the little E button), the centre dot or meters. Settings
+`hud` = `"none"` (default) hides the dot, prompts, keycaps, hold ring, battery/stamina bars and the closet hint; the
+targeted interactable gets a faint, light-dependent brightening instead (scripts/game/highlight.gd, driven by
+Interaction; it swells while holding a hold-to-use). Subtitles, objectives and story alerts stay. `hud` = `"full"`
+(Options page 2: INTERFACE AUCUNE / COMPLÈTE) brings the old HUD back. New interactables need nothing special: any
+registered entry's node gets the highlight.

@@ -209,6 +209,8 @@ func options(b: TT) -> void:
 			"change": func(d: int) -> void: _num("sensitivity", d, 0.1, 0.3, 3.0, 1.0)}); r += 1
 		b.item(r, {"id": "invert_y", "label": "INVERSER Y", "kind": "value", "right": _oui(_S("invert_y", false)),
 			"change": func(_d: int) -> void: _setv("invert_y", not bool(_S("invert_y", false)))}); r += 1
+		b.item(r, {"id": "hud", "label": "INTERFACE", "kind": "value", "right": "COMPLÈTE" if str(_S("hud", "none")) == "full" else "AUCUNE",
+			"change": func(_d: int) -> void: _setv("hud", "none" if str(_S("hud", "none")) == "full" else "full")}); r += 1
 	_sub_switch(b, b.rows - 3, 2, _get_opt, _set_opt)
 	b.item(b.rows - 2, {"id": "back", "label": "RETOUR", "right": _home_num(b), "on": _back_home.bind(b)})
 	b.hint(ui.nav_hint("options"))

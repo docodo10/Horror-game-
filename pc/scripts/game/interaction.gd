@@ -59,6 +59,8 @@ var _unreachable: Array[String] = []
 var _unreachable_logged := false
 var _shape_boxes := {}             # Shape3D instance id -> local AABB (ray exit tests)
 var _tagged := {}                  # body instance id -> instance id of the registered node whose id it carries
+var _hl = preload("res://scripts/game/highlight.gd").new()   # looked-at brightening (the HUD shows no prompt by default)
+var _hl_hold := -1.0               # hold-to-use progress fed to the highlight (-1 = not holding)
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -308,6 +310,7 @@ func _input(event: InputEvent) -> void:
 		if using_gamepad: using_gamepad = false
 
 func _process(delta: float) -> void:
+	_hl.update(delta, _hl_hold)
 	if busy:
 		_lock_age += delta
 		if _lock_age > LOCK_TIMEOUT and not _modal_open():
@@ -355,11 +358,13 @@ func _process(delta: float) -> void:
 			else:
 				_hold_t += delta
 				var k := minf(1.0, _hold_t / hold_time)
+				_hl_hold = k
 				var hp := _text(cur.get("hold_prompt"))
 				_show_prompt(hp if hp != "" else _text(cur.get("prompt")), k)
 				if k >= 1.0:
 					_holding = null
 					_hold_t = 0.0
+					_hl_hold = -1.0
 					_run(cur)
 				return
 		_show_prompt(_text(cur.get("prompt")), 0.0)
@@ -481,6 +486,7 @@ func _is_nested(inner: Dictionary, outer: Dictionary) -> bool:
 func _set_current(e) -> void:
 	if is_same(current, e): return
 	current = e
+	_hl.set_target(e.get("node") if e is Dictionary else null)
 
 func _show_prompt(text: String, hold := -1.0) -> void:
 	var hv := -1.0 if hold < 0.0 else roundf(hold * 50.0) / 50.0
@@ -499,6 +505,7 @@ func _show_prompt(text: String, hold := -1.0) -> void:
 	ui.call("set_prompt", text, opts)
 
 func _cancel_hold() -> void:
+	_hl_hold = -1.0
 	if _holding == null: return
 	var e: Dictionary = _holding
 	_holding = null

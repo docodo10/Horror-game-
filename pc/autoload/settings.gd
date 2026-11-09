@@ -14,6 +14,7 @@ var values := {
 	"camera_motion": 1.0,     # 0..1 scales head bob / roll / tremor
 	"fullscreen": true,
 	"vsync": true,
+	"hud": "none",             # none (no prompts / dot / meters; looked-at objects brighten) | full
 }
 
 func _ready() -> void:
