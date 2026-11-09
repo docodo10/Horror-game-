@@ -48,7 +48,7 @@ func _ready() -> void:
 	var fear := FearModule.new(); fear.name = "FearDirector"; add_child(fear); fear.setup()
 	Quality.apply(Settings.get_value("quality", "high"))
 	var aq := AutoQuality.new(); aq.name = "AutoQuality"; add_child(aq)
-	await _warmup_tour(player, garderie)
+	await _calibrate_and_warm_up(aq)
 	ui.show_loading(1.0, "Prêt")
 	await get_tree().process_frame
 	# User args come after "--" (e.g. `godot --path pc -- --autostart`).
@@ -68,26 +68,37 @@ func _on_settings_changed(key: String, value: Variant) -> void:
 		if Game.garderie and Game.garderie.has_method("recarve"): Game.garderie.recarve()
 		if Game.garderie and Game.garderie.has_method("apply_quality"): Game.garderie.apply_quality(String(value))
 
-## Shader warm-up behind the loading screen: the camera visits every area for a few frames so the GPU compiles the
-## pipelines of all materials, lights and shadows now instead of stuttering the first time each one appears in play.
-## Skipped in headless runs (nothing is rendered there).
-const WARMUP_BASEMENT := [[0.25, 0.0, 1.6, 0.0, -3.0], [2.3, 0.0, 1.6, 49.0, -2.0], [-0.6, 0.0, -0.4, 132.0, -14.0],
-	[1.35, 0.0, -2.2, 0.0, -3.0], [-0.55, 0.0, -1.1, 0.0, -8.0], [2.2, 0.0, 0.15, -90.0, -18.0], [-3.0, 2.75, -2.1, 180.0, -25.0],
-	[0.25, 0.0, 1.6, 180.0, 10.0]]
-const WARMUP_GARDERIE := [[-4.1, 0.0, 2.05, 90.0, -4.0], [-11.5, 0.0, 2.4, 96.0, -6.0], [-17.9, -1.05, 2.7, 94.0, -11.0],
-	[-18.3, -1.05, 3.9, 72.0, -9.0], [-19.0, -1.05, -4.2, 92.0, 6.0], [-23.7, -1.05, 5.6, 105.0, -28.0],
-	[-27.6, -1.05, 9.8, 48.0, 6.0], [-26.0, -1.05, 1.2, 80.0, -5.0], [-34.6, -1.05, 6.8, 95.0, -18.0]]
+## Behind the loading screen a temporary camera looks at the game from fixed views (the TV menu / idle camera own the
+## player camera until the game starts):
+##  1. auto quality times real frames of the heaviest views and settles on a preset (scripts/render/auto_quality.gd);
+##  2. the camera then visits every area for a few frames so the GPU compiles the pipelines of all materials, lights and
+##     shadows now instead of stuttering the first time each one appears in play.
+## Skipped in headless runs (nothing is rendered there). Views: x, eye y, z, yaw deg, pitch deg.
+const CALIB_VIEWS := [[0.25, 1.6, 1.6, 0.0, -3.0], [-17.9, 0.55, 2.7, 94.0, -11.0]]
+const WARMUP_VIEWS := [[0.25, 1.6, 1.6, 0.0, -3.0], [2.3, 1.6, 1.6, 49.0, -2.0], [-0.6, 1.6, -0.4, 132.0, -14.0],
+	[1.35, 1.6, -2.2, 0.0, -3.0], [-0.55, 1.6, -1.1, 0.0, -8.0], [2.2, 1.6, 0.15, -90.0, -18.0], [-3.0, 4.35, -2.1, 180.0, -25.0],
+	[0.25, 1.6, 1.6, 180.0, 10.0],
+	[-4.1, 1.6, 2.05, 90.0, -4.0], [-11.5, 1.6, 2.4, 96.0, -6.0], [-17.9, 0.55, 2.7, 94.0, -11.0],
+	[-18.3, 0.55, 3.9, 72.0, -9.0], [-19.0, 0.55, -4.2, 92.0, 6.0], [-23.7, 0.55, 5.6, 105.0, -28.0],
+	[-27.6, 0.55, 9.8, 48.0, 6.0], [-26.0, 0.55, 1.2, 80.0, -5.0], [-34.6, 0.55, 6.8, 95.0, -18.0]]
 
-func _warmup_tour(player: Node, garderie: Node) -> void:
-	if DisplayServer.get_name() == "headless" or player == null or not player.has_method("teleport"): return
-	if DebugTools.args.has("no-warmup"): return
-	for v in WARMUP_BASEMENT:
-		player.teleport(Vector3(v[0], v[1], v[2]), deg_to_rad(v[3]), deg_to_rad(v[4]))
+func _tour_view(cam: Camera3D, v: Array) -> void:
+	cam.global_transform = Transform3D(Basis.from_euler(Vector3(deg_to_rad(v[4]), deg_to_rad(v[3]), 0.0)), Vector3(v[0], v[1], v[2]))
+
+func _calibrate_and_warm_up(aq: Node) -> void:
+	if DisplayServer.get_name() == "headless" or DebugTools.args.has("no-warmup"): return
+	var prev := get_viewport().get_camera_3d()
+	var cam := Camera3D.new()
+	cam.name = "TourCamera"
+	cam.fov = float(Settings.get_value("fov", 54.0))
+	cam.near = 0.05
+	cam.far = 80.0
+	add_child(cam)
+	cam.make_current()
+	await aq.calibrate(func(i: int) -> void: _tour_view(cam, CALIB_VIEWS[i]), CALIB_VIEWS.size())
+	for v in WARMUP_VIEWS:
+		_tour_view(cam, v)
 		for i in 3: await get_tree().process_frame
-	if garderie != null and garderie.has_method("teleport_player"):
-		for v in WARMUP_GARDERIE:
-			garderie.teleport_player(Vector3(v[0], v[1], v[2]), deg_to_rad(v[3]), deg_to_rad(v[4]))
-			for i in 3: await get_tree().process_frame
-	var sp: Dictionary = Layout.SPAWN
-	player.teleport(Vector3(float(sp.x), 0.0, float(sp.z)), float(sp.yaw), 0.0)
+	if prev != null and is_instance_valid(prev): prev.make_current()
+	cam.queue_free()
 	for i in 2: await get_tree().process_frame

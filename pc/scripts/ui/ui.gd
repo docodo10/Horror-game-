@@ -581,7 +581,9 @@ func _apply_fullscreen(on: bool) -> void:
 	var cur := DisplayServer.window_get_mode()
 	var is_fs := cur == DisplayServer.WINDOW_MODE_FULLSCREEN or cur == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
 	if on and not is_fs:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		# exclusive: the game owns the screen (no desktop compositor between the GPU and the monitor -> even frame
+		# pacing and lower latency, which matters most with Vulkan on AMD / Intel under Windows)
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 	elif not on and is_fs:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 		var scr := DisplayServer.window_get_current_screen()

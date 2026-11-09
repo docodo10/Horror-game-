@@ -12,31 +12,42 @@ var values := {
 	"brightness": 1.0,        # 0.6 .. 1.6
 	"volume": 0.85,
 	"subtitles": true,
-	"fov": 72.0,
-	"camera_motion": 1.0,     # 0..1 scales head bob / roll / tremor
+	"fov": 54.0,              # vertical degrees (54 = 84 horizontal at 16:9, a natural eye-level lens)
+	"camera_motion": 0.6,     # 0..1 scales head bob / roll / tremor
 	"fullscreen": true,
 	"vsync": true,
 	"max_fps": 0,              # frame-rate cap: 0 = unlimited (vsync still limits to the monitor refresh)
 	"show_fps": false,         # small frame counter in the corner
 	"upscale": "off",          # off | fsr2_quality | fsr2_balanced | fsr2_performance (look module)
 	"render_scale": 1.0,       # 0.5..1.0 when upscale is off
-	"depth_of_field": true,
+	"depth_of_field": false,   # off by default: a clean, sharp image (the options can turn the lens effects on)
 	"film_grain": true,
-	"chromatic_aberration": true,
+	"chromatic_aberration": false,
+	"auto_cap": "high",        # best preset auto quality may pick (lowered when play proved a preset too heavy)
+	"settings_version": 2,
 	"fear": "extreme",         # normal | extreme (fear director)
 	"hud": "none",             # none (no prompts / dot / meters; looked-at objects brighten) | full
 }
 
+const VERSION := 2
+## Values reset once when a settings file from an older build is loaded (v2: clean image + natural lens by default, and
+## auto quality measures the GPU again instead of keeping what the old live adaptation left behind).
+const V2_RESET := ["fov", "camera_motion", "depth_of_field", "chromatic_aberration", "render_scale", "auto_quality", "auto_cap"]
+
 var _fps_label: Label = null
 var _fps_t := 0.0
+var _worst_ms := 0.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var cfg := ConfigFile.new()
 	var loaded := cfg.load(PATH) == OK
 	if loaded:
+		var old := int(cfg.get_value("settings", "settings_version", 1)) < VERSION
 		for k in values.keys():
+			if old and (k in V2_RESET or k == "settings_version"): continue
 			values[k] = cfg.get_value("settings", k, values[k])
+		if old: save()
 	# First launch of a build with auto quality: start from a preset this GPU can hold (the live check refines it).
 	if bool(values["auto_quality"]) and not (loaded and cfg.has_section_key("settings", "auto_quality")) \
 			and DisplayServer.get_name() != "headless":
@@ -62,8 +73,15 @@ func _apply_perf() -> void:
 	if _fps_label != null:
 		_fps_label.get_parent().visible = show
 
+## F3 toggles the performance overlay anywhere (menu, game, pause).
+func _unhandled_key_input(event: InputEvent) -> void:
+	var k := event as InputEventKey
+	if k != null and k.pressed and not k.echo and k.keycode == KEY_F3:
+		set_value("show_fps", not bool(values.get("show_fps", false)))
+
 func _process(dt: float) -> void:
 	if _fps_label == null or not _fps_label.get_parent().visible: return
+	_worst_ms = maxf(_worst_ms, dt * 1000.0)
 	_fps_t -= dt
 	if _fps_t <= 0.0:
 		_fps_t = 0.5
@@ -72,10 +90,15 @@ func _process(dt: float) -> void:
 		var cpu := RenderingServer.viewport_get_measured_render_time_cpu(vp) + RenderingServer.get_frame_setup_time_cpu()
 		var gpu := RenderingServer.viewport_get_measured_render_time_gpu(vp)
 		var proc := Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0
-		# FPS, where the time goes (game scripts / CPU render submit / GPU), which GPU, which preset
-		_fps_label.text = "%d FPS   jeu %.1f ms · CPU rendu %.1f ms · GPU %.1f ms\n%s · %s%s" % [
-			roundi(Engine.get_frames_per_second()), proc, cpu, gpu, RenderingServer.get_video_adapter_name(),
-			str(values.get("quality", "")), " (auto)" if bool(values.get("auto_quality", true)) else ""]
+		# FPS + worst frame of the last half second (stutter), where the time goes (game scripts / CPU render submit /
+		# GPU), which GPU and driver, which preset, output resolution x render scale, monitor refresh rate
+		var win := DisplayServer.window_get_size()
+		var scale := get_viewport().scaling_3d_scale
+		_fps_label.text = "%d FPS · pire image %.0f ms   jeu %.1f ms · CPU rendu %.1f ms · GPU %.1f ms\n%s (%s) · %s%s · %dx%d x%.2f · %d Hz" % [
+			roundi(Engine.get_frames_per_second()), _worst_ms, proc, cpu, gpu, RenderingServer.get_video_adapter_name(),
+			RenderingServer.get_current_rendering_driver_name(), str(values.get("quality", "")),
+			" (auto)" if bool(values.get("auto_quality", true)) else "", win.x, win.y, scale, roundi(DisplayServer.screen_get_refresh_rate())]
+		_worst_ms = 0.0
 
 func get_value(key: String, default: Variant = null) -> Variant:
 	return values.get(key, default)

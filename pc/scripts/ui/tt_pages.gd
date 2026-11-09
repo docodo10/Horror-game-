@@ -202,11 +202,13 @@ func options(b: TT) -> void:
 		var br := float(_S("brightness", 1.0))
 		b.item(r, {"id": "brightness", "label": "LUMINOSITÉ", "kind": "value", "right": "%s %d%%" % [_bar(br - 0.6), roundi(br * 100.0)],
 			"change": func(d: int) -> void: _num("brightness", d, 0.05, 0.6, 1.6, 1.0)}); r += 1
-		b.item(r, {"id": "fov", "label": "CHAMP DE VISION", "kind": "value", "right": "%d°" % roundi(float(_S("fov", 72.0))),
-			"change": func(d: int) -> void: _num("fov", d, 5.0, 55.0, 100.0, 72.0)}); r += 1
-		var cm := float(_S("camera_motion", 1.0))
+		# stored as vertical degrees; shown as the usual horizontal field of view on a 16:9 screen (54 -> 84)
+		var fov_h := rad_to_deg(2.0 * atan(tan(deg_to_rad(float(_S("fov", 54.0))) * 0.5) * 16.0 / 9.0))
+		b.item(r, {"id": "fov", "label": "CHAMP DE VISION", "kind": "value", "right": "%d°" % roundi(fov_h),
+			"change": func(d: int) -> void: _num("fov", d, 2.0, 44.0, 76.0, 54.0)}); r += 1
+		var cm := float(_S("camera_motion", 0.6))
 		b.item(r, {"id": "camera_motion", "label": "MOUVEMENT CAMÉRA", "kind": "value", "right": "%s %d%%" % [_bar(cm), roundi(cm * 100.0)],
-			"change": func(d: int) -> void: _num("camera_motion", d, 0.1, 0.0, 1.0, 1.0)}); r += 1
+			"change": func(d: int) -> void: _num("camera_motion", d, 0.1, 0.0, 1.0, 0.6)}); r += 1
 		b.item(r, {"id": "fullscreen", "label": "PLEIN ÉCRAN", "kind": "value", "right": _oui(_S("fullscreen", true)),
 			"change": func(_d: int) -> void: ui.set_fullscreen(not bool(_S("fullscreen", true)))}); r += 1
 		b.item(r, {"id": "vsync", "label": "SYNCHRO VERTICALE", "kind": "value", "right": _oui(_S("vsync", true)),

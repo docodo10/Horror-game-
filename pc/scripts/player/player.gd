@@ -244,7 +244,7 @@ var _mouse_settle := 0
 var _sens := 1.0
 var _invert_y := false
 var _cm := 1.0
-var _fov_base := 72.0
+var _fov_base := 54.0
 var _quality := "high"
 var _quality_script: Script = null
 # debug
@@ -284,7 +284,7 @@ func _ready() -> void:
 	camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	camera.near = 0.04
 	camera.far = 120.0
-	camera.fov = 72.0
+	camera.fov = 54.0
 	add_child(camera)
 	camera.current = true
 
@@ -349,8 +349,8 @@ func _setup_flashlight() -> void:
 func _read_settings() -> void:
 	_sens = float(Settings.get_value("sensitivity", 1.0))
 	_invert_y = Settings.get_value("invert_y", false) == true
-	_cm = clampf(float(Settings.get_value("camera_motion", 1.0)), 0.0, 1.0)
-	_fov_base = float(Settings.get_value("fov", 72.0))
+	_cm = clampf(float(Settings.get_value("camera_motion", 0.6)), 0.0, 1.0)
+	_fov_base = float(Settings.get_value("fov", 54.0))
 	_apply_quality(str(Settings.get_value("quality", "high")))
 
 func _on_setting(key: String, value: Variant) -> void:

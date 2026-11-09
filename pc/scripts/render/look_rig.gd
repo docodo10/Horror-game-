@@ -26,7 +26,7 @@ const TUNE_DEFAULTS := {
 	"ssil_radius": 3.0, "ssil_intensity": 0.9, "sdfgi_energy": 1.0, "sdfgi_bounce": 0.45, "sdfgi_probe_bias": 2.5,
 	"sdfgi_normal_bias": 2.0,
 	# lens / film (display space, look_postfx.gdshader)
-	"distort": 0.03, "vignette": 0.34, "grain": 0.028, "sat": 0.92, "contrast": 0.1,
+	"distort": 0.0, "vignette": 0.24, "grain": 0.012, "sat": 0.92, "contrast": 0.1,
 	"lift": Vector3(0.010, 0.0088, 0.0072), "gamma": Vector3(1.0, 0.99, 1.0), "gain": Vector3(1.02, 1.0, 0.97),
 	"toe_k": 1.0, "ca_k": 1.0, "sharpen_k": 1.0,
 	# depth of field (multiplier of the preset dof_amount)

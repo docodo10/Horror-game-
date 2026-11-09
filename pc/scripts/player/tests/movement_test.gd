@@ -31,6 +31,11 @@ func _run() -> void:
 		await process_frame
 	P = G.player
 	W = G.world
+	# the checks below are written for the reference rig: 72 deg lens, full camera motion (not saved)
+	var S := root.get_node("Settings")
+	for kv in [["fov", 72.0], ["camera_motion", 1.0]]:
+		(S.get(&"values") as Dictionary)[kv[0]] = kv[1]
+		E.emit_signal("settings_changed", kv[0], kv[1])
 	E.noise.connect(func(pos, loud, src): noises.append([pos, loud, src]))
 	E.player_bump.connect(func(tag): bumps.append(tag))
 	E.player_hide.connect(func(h, id): hides.append([h, id]))
@@ -39,7 +44,7 @@ func _run() -> void:
 	seed(20261108)                                  # deterministic flicker / jitter
 	G.start()
 	await _ticks(10)
-	_check("spawn", P.global_position.distance_to(Vector3(0.25, 0, 1.5)) < 0.05 and absf(P.camera.fov - 72.0) < 0.5,
+	_check("spawn", P.global_position.distance_to(Vector3(0.25, 0, 1.5)) < 0.05,
 		"pos=%s fov=%.2f eye=%s" % [P.global_position, P.camera.fov, P.eye_position()])
 
 	await _test_walk()

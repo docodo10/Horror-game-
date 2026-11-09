@@ -17,10 +17,17 @@ COMMANDES (clavier + souris, ou manette)
   F ....................... lampe de poche
   Tab ..................... objectif
   Échap ou P .............. pause / options
+  F3 ...................... compteur de performance
 
   Il n'y a aucune interface à l'écran : quand tu regardes quelque chose qu'on peut
   ouvrir ou prendre, l'objet s'éclaire légèrement. (Options > INTERFACE pour réafficher les aides.)
   Joue avec un casque pour le son 3D. Chaque bruit peut attirer la Gardienne.
+
+PERFORMANCE
+  La qualité est sur AUTO : pendant le chargement, le jeu mesure ta carte graphique et choisit
+  le meilleur réglage qu'elle tient sans ralentir.
+  F3 affiche le compteur (images/seconde, pire image, temps CPU / GPU, carte graphique, résolution).
+  Si ça saccade encore : essaie « LaGardienne - DirectX 12.bat » (souvent plus fluide sur AMD).
 
 PROBLÈMES ?
   - Écran noir ou plantage au démarrage : lance « LaGardienne - DirectX 12.bat »
