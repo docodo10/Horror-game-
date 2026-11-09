@@ -547,7 +547,12 @@ func apply_quality(q: String) -> void:
 	var pcss := q == "high" or q == "ultra"
 	for l in ctx.lights:
 		if l.kind == "highbay" or l.kind == "troffer":
-			(l.light as Light3D).light_size = 0.2 if pcss else 0.0
+			var lt := l.light as Light3D
+			lt.light_size = 0.2 if pcss else 0.0
+			# low: only the hall high-bays keep shadow maps (the vestibule troffers light it without)
+			if not l.has("shadow0"):
+				l["shadow0"] = lt.shadow_enabled
+			lt.shadow_enabled = bool(l.shadow0) and (not low or l.kind == "highbay")
 	for s in ctx.signs:
 		var sl := s as Light3D
 		if sl != null:

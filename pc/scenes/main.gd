@@ -33,6 +33,7 @@ func _ready() -> void:
 	world.garderie = garderie
 	world.hide_spots.append_array(garderie.hide_spots)   # the closet stays first
 	world.add_nav(garderie.nav_nodes, garderie.nav_links)
+	if garderie.has_method("apply_quality"): garderie.apply_quality(str(Settings.get_value("quality", "high")))
 	Events.settings_changed.connect(_on_settings_changed)
 
 	var inventory := Inventory.new(); inventory.name = "Inventory"; add_child(inventory); Game.inventory = inventory
@@ -65,6 +66,7 @@ func _on_settings_changed(key: String, value: Variant) -> void:
 	if key == "quality" and Game.world:
 		SurfacesModule.apply(Game.world, String(value))
 		if Game.garderie and Game.garderie.has_method("recarve"): Game.garderie.recarve()
+		if Game.garderie and Game.garderie.has_method("apply_quality"): Game.garderie.apply_quality(String(value))
 
 ## Shader warm-up behind the loading screen: the camera visits every area for a few frames so the GPU compiles the
 ## pipelines of all materials, lights and shadows now instead of stuttering the first time each one appears in play.
