@@ -181,11 +181,24 @@ func options(b: TT) -> void:
 	b.text(3, "r", ["IMAGE", "SON ET COMMANDES", "PERFORMANCE ET EFFETS"][sub], C)
 	if sub == 0:
 		var r := 4
-		var qi := 2
-		for i in QUALITY.size():
-			if QUALITY[i][0] == str(_S("quality", "high")): qi = i
-		b.item(r, {"id": "quality", "label": "QUALITÉ", "kind": "value", "right": QUALITY[qi][1],
-			"change": func(d: int) -> void: _setv("quality", QUALITY[(qi + d + QUALITY.size()) % QUALITY.size()][0])}); r += 1
+		# AUTO first: the game picks and adapts the preset (scripts/render/auto_quality.gd)
+		var qopts := [["auto", "AUTO"]] + QUALITY
+		var auto_on := bool(_S("auto_quality", true))
+		var qi := 0
+		if not auto_on:
+			for i in qopts.size():
+				if qopts[i][0] == str(_S("quality", "high")): qi = i
+		var qname := ""
+		for e in QUALITY:
+			if e[0] == str(_S("quality", "high")): qname = e[1]
+		b.item(r, {"id": "quality", "label": "QUALITÉ", "kind": "value", "right": ("AUTO (%s)" % qname.to_upper()) if auto_on else qopts[qi][1],
+			"change": func(d: int) -> void:
+				var n: String = qopts[(qi + d + qopts.size()) % qopts.size()][0]
+				if n == "auto":
+					_setv("auto_quality", true)
+				else:
+					_setv("auto_quality", false)
+					_setv("quality", n)}); r += 1
 		var br := float(_S("brightness", 1.0))
 		b.item(r, {"id": "brightness", "label": "LUMINOSITÉ", "kind": "value", "right": "%s %d%%" % [_bar(br - 0.6), roundi(br * 100.0)],
 			"change": func(d: int) -> void: _num("brightness", d, 0.05, 0.6, 1.6, 1.0)}); r += 1

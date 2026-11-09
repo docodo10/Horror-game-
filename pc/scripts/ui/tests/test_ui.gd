@@ -83,7 +83,7 @@ func _run() -> void:
 	var ids := []
 	for it in scr.items:
 		ids.append(it.id)
-	ok(ids == ["play", "options", "controls", "credits", "quit"], "index items %s" % [ids])
+	ok(ids == ["play", "explore", "options", "controls", "credits", "quit"], "index items %s" % [ids])
 	ok(bool(ui.loading_state.hidden), "loading hidden after show_menu")
 	# camera frames the TV
 	var cam: Camera3D = root.get_viewport().get_camera_3d()
@@ -96,14 +96,24 @@ func _run() -> void:
 		ok(to_tv.length() > 0.5 and to_tv.length() < 1.6, "camera distance %.2f m" % to_tv.length())
 	# keyboard navigation
 	await key(KEY_DOWN)
+	ok(scr.sel_id == "explore", "↓ selects EXPLORER")
+	await key(KEY_DOWN)
 	ok(scr.sel_id == "options", "↓ selects OPTIONS")
 	await key(KEY_ENTER)
 	ok(scr.page_name == "options", "Entrée opens P200 options")
 	var q0: String = S.get_value("quality", "high")
+	var a0: bool = bool(S.get_value("auto_quality", true))
 	await key(KEY_RIGHT)
-	ok(S.get_value("quality") != q0, "→ on QUALITÉ changes S.quality (%s → %s)" % [q0, S.get_value("quality")])
+	ok(S.get_value("quality") != q0 or bool(S.get_value("auto_quality", true)) != a0,
+		"→ on QUALITÉ changes the preset (%s/auto %s → %s/auto %s)" % [q0, a0, S.get_value("quality"), S.get_value("auto_quality")])
+	ok(not bool(S.get_value("auto_quality", true)), "picking a level turns AUTO off")
 	await key(KEY_LEFT)
-	ok(S.get_value("quality") == q0, "← restores quality")
+	if a0:
+		ok(bool(S.get_value("auto_quality", false)), "← back to AUTO")
+	else:
+		ok(S.get_value("quality") == q0, "← restores quality")
+	S.set_value("quality", q0)
+	S.set_value("auto_quality", a0)
 	await key(KEY_DOWN)
 	ok(scr.sel_id == "brightness", "↓ LUMINOSITÉ")
 	var b0: float = S.get_value("brightness", 1.0)

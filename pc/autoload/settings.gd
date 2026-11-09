@@ -3,8 +3,10 @@
 extends Node
 
 const PATH := "user://settings.cfg"
+const AutoQualityScript := preload("res://scripts/render/auto_quality.gd")
 var values := {
-	"quality": "high",        # low | medium | high | ultra
+	"quality": "high",        # low | medium | high | ultra (kept up to date by auto quality when "auto_quality")
+	"auto_quality": true,     # pick + adapt the preset to the GPU (scripts/render/auto_quality.gd)
 	"sensitivity": 1.0,       # mouse look multiplier
 	"invert_y": false,
 	"brightness": 1.0,        # 0.6 .. 1.6
@@ -31,9 +33,15 @@ var _fps_t := 0.0
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var cfg := ConfigFile.new()
-	if cfg.load(PATH) == OK:
+	var loaded := cfg.load(PATH) == OK
+	if loaded:
 		for k in values.keys():
 			values[k] = cfg.get_value("settings", k, values[k])
+	# First launch of a build with auto quality: start from a preset this GPU can hold (the live check refines it).
+	if bool(values["auto_quality"]) and not (loaded and cfg.has_section_key("settings", "auto_quality")) \
+			and DisplayServer.get_name() != "headless":
+		values["quality"] = AutoQualityScript.guess_for_gpu(RenderingServer.get_video_adapter_name())
+		save()
 	_apply_perf()
 
 ## Frame-rate cap + optional FPS counter (core-owned; the UI only changes the values).
@@ -59,7 +67,15 @@ func _process(dt: float) -> void:
 	_fps_t -= dt
 	if _fps_t <= 0.0:
 		_fps_t = 0.5
-		_fps_label.text = "%d FPS" % roundi(Engine.get_frames_per_second())
+		var vp := get_viewport().get_viewport_rid()
+		RenderingServer.viewport_set_measure_render_time(vp, true)
+		var cpu := RenderingServer.viewport_get_measured_render_time_cpu(vp) + RenderingServer.get_frame_setup_time_cpu()
+		var gpu := RenderingServer.viewport_get_measured_render_time_gpu(vp)
+		var proc := Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0
+		# FPS, where the time goes (game scripts / CPU render submit / GPU), which GPU, which preset
+		_fps_label.text = "%d FPS   jeu %.1f ms · CPU rendu %.1f ms · GPU %.1f ms\n%s · %s%s" % [
+			roundi(Engine.get_frames_per_second()), proc, cpu, gpu, RenderingServer.get_video_adapter_name(),
+			str(values.get("quality", "")), " (auto)" if bool(values.get("auto_quality", true)) else ""]
 
 func get_value(key: String, default: Variant = null) -> Variant:
 	return values.get(key, default)
