@@ -55,6 +55,8 @@ func _reset_window(settle: float) -> void:
 func _process(dt: float) -> void:
 	if not bool(Settings.get_value("auto_quality", true)) or Game.state != "playing":
 		return
+	if DebugTools.args.has("quality") or DebugTools.args.has("no-auto-quality"):
+		return   # debug runs that force a preset (screenshots, benchmarks) keep it
 	if _settle > 0.0:
 		_settle -= dt
 		return
@@ -75,7 +77,7 @@ func _process(dt: float) -> void:
 		if i > 0:
 			print("[auto-quality] %.0f fps < %.0f: %s -> %s" % [fps, target, q, ORDER[i - 1]])
 			Settings.set_value("quality", ORDER[i - 1])
-		elif float(Settings.get_value("render_scale", 1.0)) > 0.7 and str(Settings.get_value("upscale", "off")) == "off":
+		elif float(Settings.get_value("render_scale", 1.0)) > 0.8 and str(Settings.get_value("upscale", "off")) == "off":
 			print("[auto-quality] %.0f fps on low: render scale 0.75" % fps)
 			Settings.set_value("render_scale", 0.75)
 	elif fps > target * 1.9 and not _went_down and _ups < 1 and i < 2:

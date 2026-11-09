@@ -78,6 +78,7 @@ const WARMUP_GARDERIE := [[-4.1, 0.0, 2.05, 90.0, -4.0], [-11.5, 0.0, 2.4, 96.0,
 
 func _warmup_tour(player: Node, garderie: Node) -> void:
 	if DisplayServer.get_name() == "headless" or player == null or not player.has_method("teleport"): return
+	if DebugTools.args.has("no-warmup"): return
 	for v in WARMUP_BASEMENT:
 		player.teleport(Vector3(v[0], v[1], v[2]), deg_to_rad(v[3]), deg_to_rad(v[4]))
 		for i in 3: await get_tree().process_frame
