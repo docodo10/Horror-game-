@@ -13,22 +13,24 @@ COMMANDES (clavier + souris, ou manette)
   Souris .................. regarder
   Maj ..................... courir
   C ou Ctrl ............... s'accroupir
-  E ou clic gauche ........ interagir / ramasser
+  E ou clic gauche ........ interagir / ramasser (garde le bouton enfoncé pour certaines actions)
   F ....................... lampe de poche
   Tab ..................... objectif
   Échap ou P .............. pause / options
 
-  Joue avec un casque pour le son 3D.
+  Il n'y a aucune interface à l'écran : quand tu regardes quelque chose qu'on peut
+  ouvrir ou prendre, l'objet s'éclaire légèrement. (Options > INTERFACE pour réafficher les aides.)
+  Joue avec un casque pour le son 3D. Chaque bruit peut attirer la Gardienne.
 
 PROBLÈMES ?
   - Écran noir ou plantage au démarrage : lance « LaGardienne - DirectX 12.bat »
   - Vieux PC / portable lent : lance « LaGardienne - mode compatibilite.bat »
     (graphismes simplifiés, OpenGL)
-  - Tu peux aussi baisser la qualité dans le menu Options.
+  - Tu peux aussi baisser la qualité dans le menu Options (sur la télé).
 
 CONFIGURATION CONSEILLÉE
   Windows 10 ou 11 (64 bits)
   Carte graphique compatible Vulkan ou DirectX 12
-  (NVIDIA GTX 900 ou plus récente, AMD RX 400 ou plus récente, Intel UHD 600 ou plus récente)
+  (NVIDIA GTX 1060 ou plus récente, AMD RX 580 ou plus récente ; qualité « Basse » pour les cartes intégrées)
 
-Moteur : Godot 4.5 (Forward+). Textures et modèles 3D : Poly Haven et ambientCG (CC0).
+Moteur : Godot 4.5 (Forward+). Textures et modèles 3D : Poly Haven et ambientCG (CC0). Sons : Red Library (CC0).
