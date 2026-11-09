@@ -23,6 +23,7 @@
 ##   reset_after_caught()           cancels a ride, resets scares
 ##   teleport_player(pos, yaw, pitch := 0.0)   player teleport with the area's floors (deck level picked from pos.y)
 ##   scare(kind)                    giggle_slide | tube_dies | ball_roll | hum (also scheduled by itself in the area)
+##   ambient_scares                 false: its own scheduler stops (the fear module calls scare() itself)
 ##   interaction_entries() -> Array the entries registered with Game.interaction (registered as soon as it exists)
 ## Debug args (after --): --garderie-cam=x,y,z,yawDeg,pitchDeg  --garderie-ride=wave|spiral  --garderie-scare=<kind>
 ## Render layers: corridor / door / vestibule meshes 1024, hall meshes 2048; light cull masks keep each room's lights
@@ -79,6 +80,7 @@ var stats := {}
 var ride_active := false
 var in_ball_pit := false
 var ctx = null
+var ambient_scares := true        # false = the fear module (scripts/fear) schedules scare() itself
 
 var _world: Node = null
 var _entries: Array = []
@@ -566,7 +568,7 @@ func _tick_pit(dt: float) -> void:
 # ====================================================================== ambient scares (only while the player is in the area)
 
 func _tick_scares(dt: float) -> void:
-	if Game.state != "playing":
+	if Game.state != "playing" or not ambient_scares:
 		return
 	var p := _player()
 	if p == null or not in_area((p as Node3D).global_position):

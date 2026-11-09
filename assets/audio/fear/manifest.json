@@ -1,0 +1,87 @@
+{
+ "fear_heartbeat": {
+  "files": [
+   "assets/audio/fear/fear_heartbeat_1.ogg",
+   "assets/audio/fear/fear_heartbeat_2.ogg",
+   "assets/audio/fear/fear_heartbeat_3.ogg"
+  ],
+  "loop": false
+ },
+ "fear_rumble": {
+  "files": [
+   "assets/audio/fear/fear_rumble.ogg"
+  ],
+  "loop": true
+ },
+ "fear_drone": {
+  "files": [
+   "assets/audio/fear/fear_drone.ogg"
+  ],
+  "loop": true
+ },
+ "fear_tinnitus": {
+  "files": [
+   "assets/audio/fear/fear_tinnitus_1.ogg",
+   "assets/audio/fear/fear_tinnitus_2.ogg"
+  ],
+  "loop": false
+ },
+ "fear_sub_hit": {
+  "files": [
+   "assets/audio/fear/fear_sub_hit_1.ogg",
+   "assets/audio/fear/fear_sub_hit_2.ogg"
+  ],
+  "loop": false
+ },
+ "fear_stinger": {
+  "files": [
+   "assets/audio/fear/fear_stinger_1.ogg",
+   "assets/audio/fear/fear_stinger_2.ogg",
+   "assets/audio/fear/fear_stinger_3.ogg"
+  ],
+  "loop": false
+ },
+ "fear_stinger_big": {
+  "files": [
+   "assets/audio/fear/fear_stinger_big_1.ogg",
+   "assets/audio/fear/fear_stinger_big_2.ogg"
+  ],
+  "loop": false
+ },
+ "fear_riser": {
+  "files": [
+   "assets/audio/fear/fear_riser.ogg"
+  ],
+  "loop": false
+ },
+ "fear_crash": {
+  "files": [
+   "assets/audio/fear/fear_crash_1.ogg",
+   "assets/audio/fear/fear_crash_2.ogg"
+  ],
+  "loop": false
+ },
+ "fear_ball": {
+  "files": [
+   "assets/audio/fear/fear_ball_1.ogg",
+   "assets/audio/fear/fear_ball_2.ogg",
+   "assets/audio/fear/fear_ball_3.ogg"
+  ],
+  "loop": false
+ },
+ "fear_distant": {
+  "files": [
+   "assets/audio/fear/fear_distant_1.ogg",
+   "assets/audio/fear/fear_distant_2.ogg",
+   "assets/audio/fear/fear_distant_3.ogg"
+  ],
+  "loop": false
+ },
+ "fear_scratch": {
+  "files": [
+   "assets/audio/fear/fear_scratch_1.ogg",
+   "assets/audio/fear/fear_scratch_2.ogg"
+  ],
+  "loop": false
+ }
+}
