@@ -98,6 +98,7 @@ var _visits := 0
 var _patrol_t := 0.0
 var _grace_t := 0.0
 var _saw_hide := false
+var _hide_spot_id := "closet"   # spot the player last hid in (closet, or the garderie tunnel)
 var _door_busy := false
 var _door_opened_by_me := false
 var _door_was_locked := -1         # -1 unknown, 0 / 1
@@ -559,9 +560,22 @@ func _on_search_pause() -> void:
 	elif d > 6.0 and randf() < 0.08:
 		_play("giggle", global_position + Vector3(0, 1.2, 0), 0.5)
 
+## The hide spot the player slipped into (world.hide_spots entry), {} when unknown.
+func _hide_spot() -> Dictionary:
+	var w = Game.world
+	if w != null and is_instance_valid(w) and w.get("hide_spots") is Array:
+		for sp in w.get("hide_spots"):
+			if sp is Dictionary and str((sp as Dictionary).get("id", "")) == _hide_spot_id: return sp
+	return {}
+
 func _closet_approach() -> Vector3:
+	var sp := _hide_spot()
+	if sp.has("check_pos"): return sp["check_pos"]          # spots without a door (garderie tunnel)
 	var c: Dictionary = Layout.CLOSET.door
 	return Vector3(float(c.x) + 0.45, 0.0, float(c.centerZ))
+
+func _check_yaw() -> float:
+	return float(_hide_spot().get("check_yaw", -PI / 2.0))
 
 func _upd_closet_check(dt: float) -> void:
 	var s := _sub
@@ -573,20 +587,20 @@ func _upd_closet_check(dt: float) -> void:
 		if arrived or dd < 0.25:
 			s.phase = "closetReach"
 			s.reach_t = 0.0
-			yaw = -PI / 2.0   # facing west, toward the louvered door
+			yaw = _check_yaw()   # facing the louvered door (or into the tunnel)
 		return
 	# reach for the door, open it, then the jumpscare
 	s.reach_t = float(s.reach_t) + dt
-	yaw = _damp(yaw, -PI / 2.0, 8.0, dt)
+	yaw = _damp(yaw, _check_yaw(), 8.0, dt)
 	if float(s.reach_t) > 0.55 and not s.get("opened", false):
 		s.opened = true
-		var door = _handle("door.closet")
+		var door = _handle("door.closet") if _hide_spot_id == "closet" else null
 		if door != null and door.get("is_open") != true:
 			_closet_opened_by_me = true
 			_fire(door, "open")
 	if float(s.reach_t) > 0.95:
 		var pl := _player()
-		if pl and _p_hidden(pl):
+		if pl and _p_hidden(pl) and _player_spot_id(pl) == _hide_spot_id:
 			_start_jumpscare(true)
 		else:
 			_saw_hide = false
@@ -932,8 +946,13 @@ func _on_noise(pos: Vector3, loudness: float, _source: String) -> void:
 		else:
 			_begin_search(pos, false)
 
-func _on_hide(hidden: bool, _spot_id: String) -> void:
+func _player_spot_id(pl: Node) -> String:
+	var hs = pl.get("hide_spot")
+	return str((hs as Dictionary).get("id", "closet")) if hs is Dictionary else _hide_spot_id
+
+func _on_hide(hidden: bool, spot_id: String) -> void:
 	if hidden:
+		_hide_spot_id = spot_id if spot_id != "" else "closet"
 		var recently := _t - _last_seen_t < 1.3
 		_saw_hide = active and state != "returning" and (recently or seeing) and state != "jumpscare"
 	else:

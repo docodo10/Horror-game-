@@ -43,6 +43,8 @@ common/physics_ticks_per_second=60
 
 [rendering]
 
+occlusion_culling/use_occlusion_culling=true
+
 textures/default_filters/anisotropic_filtering_level=4
 textures/decals/filter=5
 

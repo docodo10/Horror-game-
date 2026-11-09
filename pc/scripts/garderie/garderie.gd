@@ -509,6 +509,26 @@ func _process(dt: float) -> void:
 	if in_ball_pit:
 		_tick_pit(dt)
 	_tick_scares(dt)
+	_door_t -= dt
+	if _door_t <= 0.0:
+		_door_t = 0.2
+		_entity_opens_door()
+
+## La Gardienne pushes the garderie door open when she reaches it closed (her nav crosses the doorway).
+var _door_t := 0.0
+func _entity_opens_door() -> void:
+	if door == null or door.is_open or door.animating or door_node == null:
+		return
+	var ent = Game.entity
+	if ent == null or not is_instance_valid(ent) or not (ent is Node3D):
+		return
+	if str(ent.get("state")) in ["dormant", "disabled", "jumpscare"]:
+		return
+	var dp := door_node.global_position
+	var ep := (ent as Node3D).global_position
+	if Vector2(ep.x - dp.x, ep.z - dp.z).length() < 1.4 and absf(ep.y - dp.y) < 1.5:
+		_noise(dp + Vector3(0, 1.0, 0), 0.25, "door")
+		door.open()
 
 func _tick_flicker(dt: float) -> void:
 	for f in _flicker:

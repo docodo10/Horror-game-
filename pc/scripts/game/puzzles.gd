@@ -455,7 +455,7 @@ func _register_all() -> void:
 		})
 		interaction.register({
 			"id": "closet.exit", "node": cdoor_node, "prompt": "Sortir du placard", "when_hidden": true,
-			"enabled": func() -> bool: return _player_hidden(),
+			"enabled": func() -> bool: return _player_hidden() and _hidden_in("closet"),
 			"on_interact": _exit_closet.bind(spot),
 		})
 	else:
@@ -1181,6 +1181,12 @@ func _power() -> bool:
 
 func _modal_open() -> bool:
 	return _ui("is_modal_open", []) == true
+
+## True when the player hides in spot `id` (or the spot is unknown: the closet was the only one before the garderie).
+func _hidden_in(id: String) -> bool:
+	var p = Game.player
+	var hs = p.get("hide_spot") if p != null and is_instance_valid(p) else null
+	return hs == null or (hs is Dictionary and str((hs as Dictionary).get("id", "")) == id)
 
 func _player_hidden() -> bool:
 	var pl := Game.player

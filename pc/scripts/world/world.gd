@@ -62,6 +62,7 @@ var clues := {}
 var tv: Node = null
 var hide_spots: Array = []
 var nav := AStar3D.new()
+var garderie: Node = null                # optional garderie module (owns the ground west of x = -3.7)
 var nav_ids := {}
 var lighting: Node = null
 
@@ -360,7 +361,24 @@ func rock_chair(seconds := 6.0) -> void:
 	if anim != null: await anim.rock(seconds)
 
 func ground_height_at(x: float, z: float, prev_y := NAN) -> float:
+	# (in_area() only says yes where the garderie layout has a floor, so this never bounces back here)
+	if garderie != null and x < -3.7 and is_instance_valid(garderie) and garderie.in_area(Vector3(x, 0.0, z)):
+		return garderie.ground_height_at(x, z, prev_y)
 	return Layout.ground_height_at(x, z, prev_y)
+
+## Adds nav nodes (id -> Vector3) and links ([[a, b], ...]; ids may refer to existing Layout nodes), e.g. the garderie's.
+func add_nav(nodes: Dictionary, links: Array) -> void:
+	for id in nodes:
+		if nav_ids.has(id): continue
+		var p: Vector3 = nodes[id]
+		var i := nav.get_available_point_id()
+		nav_ids[id] = i
+		nav_nodes[id] = p
+		nav.add_point(i, p)
+		_nav_points.append(p)
+		_nav_point_ids.append(i)
+	for link in links:
+		if nav_ids.has(link[0]) and nav_ids.has(link[1]): nav.connect_points(nav_ids[link[0]], nav_ids[link[1]])
 
 ## Physics probe: height of the first LAYER_WORLD surface under (x, from_y, z), NAN when nothing is hit.
 func ground_probe(x: float, z: float, from_y := 6.0) -> float:

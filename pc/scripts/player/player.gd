@@ -94,6 +94,7 @@ var speed := 0.0
 var exhausted := false
 var on_stairs := false
 var surface := "carpet"
+var speed_scale := 1.0          # external slowdown (garderie ball pit: 0.55)
 var breath := 0.0
 var stress := 0.0
 var eye_height := EYE_STAND
@@ -513,7 +514,7 @@ func _update_movement(dt: float) -> void:
 	if on_stairs:
 		spd *= 0.85 if can_sprint else 0.8
 	var dir_k := 0.72 if mv.y < -0.1 else (0.9 if absf(mv.x) > absf(mv.y) else 1.0)
-	spd *= dir_k * m
+	spd *= dir_k * m * speed_scale
 	var target := Vector2.ZERO
 	if m > 1e-3:
 		var s := sin(yaw)
@@ -684,7 +685,12 @@ func _update_ground(dt: float, body: Vector3) -> void:
 	# stairs / landing / upper floor (a physics body on a rug or a small ledge is not "on the stairs": 0.1 m threshold)
 	on_stairs = (x >= float(S.minX) and x <= float(S.maxX) and z <= float(S.bottomZ) and z > float(Layout.ROOM.minZ) - 0.01 \
 		and _ground > 0.1) or _ground > 1.5
-	if on_stairs:
+	var gard = Game.garderie
+	if x < -3.7 and gard != null and is_instance_valid(gard) and gard.in_area(body):
+		# garderie floors: concrete corridor, foam mats / vinyl (soft steps), wooden decks
+		var gs := str(gard.surface_at(body))
+		surface = "concrete" if gs == "concrete" else ("wood" if gs == "wood" else "carpet")
+	elif on_stairs:
 		surface = "wood"
 	elif is_in_alcove():
 		surface = "concrete"

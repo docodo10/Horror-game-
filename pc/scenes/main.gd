@@ -10,6 +10,7 @@ const Inventory := preload("res://scripts/game/inventory.gd")
 const Puzzles := preload("res://scripts/game/puzzles.gd")
 const Quality := preload("res://scripts/render/quality.gd")
 const SurfacesModule := preload("res://scripts/surfaces/surfaces.gd")
+const GarderieModule := preload("res://scripts/garderie/garderie.gd")
 
 func _ready() -> void:
 	InputSetup.setup()
@@ -23,6 +24,13 @@ func _ready() -> void:
 	await world.build(func(p, t): ui.show_loading(0.05 + p * 0.75, t))
 	# Hi-res surfaces (grime, wear, decals) over the exported materials; re-applied when the quality changes.
 	SurfacesModule.apply(world, Settings.get_value("quality", "high"))
+	# The soft-play "garderie" behind the new west-wall door (built before Interaction: it registers when that appears).
+	ui.show_loading(0.82, "La garderie…")
+	var garderie := GarderieModule.new(); garderie.name = "Garderie"; add_child(garderie); Game.garderie = garderie
+	await garderie.build(world)
+	world.garderie = garderie
+	world.hide_spots.append_array(garderie.hide_spots)   # the closet stays first
+	world.add_nav(garderie.nav_nodes, garderie.nav_links)
 	Events.settings_changed.connect(_on_settings_changed)
 
 	var inventory := Inventory.new(); inventory.name = "Inventory"; add_child(inventory); Game.inventory = inventory
@@ -50,3 +58,4 @@ func _ready() -> void:
 func _on_settings_changed(key: String, value: Variant) -> void:
 	if key == "quality" and Game.world:
 		SurfacesModule.apply(Game.world, String(value))
+		if Game.garderie and Game.garderie.has_method("recarve"): Game.garderie.recarve()

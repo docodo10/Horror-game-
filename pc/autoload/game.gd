@@ -19,6 +19,7 @@ var ui: Node = null          # scripts/ui/ui.gd (CanvasLayer)
 var interaction: Node = null # scripts/game/interaction.gd
 var inventory: Node = null   # scripts/game/inventory.gd
 var puzzles: Node = null     # scripts/game/puzzles.gd
+var garderie: Node = null    # scripts/garderie/garderie.gd (soft-play area west of the basement)
 var debug := false
 
 func _ready() -> void:
@@ -78,7 +79,7 @@ func on_caught() -> void:
 		night = 1
 		return
 	if ui: await ui.show_caught(night, NIGHTS_TOTAL)
-	for n in [player, entity, world, puzzles]:
+	for n in [player, entity, world, puzzles, garderie]:
 		if n and n.has_method("reset_after_caught"): n.reset_after_caught()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	set_state("playing")
