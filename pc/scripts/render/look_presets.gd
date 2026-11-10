@@ -16,10 +16,18 @@
 ##   TAA 0.25; glow 0.25; post pass 0.15; positional shadows: re-rendered only when casters move (the bulb's cube map
 ##   ~1-2 ms on those frames), PCSS on the bulb 0.3-0.6 ms. FSR 2 Quality (0.67) cuts the per-pixel part by ~45 %.
 ## Positional shadows stay on in every preset (the player's torch cookie needs them).
-## Shadow atlas quadrants: never a quadrant with a single slot. An omni light needs two slots of one quadrant, so one
-## that covers the screen (the ceiling bulb) could never get the size it asked for and Godot moved it to "a better
-## place" every frame, re-rendering its whole shadow cube each time (measured: 174 k shadow triangles per frame in the
-## basement with nothing moving); several spot lights asking for the single big slot did the same in the garderie.
+## Shadow atlas: the four quadrants all use the same subdivision (16 slots each, 64 in all), so every light gets the same
+## slot size. Read in Godot 4.5's LightStorage::shadow_atlas_update_light: a light whose slot is not of the size its
+## screen coverage asks for is moved as soon as a slot of the "right" quadrant can be taken (also from a light the frame
+## has not processed yet), and every move re-renders its shadow. With quadrants of different sizes that never settles:
+##  * [1, 4, 4, 16]: an omni light needs two slots of one quadrant, so one that covers the screen (the ceiling bulb) can
+##    never have the single big slot: its whole shadow cube was re-rendered EVERY frame (174 k triangles, 61 % of all the
+##    basement drew, with every script frozen); in the garderie hall 250-780 k shadow triangles per frame.
+##  * [4, 4, 16, 16]: fixed standing still, but walking with a dozen shadowed lights in view (leaving the hall) still
+##    re-rendered 58-213 k shadow triangles every frame: more lights want a big slot than exist, and they keep taking
+##    them from each other as the camera moves.
+## With equal quadrants nothing is ever moved: shadows are rendered when something in them changes, and only then.
+## The atlas is larger instead (slot = atlas / 8): 512 px per light on low / medium, 1024 px on high / ultra.
 extends RefCounted
 
 const ORDER := ["low", "medium", "high", "ultra"]
@@ -32,7 +40,7 @@ const P := {
 		"msaa": Viewport.MSAA_DISABLED, "ssaa": Viewport.SCREEN_SPACE_AA_FXAA, "taa": false,
 		"sharpen": 0.0, "aniso": 2, "lod": 2.0,
 		# ---- shadows
-		"atlas": 2048, "quads": [4, 4, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_VERY_LOW, "light_size": false,
+		"atlas": 4096, "quads": [16, 16, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_VERY_LOW, "light_size": false,
 		# ---- GI / screen space
 		"sdfgi": false, "ssil": false, "ssr": false, "gi_half": true,
 		"ssao": true, "ssao_q": RenderingServer.ENV_SSAO_QUALITY_LOW, "ssao_half": true,
@@ -48,7 +56,7 @@ const P := {
 	"medium": {
 		"msaa": Viewport.MSAA_DISABLED, "ssaa": Viewport.SCREEN_SPACE_AA_SMAA, "taa": false,
 		"sharpen": 0.0, "aniso": 3, "lod": 1.0,
-		"atlas": 4096, "quads": [4, 4, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "light_size": false,
+		"atlas": 4096, "quads": [16, 16, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "light_size": false,
 		"sdfgi": false, "ssil": false, "ssr": false, "gi_half": true,
 		"ssao": true, "ssao_q": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "ssao_half": true,
 		"vfog": true, "vfog_size": 64, "vfog_depth": 48, "glow": true, "glow_bicubic": false,
@@ -62,7 +70,7 @@ const P := {
 		# SMAA, not TAA: a sharp image that does not smear or ghost when the camera moves (TAA stays on ultra)
 		"msaa": Viewport.MSAA_DISABLED, "ssaa": Viewport.SCREEN_SPACE_AA_SMAA, "taa": false,
 		"sharpen": 0.0, "aniso": 4, "lod": 1.0,
-		"atlas": 4096, "quads": [4, 4, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "light_size": true,
+		"atlas": 8192, "quads": [16, 16, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "light_size": true,
 		"sdfgi": true, "sdfgi_cascades": 4, "sdfgi_cell": 0.1, "sdfgi_occlusion": false, "gi_half": true,
 		"sdfgi_rays": RenderingServer.ENV_SDFGI_RAY_COUNT_16, "sdfgi_converge": RenderingServer.ENV_SDFGI_CONVERGE_IN_30_FRAMES,
 		"sdfgi_update": RenderingServer.ENV_SDFGI_UPDATE_LIGHT_IN_4_FRAMES,
@@ -79,7 +87,7 @@ const P := {
 	"ultra": {
 		"msaa": Viewport.MSAA_DISABLED, "ssaa": Viewport.SCREEN_SPACE_AA_DISABLED, "taa": true,
 		"sharpen": 0.25, "aniso": 4, "lod": 0.5,
-		"atlas": 8192, "quads": [4, 4, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_HIGH, "light_size": true,
+		"atlas": 8192, "quads": [16, 16, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_HIGH, "light_size": true,
 		"sdfgi": true, "sdfgi_cascades": 5, "sdfgi_cell": 0.08, "sdfgi_occlusion": false, "gi_half": false,
 		"sdfgi_rays": RenderingServer.ENV_SDFGI_RAY_COUNT_32, "sdfgi_converge": RenderingServer.ENV_SDFGI_CONVERGE_IN_20_FRAMES,
 		"sdfgi_update": RenderingServer.ENV_SDFGI_UPDATE_LIGHT_IN_2_FRAMES,

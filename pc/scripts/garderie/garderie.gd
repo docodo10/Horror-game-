@@ -571,17 +571,14 @@ func apply_quality(q: String) -> void:
 ##  * The hall (about a million triangles and 15 lights) is hidden while the camera is in the house or in the first
 ##    metres of the corridor. The door is ajar and its three openings line up, so occlusion culling alone still drew
 ##    the whole hall every time the doorway was on screen: the frame cost of the basement jumped 4x on a turn.
-##  * The house (and its lights: the fan makes the ceiling bulb re-render its shadow cube every frame) is hidden
-##    while the camera is deep in the hall.
+##  * The house stays as it is: its shadow maps are cached (see the shadow atlas note in look_presets.gd) and its rooms
+##    are occlusion-culled from the hall; hiding it only made its lights re-render when it came back.
 ##  * High-bays follow the hall; lights that come on are queued and switched on one per frame (_process), so their
 ##    shadow maps are never all rendered in the same frame.
 const HALL_SHOW_X := -6.0
 const HALL_HIDE_X := -5.4
-const HOUSE_HIDE_X := -17.8
-const HOUSE_SHOW_X := -17.2
 var _hall_nodes: Array = []
 var _hall_shown := true
-var _house_shown := true
 var _lights_on_queue: Array = []
 
 ## Top-level nodes that stand in the hall (everything west of the vestibule), by where their geometry is. The neon
@@ -606,14 +603,6 @@ func _collect_hall_nodes() -> void:
 		if nm.begins_with("Hall") or (min_x != INF and (max_x < float(GL.VEST.x0) or min_x < float(GL.VEST.x0) - 2.0)):
 			_hall_nodes.append(ch)
 
-func _show_house(on: bool) -> void:
-	if not (_world is Node) or not is_instance_valid(_world):
-		return
-	for nm in ["Level", "Lighting"]:
-		var n := (_world as Node).get_node_or_null(nm) as Node3D
-		if n != null and n.visible != on:
-			n.visible = on
-
 ## Applies the visibility for the current camera now (loading screen tour, tests): no stagger, no quarter-second wait.
 func refresh_zone() -> void:
 	_lights_on_queue.clear()
@@ -623,15 +612,11 @@ func _update_zone(force := false, stagger := true) -> void:
 	var cam := get_viewport().get_camera_3d() if is_inside_tree() and get_viewport() else null
 	var p := cam.global_position if cam else Vector3(0, 1.6, 0)
 	var hall := p.x < (HALL_HIDE_X if _hall_shown else HALL_SHOW_X)
-	var house := p.x > (HOUSE_HIDE_X if _house_shown else HOUSE_SHOW_X)
-	var changed := force or hall != _hall_shown or house != _house_shown
+	var changed := force or hall != _hall_shown
 	if force or hall != _hall_shown:
 		_hall_shown = hall
 		for n in _hall_nodes:
 			if is_instance_valid(n): (n as Node3D).visible = hall
-	if force or house != _house_shown:
-		_house_shown = house
-		_show_house(house)
 	var z := "house"
 	if p.x < GL.VEST.x1 + 0.1:
 		z = "hall"
