@@ -5,8 +5,8 @@
 ##           half-res, FXAA, PCF shadows, no DOF, cheap post
 ##   medium  GTX 1660 / RTX 2060, 120 fps at 1080p (~5-6 ms): SSAO medium half-res, coarse volumetric fog (shafts), SMAA,
 ##           bloom, half-res DOF, PCF shadows, bounce stand-ins instead of GI
-##   high    RTX 3060-4070, 120+ fps at 1440p native (~6.5-8 ms; ~5 ms with FSR 2 Quality): SDFGI (4 cascades, 16 rays,
-##           half-res GI) + SSIL (low, half-res) + SSAO (medium) + SSR (32 steps) + volumetric fog (64x64) + bloom + TAA +
+##   high    RTX 3060-4070, 120+ fps at 1440p native: SSIL (low, half-res) + SSAO (medium) + SSR (32 steps) + volumetric
+##           fog (64x64) + bloom + SMAA + bounce stand-ins (no SDFGI: it hitches while walking, see the preset) +
 ##           CAS + half-res autofocus DOF, 4096 shadow atlas, PCSS only on the bulb / moon (soft-low kernel)
 ##   ultra   same GPU class, 70-90 fps at 1440p (~11-14 ms): SDFGI 5 cascades / 32 rays / full-res GI, SSIL high, SSAO
 ##           high, SSR 64, fog 96x80, 8192 atlas + soft-high PCSS, TV / tube shadows, full-res circle-bokeh DOF, TAA
@@ -71,16 +71,19 @@ const P := {
 		"msaa": Viewport.MSAA_DISABLED, "ssaa": Viewport.SCREEN_SPACE_AA_SMAA, "taa": false,
 		"sharpen": 0.0, "aniso": 4, "lod": 1.0,
 		"atlas": 8192, "quads": [16, 16, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "light_size": true,
-		"sdfgi": true, "sdfgi_cascades": 4, "sdfgi_cell": 0.1, "sdfgi_occlusion": false, "gi_half": true,
-		"sdfgi_rays": RenderingServer.ENV_SDFGI_RAY_COUNT_16, "sdfgi_converge": RenderingServer.ENV_SDFGI_CONVERGE_IN_30_FRAMES,
-		"sdfgi_update": RenderingServer.ENV_SDFGI_UPDATE_LIGHT_IN_4_FRAMES,
+		# No SDFGI here (ultra only): its cascades follow the camera, and every 30-40 cm walked a slab of the level is
+		# voxelised again. Measured walking in the basement (tools: scratch gi_walk): one frame in four took 3.2x the
+		# time of the others on this preset and none on medium; standing still both are flat. That was the "lag when I
+		# move / in a new room" on fast GPUs, which auto quality puts on this preset. Indirect light comes from SSIL
+		# and the same bounce stand-ins as medium.
+		"sdfgi": false, "gi_half": true,
 		"ssil": true, "ssil_q": RenderingServer.ENV_SSIL_QUALITY_LOW, "ssil_half": true,
 		"ssr": true, "ssr_steps": 32, "ssr_rough": RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_LOW,
 		"ssao": true, "ssao_q": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "ssao_half": true,
 		"vfog": true, "vfog_size": 64, "vfog_depth": 64, "glow": true, "glow_bicubic": true,
 		"dof": true, "dof_q": RenderingServer.DOF_BLUR_QUALITY_LOW, "dof_amount": 0.11,
 		"sss": RenderingServer.SUB_SURFACE_SCATTERING_QUALITY_MEDIUM,
-		"ambient": 0.0, "bounce": 0.0,
+		"ambient": 0.09, "bounce": 0.14,
 		"ca": 0.0032, "grain_smooth": true, "edge_soft": 0.0, "blur_taps": 12, "toe": 0.06,
 		"shaft_mesh": false, "tv_shadow": false, "tube_shadow": true,
 	},

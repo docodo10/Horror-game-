@@ -35,8 +35,22 @@ func set_state(s: String) -> void:
 	state = s
 	Events.game_state.emit(s, prev)
 
+var _busy := false           # start() / resume() is preparing the renderer: ignore a second call until it is done
+
+## The quality preset was changed in the options: build its pipelines behind a black screen before play goes on
+## (scenes/main.gd rehearse_again). Returns at once when there is nothing to prepare.
+func _prepare_render() -> bool:
+	if main == null or not main.has_method("needs_rehearsal") or not main.needs_rehearsal(): return false
+	if ui and ui.has_method("fade_to"): ui.fade_to(1.0, 0.0)
+	await main.rehearse_again()
+	return true
+
 func start() -> void:
-	if state == "playing": return
+	if state == "playing" or _busy: return
+	_busy = true
+	if await _prepare_render():
+		if ui and ui.has_method("fade_to"): ui.fade_to(0.0, 1.6)     # the intro may fade in itself; this is the fallback
+	_busy = false
 	time_played = 0.0
 	var dbg = get_node_or_null("/root/DebugTools")
 	if dbg and (dbg.get("args") as Dictionary).has("mode"): mode = str(dbg.args["mode"])
@@ -57,8 +71,13 @@ func pause() -> void:
 	resume()
 
 func resume() -> void:
-	if state != "paused": return
+	if state != "paused" or _busy: return
+	_busy = true
 	if ui and ui.has_method("hide_pause"): ui.hide_pause()
+	# the tree is still paused here: the game stands still behind the black screen while the renderer is prepared
+	if await _prepare_render():
+		if ui and ui.has_method("fade_to"): ui.fade_to(0.0, 0.6)
+	_busy = false
 	Audio.set_paused(false)
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

@@ -136,7 +136,7 @@ func _run() -> void:
 		await _frames(3)
 		_check(String(Q.call("current")) == q, "preset %s applied" % q)
 		var e := we.environment
-		_check(e.sdfgi_enabled == (q == "high" or q == "ultra"), "%s: SDFGI %s" % [q, str(e.sdfgi_enabled)])
+		_check(e.sdfgi_enabled == (q == "ultra"), "%s: SDFGI %s" % [q, str(e.sdfgi_enabled)])
 		_check(e.volumetric_fog_enabled == (q != "low"), "%s: volumetric fog %s" % [q, str(e.volumetric_fog_enabled)])
 		_check(get_root().get_viewport().positional_shadow_atlas_size >= 2048, "%s: positional shadows available" % q)
 		_check(world.find_children("*", "Light3D", true, false).size() == count, "%s: light count unchanged" % q)

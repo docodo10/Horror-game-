@@ -95,9 +95,35 @@ func _tour_view(cam: Camera3D, v: Array) -> void:
 func _refresh_zone() -> void:
 	if Game.garderie and Game.garderie.has_method("refresh_zone"): Game.garderie.refresh_zone()
 
-func _calibrate_and_warm_up(aq: Node) -> void:
-	if DisplayServer.get_name() == "headless" or DebugTools.args.has("no-warmup"): return
+## The render setup the pipelines were last built for (quality preset + whether FSR 2 runs): each preset has its own
+## materials and passes, so after a change in the options the rehearsal must run again before play goes on. Otherwise
+## every room entered after the change builds its pipelines on first sight (measured as the hitches "in new rooms,
+## even on medium": the preset had been lowered in the options and nothing had been prepared for it).
+var _rehearsed := ""
+
+func _render_signature() -> String:
+	return "%s|%s" % [str(Settings.get_value("quality", "high")),
+		"fsr2" if str(Settings.get_value("upscale", "off")).begins_with("fsr2") else "std"]
+
+## Asked by Game before play starts (TV menu) or resumes (pause menu).
+func needs_rehearsal() -> bool:
+	return _rehearsed != "" and _rehearsed != _render_signature()
+
+## Runs the rehearsal again for the current render setup. The caller keeps the screen black and the game still.
+func rehearse_again() -> void:
+	print("[main] render setup changed (%s -> %s): rehearsal" % [_rehearsed, _render_signature()])
 	var prev := get_viewport().get_camera_3d()
+	var cam := _tour_camera()
+	for i in 3: await get_tree().process_frame      # modules that follow the setting one frame later (entity materials)
+	await _dress_rehearsal(cam)
+	if prev != null and is_instance_valid(prev): prev.make_current()
+	cam.queue_free()
+	await get_tree().process_frame
+	_refresh_zone()
+	for i in 2: await get_tree().process_frame
+	_rehearsed = _render_signature()
+
+func _tour_camera() -> Camera3D:
 	var cam := Camera3D.new()
 	cam.name = "TourCamera"
 	cam.fov = float(Settings.get_value("fov", 54.0))
@@ -105,10 +131,17 @@ func _calibrate_and_warm_up(aq: Node) -> void:
 	cam.far = 80.0
 	add_child(cam)
 	cam.make_current()
+	return cam
+
+func _calibrate_and_warm_up(aq: Node) -> void:
+	if DisplayServer.get_name() == "headless" or DebugTools.args.has("no-warmup"): return
+	var prev := get_viewport().get_camera_3d()
+	var cam := _tour_camera()
 	await aq.calibrate(func(i: int) -> void:
 		_tour_view(cam, CALIB_VIEWS[i])
 		_refresh_zone(), CALIB_VIEWS.size())
 	await _dress_rehearsal(cam)
+	_rehearsed = _render_signature()
 	if prev != null and is_instance_valid(prev): prev.make_current()
 	cam.queue_free()
 	await get_tree().process_frame
@@ -117,6 +150,11 @@ func _calibrate_and_warm_up(aq: Node) -> void:
 
 func _dress_rehearsal(cam: Camera3D) -> void:
 	var vp := get_viewport()
+	# The TV menu takes the view back every frame while it is on (ui tv_menu.update_camera): right before each draw the
+	# tour camera is made current again, or the rehearsal would only ever show the television.
+	var keep := func() -> void:
+		if is_instance_valid(cam) and not cam.current: cam.make_current()
+	RenderingServer.frame_pre_draw.connect(keep)
 	var occ := vp.use_occlusion_culling
 	vp.use_occlusion_culling = false     # draw what stands behind doors and inside furniture too
 	cam.fov = 75.0
@@ -149,7 +187,9 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 		mi.scale = Vector3.ONE * 0.1
 		props.add_child(mi)
 	var ent = Game.entity
-	var has_ent: bool = ent != null and ent.has_method("debug_place") and ent.has_method("debug_release")
+	# La Gardienne joins only while she is idle upstairs (or switched off): never touch her in the middle of a visit
+	var has_ent: bool = ent != null and ent.has_method("debug_place") and ent.has_method("debug_release") \
+		and String(ent.get("state")) in ["dormant", "disabled"]
 	var shot := String(DebugTools.args.get("warmup-shot", ""))
 	if shot != "" and Game.ui and Game.ui.get("crt") is CanvasItem: (Game.ui.get("crt") as CanvasItem).visible = false
 	var si := 0
@@ -157,6 +197,7 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 		var di := 0
 		for d in WARMUP_DIRS:
 			_tour_view(cam, [st[0], st[1], st[2], d[0], d[1]])
+			keep.call()
 			if di == 0: _refresh_zone()
 			var fwd := -cam.global_transform.basis.z
 			var flat := Vector3(fwd.x, 0.0, fwd.z).normalized()
@@ -183,3 +224,4 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 	if Game.interaction and Game.interaction.has_method("prewarm_end"): Game.interaction.prewarm_end(hl)
 	if shot != "" and Game.ui and Game.ui.get("crt") is CanvasItem: (Game.ui.get("crt") as CanvasItem).visible = true
 	vp.use_occlusion_culling = occ
+	RenderingServer.frame_pre_draw.disconnect(keep)

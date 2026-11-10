@@ -574,12 +574,14 @@ func apply_quality(q: String) -> void:
 ##  * The house stays as it is: its shadow maps are cached (see the shadow atlas note in look_presets.gd) and its rooms
 ##    are occlusion-culled from the hall; hiding it only made its lights re-render when it came back.
 ##  * High-bays follow the hall; lights that come on are queued and switched on one per frame (_process), so their
-##    shadow maps are never all rendered in the same frame.
+##    shadow maps are never all rendered in the same frame. The hall's own nodes are shown / hidden three per frame
+##    for the same reason (adding a million triangles of instances to the scene in one frame is a hitch at 120 fps).
 const HALL_SHOW_X := -6.0
 const HALL_HIDE_X := -5.4
 var _hall_nodes: Array = []
 var _hall_shown := true
 var _lights_on_queue: Array = []
+var _hall_queue: Array = []            # hall nodes still to show / hide (3 per frame: ~45 nodes, a million triangles)
 
 ## Top-level nodes that stand in the hall (everything west of the vestibule), by where their geometry is. The neon
 ## sign stays out of the list: it is what you see glowing at the far end from the doorway.
@@ -615,8 +617,12 @@ func _update_zone(force := false, stagger := true) -> void:
 	var changed := force or hall != _hall_shown
 	if force or hall != _hall_shown:
 		_hall_shown = hall
-		for n in _hall_nodes:
-			if is_instance_valid(n): (n as Node3D).visible = hall
+		if stagger:
+			_hall_queue = _hall_nodes.duplicate()      # applied a few nodes per frame in _process
+		else:
+			_hall_queue.clear()
+			for n in _hall_nodes:
+				if is_instance_valid(n): (n as Node3D).visible = hall
 	var z := "house"
 	if p.x < GL.VEST.x1 + 0.1:
 		z = "hall"
@@ -650,6 +656,10 @@ func _process(dt: float) -> void:
 	if not _lights_on_queue.is_empty():
 		var lq = _lights_on_queue.pop_front()
 		if is_instance_valid(lq): (lq as Light3D).visible = true
+	for i in mini(3, _hall_queue.size()):
+		var hn = _hall_queue.pop_back()
+		if is_instance_valid(hn) and (hn as Node3D).visible != _hall_shown:
+			(hn as Node3D).visible = _hall_shown
 	_zone_t -= dt
 	if _zone_t <= 0.0:
 		_zone_t = 0.25

@@ -136,6 +136,20 @@ func walk_to(label: String, x: float, z: float, max_frames := 150) -> void:
 ## Short first-time-cost check (a few hundred frames): what the loading screen must have absorbed.
 func _tour_quick() -> void:
 	tp(0.25, 1.5, 0.0)
+	var qargs: Dictionary = root.get_node("DebugTools").get(&"args")
+	if qargs.has("switch-pause") and _lap == 1:
+		# the player changes the quality in the pause menu, then resumes
+		await idle("before pause", 10)
+		G.call("pause")
+		await idle("paused", 10)
+		root.get_node("Settings").call("set_value", "quality", String(qargs["switch-pause"]))
+		await idle("paused quality switched", 6)
+		G.call("resume")
+		var g := 0
+		while String(G.get(&"state")) != "playing" and g < 2000:
+			await idle("resume prepares", 1)
+			g += 1
+		await idle("resumed", 15)
 	await idle("spawn idle", 25)
 	await spin("spawn spin")
 	await spin("spawn spin 2", 26, -0.26)
@@ -345,6 +359,11 @@ func _run() -> void:
 		_snapshot_hidden()
 		node_added.connect(_on_node_added)
 		await idle("menu", 30)
+		var dargs: Dictionary = root.get_node("DebugTools").get(&"args")
+		if dargs.has("switch-menu"):
+			# the player lowers / raises the quality on the TV menu before starting
+			root.get_node("Settings").call("set_value", "quality", String(dargs["switch-menu"]))
+			await idle("menu quality switched", 20)
 		(G.get(&"ui") as Node).call("tv_start_game", "normal")
 		var g := 0
 		while String(G.get(&"state")) != "playing" and g < 300:
