@@ -53,6 +53,7 @@ func _frame() -> void:
 		pos.x, pos.z, float(P.get("yaw")) if P != null else 0.0, String(G.get(&"state")), sh_prims, sh_calls])
 	_n += 1
 	_poll_hidden()
+	if _diff_to > 0 and _n >= _diff_from and _n <= _diff_to: _diff_scene()
 	if _n % 60 == 0: _flush()
 	# a caught / game-over screen waits for a key
 	var st := String(G.get(&"state"))
@@ -85,6 +86,47 @@ func _poll_hidden() -> void:
 			_notes.append("%d,shown,%s,%s,%s" % [_n, (n as Node).get_class(), (n as Node).name, (n as Node).get_parent().name])
 			_hidden.remove_at(i)
 		i -= 1
+
+## Debug (--diff-from=N --diff-to=M): between those frames, print every visual whose state changed since the frame
+## before (visibility, materials, mesh, shadow casting; lights: visibility, shadow, energy) — to see what a burst of
+## pipeline compilations belongs to.
+var _diff_from := 0
+var _diff_to := 0
+var _diff_prev := {}
+
+func _state_of(n: Node) -> Array:
+	if n is Light3D:
+		var l := n as Light3D
+		return [l.is_visible_in_tree(), l.shadow_enabled, l.light_size > 0.0, l.light_projector != null]
+	var g := n as GeometryInstance3D
+	var st: Array = [g.is_visible_in_tree(), g.material_override, g.material_overlay, g.cast_shadow, g.layers]
+	if g is MeshInstance3D:
+		var mi := g as MeshInstance3D
+		st.append(mi.mesh)
+		if mi.mesh != null:
+			for i in mi.mesh.get_surface_count(): st.append(mi.get_surface_override_material(i))
+	elif g is MultiMeshInstance3D:
+		st.append((g as MultiMeshInstance3D).multimesh)
+	return st
+
+func _diff_scene() -> void:
+	var cur := {}
+	var changed := 0
+	for n in root.find_children("*", "VisualInstance3D", true, false):
+		if not (n is Light3D or n is GeometryInstance3D): continue
+		var st := _state_of(n)
+		cur[n] = st
+		if _diff_prev.has(n) and _diff_prev[n] != st:
+			changed += 1
+			if changed <= 40:
+				var top: Node = n
+				while top.get_parent() != null and top.get_parent().get_parent() != null and top.get_parent().get_parent() != root: top = top.get_parent()
+				print("[diff] frame %d: %s/%s (%s) %s -> %s" % [_n, top.name, n.name, n.get_class(), str(_diff_prev[n]).left(90), str(st).left(90)])
+		elif not _diff_prev.is_empty() and not _diff_prev.has(n):
+			changed += 1
+			print("[diff] frame %d: NEW %s (%s) under %s" % [_n, n.name, n.get_class(), n.get_parent().name])
+	if changed > 40: print("[diff] frame %d: %d visuals changed in all" % [_n, changed])
+	_diff_prev = cur
 
 func _flush() -> void:
 	if _out != "" and not _notes.is_empty():
@@ -321,7 +363,7 @@ func _tour_garderie() -> void:
 			Input.action_press("move_forward")
 			await idle(String(v[3]) + " walk", 20)
 			Input.action_release("move_forward")
-		for kind in ["tube_dies", "ball_roll", "giggle_slide", "hum"]:
+		for kind in ([] if root.get_node("DebugTools").get(&"args").has("skip-scares") else ["tube_dies", "ball_roll", "giggle_slide", "hum"]):
 			GA.call("scare", kind)
 			await idle("garderie scare " + kind, 30)
 		for id in ["wave", "spiral"]:
@@ -376,6 +418,8 @@ func _run() -> void:
 	if ENT != null: ENT.call("set_enabled", false)
 	_out = String(root.get_node("DebugTools").get(&"args").get("out", "user://hitch.csv"))
 	_part = String(root.get_node("DebugTools").get(&"args").get("part", "all"))
+	_diff_from = int(root.get_node("DebugTools").get(&"args").get("diff-from", 0))
+	_diff_to = int(root.get_node("DebugTools").get(&"args").get("diff-to", 0))
 	print("[hitch] game playing after %d ms; quality %s" % [Time.get_ticks_msec() - t0, root.get_node("Settings").call("get_value", "quality", "?")])
 	if _hidden.is_empty():
 		_snapshot_hidden()

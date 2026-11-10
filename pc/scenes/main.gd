@@ -148,6 +148,18 @@ func _calibrate_and_warm_up(aq: Node) -> void:
 	_refresh_zone()                      # back in the house: its rooms are shown again before play, not during it
 	for i in 3: await get_tree().process_frame
 
+## Makes the renderer build the draw data of every object again, as the object now is. That data (and the pipelines it
+## asks for) is first built the frame the object is created, but a visibility range that fades the object out (the
+## garderie's small props) only reaches the renderer afterwards, and without a new build: the blended pipelines such
+## an object needs were then compiled in the middle of play, the first time something else made the renderer build
+## it again (its lights changed: the bulb blowing 45 s in, the flashlight) - about 60 compilations on one frame.
+func _rebuild_geometry() -> void:
+	for n in get_tree().root.find_children("*", "GeometryInstance3D", true, false):
+		var g := n as GeometryInstance3D
+		var m := g.gi_mode
+		g.gi_mode = GeometryInstance3D.GI_MODE_STATIC if m == GeometryInstance3D.GI_MODE_DYNAMIC else GeometryInstance3D.GI_MODE_DYNAMIC
+		g.gi_mode = m
+
 func _dress_rehearsal(cam: Camera3D) -> void:
 	var vp := get_viewport()
 	# The TV menu takes the view back every frame while it is on (ui tv_menu.update_camera): right before each draw the
@@ -186,6 +198,7 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 		mi.mesh = m
 		mi.scale = Vector3.ONE * 0.1
 		props.add_child(mi)
+	_rebuild_geometry()
 	var ent = Game.entity
 	# La Gardienne joins only while she is idle upstairs (or switched off): never touch her in the middle of a visit
 	var has_ent: bool = ent != null and ent.has_method("debug_place") and ent.has_method("debug_release") \

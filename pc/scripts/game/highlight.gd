@@ -49,6 +49,9 @@ func _new_mat() -> ShaderMaterial:
 	return m
 
 var holder: Node3D = null           # parent of the proxies (set by the owner before the first target)
+var late_proxies := 0               # proxies that had to be built during play (each one is a new instance for the GPU)
+var log_late := false               # debug: print them (set by a test script)
+var _prewarming := false
 var _proxies := {}                  # MeshInstance3D instance id -> proxy MeshInstance3D
 
 func _proxy_of(m: MeshInstance3D) -> MeshInstance3D:
@@ -68,6 +71,9 @@ func _proxy_of(m: MeshInstance3D) -> MeshInstance3D:
 	px.visible = false
 	holder.add_child(px)
 	_proxies[id] = px
+	late_proxies += 0 if _prewarming else 1
+	if not _prewarming and log_late:
+		print("[highlight] proxy built during play for %s (%s)" % [m.name, m.get_parent().name if m.get_parent() else ""])
 	return px
 
 func _show(meshes: Array, mat: Material) -> void:
@@ -123,9 +129,13 @@ func prewarm_begin(nodes: Array) -> Array:
 	var out: Array = []
 	_mat_old.set_shader_parameter("strength", 0.0)
 	for n in nodes:
-		for m in _collect(n):
+		# hidden meshes too: a whole area can be hidden while the camera is elsewhere (the garderie hall from the house),
+		# and its interactables would otherwise get their proxies, and their pipelines, at the first look in play
+		for m in _collect(n, true):
 			if not _cur.has(m): out.append(m)
+	_prewarming = true
 	_show(out, _mat_old)
+	_prewarming = false
 	return out
 
 func prewarm_end(meshes: Array) -> void:
@@ -146,15 +156,15 @@ func _clear(meshes: Array, mat: Material) -> void:
 		if px != null and is_instance_valid(px) and (px as MeshInstance3D).material_override == mat:
 			(px as MeshInstance3D).visible = false
 
-func _collect(node: Variant) -> Array:
+func _collect(node: Variant, include_hidden := false) -> Array:
 	var out: Array = []
 	if node == null or not (node is Node) or not is_instance_valid(node):
 		return out
 	var n := node as Node
-	if n is MeshInstance3D and (n as MeshInstance3D).is_visible_in_tree() and (n as MeshInstance3D).mesh != null:
+	if n is MeshInstance3D and (include_hidden or (n as MeshInstance3D).is_visible_in_tree()) and (n as MeshInstance3D).mesh != null:
 		out.append(n)
 	for c in n.find_children("*", "MeshInstance3D", true, false):
 		if out.size() >= MAX_MESHES: break
-		if (c as MeshInstance3D).is_visible_in_tree() and (c as MeshInstance3D).mesh != null:
+		if (include_hidden or (c as MeshInstance3D).is_visible_in_tree()) and (c as MeshInstance3D).mesh != null:
 			out.append(c)
 	return out

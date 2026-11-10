@@ -582,6 +582,7 @@ var _hall_nodes: Array = []
 var _hall_shown := true
 var _lights_on_queue: Array = []
 var _hall_queue: Array = []            # hall nodes still to show / hide (3 per frame: ~45 nodes, a million triangles)
+var _zone_snap := false                # next zone check applies everything in one go (teleport, reset after caught)
 
 ## Top-level nodes that stand in the hall (everything west of the vestibule), by where their geometry is. The neon
 ## sign stays out of the list: it is what you see glowing at the far end from the doorway.
@@ -663,7 +664,8 @@ func _process(dt: float) -> void:
 	_zone_t -= dt
 	if _zone_t <= 0.0:
 		_zone_t = 0.25
-		_update_zone()
+		_update_zone(false, not _zone_snap)      # after a teleport the rooms change at once, not node by node
+		_zone_snap = false
 	if power:
 		_tick_flicker(dt)
 	if in_ball_pit:
@@ -842,7 +844,8 @@ func reset_after_caught() -> void:
 		_set_pit(false)
 	if physics != null:
 		physics.release_all()
-	_zone_t = 0.0        # the player is back in the house: show it again on the next frame
+	_zone_t = 0.0        # the player is back in the house: apply its rooms on the next frame
+	_zone_snap = true
 
 ## Teleports the player into the area with the right floor height (the house's ground_height_at knows nothing
 ## about the 1.05 m lower hall or the play decks): Game.world answers with this node during the call.
@@ -856,6 +859,7 @@ func teleport_player(pos: Vector3, yaw: float, pitch := 0.0) -> void:
 	p.call("teleport", Vector3(pos.x, ground_height_at(pos.x, pos.z, pos.y + 0.2), pos.z), yaw, pitch)
 	Game.world = w
 	_zone_t = 0.0
+	_zone_snap = true
 
 ## Debug args (after --): --garderie-cam=x,y,z,yawDeg,pitchDeg (feet height y) teleports the player once the game
 ## plays; --garderie-ride=wave|spiral rides a slide right away; --garderie-scare=giggle_slide|tube_dies|ball_roll|hum.

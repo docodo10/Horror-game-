@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Report for tools/hitch_hunt.gd CSVs: per step and lap -> frames, median / max frame time, spikes, blocking pipeline
-compilations, and the jump in draw calls / primitives (shadow re-renders). Usage: hitch_report.py file.csv [--all]"""
+compilations (at draw time, or when the renderer builds a surface: both stall the frame), and the jump in draw calls /
+primitives (shadow re-renders). Usage: hitch_report.py file.csv [--all]"""
 import csv, statistics, sys
 from collections import OrderedDict
 
@@ -28,7 +29,8 @@ for lap in (1, 2):
     med = statistics.median(ms)
     sp = [r for r in L if r["ms"] > 2.0 * med and r["ms"] > med + 8.0]
     print(f"  lap {lap}: {len(L)} frames, median {med:.1f} ms, max {ms[-1]:.1f} ms, spikes (>2x median) {len(sp)}, "
-          f"blocking compiles {sum(r['c_draw'] for r in L)}, background compiles {sum(r['c_surface'] + r['c_mesh'] + r['c_spec'] for r in L)}, "
+          f"blocking compiles {sum(r['c_draw'] + r['c_surface'] for r in L)} (draw {sum(r['c_draw'] for r in L)}, surface {sum(r['c_surface'] for r in L)}), "
+          f"background compiles {sum(r['c_mesh'] + r['c_spec'] for r in L)}, "
           f"canvas {sum(r['c_canvas'] for r in L)}")
 
 print(f"\n{'step':30s} lap  n   med    max  x   draw surf spec  prims med -> max        dc med->max   vmem  shadow prims med -> max")
@@ -43,11 +45,11 @@ for name in names:
         pr = [r["prims"] for r in S]
         dc = [r["draw_calls"] for r in S]
         cd = sum(r["c_draw"] for r in S)
-        cs = sum(r["c_surface"] + r["c_mesh"] for r in S)
+        cs = sum(r["c_surface"] for r in S)
         cp = sum(r["c_spec"] for r in S)
         ratio = mx / med if med > 0 else 0
         flag = ""
-        if cd > 0: flag += " COMPILE"
+        if cd + cs > 0: flag += " COMPILE"
         if ratio > 2.2 and mx > med + 8: flag += " SPIKE"
         pmed = statistics.median(pr)
         if pmed > 0 and max(pr) > 1.6 * pmed and max(pr) - pmed > 150000: flag += " REDRAW"
