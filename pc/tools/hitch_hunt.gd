@@ -141,6 +141,14 @@ func _tour_quick() -> void:
 	await spin("spawn spin 2", 26, -0.26)
 	await walk_to("walk centre", 0.9, -0.45, 60)
 	await spin("centre spin")
+	tp(-0.6, -1.55, 0.0)
+	await idle("tv front idle", 12)
+	await spin("tv front spin")
+	tp(-2.0, -1.9, 0.0)
+	await idle("closet front idle", 12)
+	await spin("closet front spin")
+	tp(0.25, 1.5, 0.0)
+	await idle("back at spawn", 12)
 	if FEAR != null:
 		for id in ["fake_ball", "crt_static", "fake_shelf"]:
 			FEAR.call("force", id)

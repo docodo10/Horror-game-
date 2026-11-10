@@ -211,19 +211,37 @@ func _draw_objective(a: float) -> void:
 		if fmod(Style.now(), 0.7) < 0.35:
 			draw_rect(Rect2(caret.x + 2.0, caret.y - 22.0, 11.0, 27.0), Color(Style.NIGHTLIGHT, 0.8 * oa))
 
-## Settings "hud": "none" (default, the user's choice) hides the dot, prompts, keycaps, meters and the closet hint.
+## Settings "hud":
+##   "dot"  (default) only the small white centre dot: faint while nothing can be used, bright (with a soft halo) when
+##          the looked-at object can be touched; a thin ring fills around it while a hold-to-use action is held
+##   "none" nothing at all on screen (the looked-at object still brightens: scripts/game/highlight.gd)
+##   "full" the dot plus prompts, keycaps, meters and the closet hint
+func _hud_mode() -> String:
+	return str(Settings.get_value("hud", "dot"))
+
 func _full_hud() -> bool:
-	return str(Settings.get_value("hud", "none")) == "full"
+	return _hud_mode() == "full"
 
 func _draw_center(a: float) -> void:
-	if not _full_hud():
+	var mode := _hud_mode()
+	if mode == "none":
 		return
 	var c := (size * 0.5).round()
 	var pa := _prompt_alpha
-	var dot_r := lerpf(2.0, 3.0, pa)
-	draw_circle(c, dot_r + 1.2, Color(0, 0, 0, 0.35 * a))
-	draw_circle(c, dot_r, Color(Color("#f3eee2"), lerpf(0.32, 0.95, pa) * a))
+	var dot_r := lerpf(1.8, 3.0, pa)
+	if pa > 0.01:
+		draw_circle(c, dot_r + 5.0, Color(1.0, 0.98, 0.94, 0.10 * pa * a))      # soft halo: "you can touch this"
+	draw_circle(c, dot_r + 1.2, Color(0, 0, 0, lerpf(0.22, 0.4, pa) * a))
+	draw_circle(c, dot_r, Color(Color("#f3eee2"), lerpf(0.34, 1.0, pa) * a))
 	if pa <= 0.002 or prompt_text == "":
+		return
+	if mode != "full":
+		# dot only: hold-to-use progress as a thin ring around the dot
+		if prompt_hold >= 0.0:
+			var hv0 := Style.clamp01(prompt_hold)
+			draw_arc(c, 11.0, 0.0, TAU, 48, Color(0.94, 0.91, 0.84, 0.18 * pa * a), 2.0, true)
+			if hv0 > 0.001:
+				draw_arc(c, 11.0, -PI * 0.5, -PI * 0.5 + TAU * hv0, maxi(3, int(48 * hv0)), Color(1.0, 0.98, 0.94, 0.9 * pa * a), 2.0, true)
 		return
 	var pf := _f_prompt
 	var fs := 22

@@ -19,8 +19,9 @@ COMMANDES (clavier + souris, ou manette)
   Échap ou P .............. pause / options
   F3 ...................... compteur de performance
 
-  Il n'y a aucune interface à l'écran : quand tu regardes quelque chose qu'on peut
-  ouvrir ou prendre, l'objet s'éclaire légèrement. (Options > INTERFACE pour réafficher les aides.)
+  Au centre de l'écran, un petit point blanc : il devient plus lumineux quand tu regardes
+  quelque chose qu'on peut ouvrir ou prendre (et l'objet s'éclaire légèrement).
+  (Options > INTERFACE : POINT, AUCUNE ou COMPLÈTE.)
   Joue avec un casque pour le son 3D. Chaque bruit peut attirer la Gardienne.
 
 PERFORMANCE

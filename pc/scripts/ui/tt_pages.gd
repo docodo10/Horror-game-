@@ -243,8 +243,12 @@ func options(b: TT) -> void:
 			"change": func(d: int) -> void: _num("sensitivity", d, 0.1, 0.3, 3.0, 1.0)}); r += 1
 		b.item(r, {"id": "invert_y", "label": "INVERSER Y", "kind": "value", "right": _oui(_S("invert_y", false)),
 			"change": func(_d: int) -> void: _setv("invert_y", not bool(_S("invert_y", false)))}); r += 1
-		b.item(r, {"id": "hud", "label": "INTERFACE", "kind": "value", "right": "COMPLÈTE" if str(_S("hud", "none")) == "full" else "AUCUNE",
-			"change": func(_d: int) -> void: _setv("hud", "none" if str(_S("hud", "none")) == "full" else "full")}); r += 1
+		var hud_modes := [["dot", "POINT"], ["none", "AUCUNE"], ["full", "COMPLÈTE"]]
+		var hud_i := 0
+		for i in hud_modes.size():
+			if hud_modes[i][0] == str(_S("hud", "dot")): hud_i = i
+		b.item(r, {"id": "hud", "label": "INTERFACE", "kind": "value", "right": hud_modes[hud_i][1],
+			"change": func(d: int) -> void: _setv("hud", hud_modes[(hud_i + d + hud_modes.size()) % hud_modes.size()][0])}); r += 1
 		b.item(r, {"id": "fear", "label": "PEUR", "kind": "value", "right": "EXTRÊME" if str(_S("fear", "extreme")) == "extreme" else "NORMALE",
 			"change": func(_d: int) -> void: _setv("fear", "normal" if str(_S("fear", "extreme")) == "extreme" else "extreme")}); r += 1
 	_sub_switch(b, b.rows - 3, OPT_PAGES, _get_opt, _set_opt)

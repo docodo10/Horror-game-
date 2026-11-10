@@ -208,6 +208,10 @@ func _refresh_env(force := false) -> void:
 
 func _set_mirror_live(on: bool) -> void:
 	mirror_active = on
+	if _glass != null and _glass.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:
+		# flat on the wall: no visible shadow, and as a shadow caster each material switch below would make every
+		# light around re-render its shadow map
+		_glass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	if _vp != null: _vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if on else SubViewport.UPDATE_DISABLED
 	if _glass != null:
 		_glass.material_override = _live_mat if on else null

@@ -64,6 +64,11 @@ var _hl_hold := -1.0               # hold-to-use progress fed to the highlight (
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
+	var glow := Node3D.new()            # the highlight's proxy meshes live here (world space)
+	glow.name = "Highlights"
+	glow.top_level = true
+	add_child(glow)
+	_hl.holder = glow
 	_query.collide_with_areas = true
 	_query.collide_with_bodies = true
 	_query.collision_mask = LAYER_WORLD | LAYER_INTERACT

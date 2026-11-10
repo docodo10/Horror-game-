@@ -1,6 +1,13 @@
 ## Looked-at feedback without any HUD (the default: Settings "hud" = "none"). The targeted interactable gets a faint
 ## brightening relative to its own lit colour (+~15–35 %, stronger at the rim, so nothing glows in total darkness) that
 ## fades in and out; holding a hold-to-use interaction makes it swell. Owned by Interaction (scripts/game/interaction.gd).
+##
+## The glow is drawn by PROXIES, never on the real meshes: for each highlighted mesh a copy (same Mesh resource, the
+## highlight material, no shadow, no GI) lives under `holder` and follows the mesh's transform. Reason, read in Godot
+## 4.5's RendererSceneCull::_update_instance: any change to a shadow-casting instance — a material overlay included —
+## marks every light around it shadow-dirty. With `material_overlay` each time the crosshair crossed an interactable
+## the ceiling bulb re-rendered its whole shadow cube twice (tools/hitch_hunt.gd: 100-300 k shadow triangles on a third
+## of the frames of a look around the room).
 extends RefCounted
 
 const SHADER_CODE := """
@@ -41,6 +48,46 @@ func _new_mat() -> ShaderMaterial:
 	m.set_shader_parameter("strength", 0.0)
 	return m
 
+var holder: Node3D = null           # parent of the proxies (set by the owner before the first target)
+var _proxies := {}                  # MeshInstance3D instance id -> proxy MeshInstance3D
+
+func _proxy_of(m: MeshInstance3D) -> MeshInstance3D:
+	var id := m.get_instance_id()
+	var p = _proxies.get(id)
+	if p != null and is_instance_valid(p):
+		return p
+	if holder == null or not is_instance_valid(holder):
+		return null
+	var px := MeshInstance3D.new()
+	px.name = "Glow"
+	px.mesh = m.mesh
+	px.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	px.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+	px.layers = m.layers
+	px.extra_cull_margin = m.extra_cull_margin
+	px.visible = false
+	holder.add_child(px)
+	_proxies[id] = px
+	return px
+
+func _show(meshes: Array, mat: Material) -> void:
+	for m in meshes:
+		if not is_instance_valid(m): continue
+		var px := _proxy_of(m as MeshInstance3D)
+		if px == null: continue
+		px.material_override = mat
+		px.global_transform = (m as MeshInstance3D).global_transform
+		px.visible = true
+
+func _follow(meshes: Array) -> void:
+	for m in meshes:
+		if not is_instance_valid(m): continue
+		var px = _proxies.get((m as Object).get_instance_id())
+		if px != null and is_instance_valid(px):
+			var xf: Transform3D = (m as MeshInstance3D).global_transform
+			if not (px as MeshInstance3D).global_transform.is_equal_approx(xf):
+				(px as MeshInstance3D).global_transform = xf
+
 ## Highlight `node` (and its visible meshes); null clears. The previous target fades out.
 func set_target(node: Variant) -> void:
 	_clear(_old, _mat_old)
@@ -54,31 +101,31 @@ func set_target(node: Variant) -> void:
 	_mat_cur.set_shader_parameter("strength", 0.0)
 	for m in _cur:
 		_old.erase(m)
-		(m as GeometryInstance3D).material_overlay = _mat_cur
+	_show(_cur, _mat_cur)
 
 ## Call every frame. hold_k: hold-to-use progress 0..1, or < 0 when not holding.
 func update(dt: float, hold_k := -1.0) -> void:
 	var want := 0.0 if _cur.is_empty() else (1.0 if hold_k < 0.0 else 1.0 + 0.8 * hold_k)
 	_cur_s = move_toward(_cur_s, want, dt / FADE_IN)
 	_mat_cur.set_shader_parameter("strength", _cur_s)
+	_follow(_cur)        # drawers and doors move while they are looked at
 	if not _old.is_empty():
+		_follow(_old)
 		_old_s = move_toward(_old_s, 0.0, dt / FADE_OUT)
 		_mat_old.set_shader_parameter("strength", _old_s)
 		if _old_s <= 0.0:
 			_clear(_old, _mat_old)
 			_old = []
 
-## Loading screen: put the (invisible, strength 0) overlay on every mesh it can ever land on, so the GPU builds those
-## pipelines before play; otherwise the first look at each kind of object hitches. Returns the meshes for prewarm_end().
+## Loading screen: builds the proxy of every mesh the glow can ever land on and shows them (invisible, strength 0), so
+## the GPU builds those pipelines before play and no node is created during it. Returns the meshes for prewarm_end().
 func prewarm_begin(nodes: Array) -> Array:
 	var out: Array = []
 	_mat_old.set_shader_parameter("strength", 0.0)
 	for n in nodes:
 		for m in _collect(n):
-			var g := m as GeometryInstance3D
-			if g.material_overlay == null:
-				g.material_overlay = _mat_old
-				out.append(g)
+			if not _cur.has(m): out.append(m)
+	_show(out, _mat_old)
 	return out
 
 func prewarm_end(meshes: Array) -> void:
@@ -94,18 +141,20 @@ func clear() -> void:
 
 func _clear(meshes: Array, mat: Material) -> void:
 	for m in meshes:
-		if is_instance_valid(m) and (m as GeometryInstance3D).material_overlay == mat:
-			(m as GeometryInstance3D).material_overlay = null
+		if not is_instance_valid(m): continue
+		var px = _proxies.get((m as Object).get_instance_id())
+		if px != null and is_instance_valid(px) and (px as MeshInstance3D).material_override == mat:
+			(px as MeshInstance3D).visible = false
 
 func _collect(node: Variant) -> Array:
 	var out: Array = []
 	if node == null or not (node is Node) or not is_instance_valid(node):
 		return out
 	var n := node as Node
-	if n is MeshInstance3D and (n as MeshInstance3D).is_visible_in_tree():
+	if n is MeshInstance3D and (n as MeshInstance3D).is_visible_in_tree() and (n as MeshInstance3D).mesh != null:
 		out.append(n)
 	for c in n.find_children("*", "MeshInstance3D", true, false):
 		if out.size() >= MAX_MESHES: break
-		if (c as MeshInstance3D).is_visible_in_tree():
+		if (c as MeshInstance3D).is_visible_in_tree() and (c as MeshInstance3D).mesh != null:
 			out.append(c)
 	return out

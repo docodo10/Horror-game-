@@ -24,15 +24,19 @@ var values := {
 	"film_grain": true,
 	"chromatic_aberration": false,
 	"auto_cap": "high",        # best preset auto quality may pick (lowered when play proved a preset too heavy)
-	"settings_version": 2,
+	"settings_version": 3,
 	"fear": "extreme",         # normal | extreme (fear director)
-	"hud": "none",             # none (no prompts / dot / meters; looked-at objects brighten) | full
+	"hud": "dot",              # dot (white centre dot, brighter on something usable) | none | full (prompts, meters)
 }
 
-const VERSION := 2
-## Values reset once when a settings file from an older build is loaded (v2: clean image + natural lens by default, and
-## auto quality measures the GPU again instead of keeping what the old live adaptation left behind).
-const V2_RESET := ["fov", "camera_motion", "depth_of_field", "chromatic_aberration", "render_scale", "auto_quality", "auto_cap"]
+const VERSION := 3
+## Values reset once when a settings file from an older build is loaded (key = the version that changed their default).
+## v2: clean image + natural lens by default, and auto quality measures the GPU again instead of keeping what the old
+## live adaptation left behind. v3: the centre dot is the default interface.
+const RESETS := {
+	2: ["fov", "camera_motion", "depth_of_field", "chromatic_aberration", "render_scale", "auto_quality", "auto_cap"],
+	3: ["hud"],
+}
 
 var _fps_label: Label = null
 var _fps_t := 0.0
@@ -43,11 +47,14 @@ func _ready() -> void:
 	var cfg := ConfigFile.new()
 	var loaded := cfg.load(PATH) == OK
 	if loaded:
-		var old := int(cfg.get_value("settings", "settings_version", 1)) < VERSION
+		var saved_v := int(cfg.get_value("settings", "settings_version", 1))
+		var skip := ["settings_version"] if saved_v < VERSION else []
+		for v in RESETS:
+			if saved_v < int(v): skip.append_array(RESETS[v])
 		for k in values.keys():
-			if old and (k in V2_RESET or k == "settings_version"): continue
+			if k in skip: continue
 			values[k] = cfg.get_value("settings", k, values[k])
-		if old: save()
+		if saved_v < VERSION: save()
 	# First launch of a build with auto quality: start from a preset this GPU can hold (the live check refines it).
 	if bool(values["auto_quality"]) and not (loaded and cfg.has_section_key("settings", "auto_quality")) \
 			and DisplayServer.get_name() != "headless":
