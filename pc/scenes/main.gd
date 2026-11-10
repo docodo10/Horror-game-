@@ -124,11 +124,12 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 	var hl: Array = Game.interaction.prewarm_begin() if Game.interaction and Game.interaction.has_method("prewarm_begin") else []
 	var shown: Array = []
 	if Game.world:
-		for n in (Game.world as Node).find_children("*", "GeometryInstance3D", true, false):
-			var gi := n as GeometryInstance3D
-			if not gi.visible:
-				gi.visible = true
-				shown.append(gi)
+		# hidden meshes, and hidden groups such as what closed drawers and boxes hold (the items the player takes later)
+		for n in (Game.world as Node).find_children("*", "Node3D", true, false):
+			var n3 := n as Node3D
+			if not n3.visible and not (n3 is Light3D):
+				n3.visible = true
+				shown.append(n3)
 		var uh = Game.world.get("upper_hall")
 		if uh is Node3D and not (uh as Node3D).visible:
 			(uh as Node3D).visible = true

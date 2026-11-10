@@ -164,7 +164,18 @@ func _apply(v: float) -> void:
 		var n: Node3D = m.get("node")
 		if n != null and is_instance_valid(n):
 			n.transform = (m["closed"] as Transform3D).interpolate_with(m["open"] as Transform3D, v)
+	_show_contents(v)
 	if on_change.is_valid(): on_change.call(v)
+
+## What a closed drawer / cabinet / box holds is not drawn (web Props._updateHidden: the exported level has those groups
+## hidden); it must appear as soon as the container starts to open. Without this the flashlight, the batteries, note 3
+## and the key stayed invisible, and could not be aimed at, in every PC build.
+func _show_contents(v: float) -> void:
+	if contents == null or not is_instance_valid(contents) or contents == node or contents == object:
+		return
+	var vis := is_open or animating or v > 0.001
+	if contents.visible != vis:
+		contents.visible = vis
 
 func _play(sfx: String, volume: float, pitch: float) -> void:
 	if sfx == "": return
