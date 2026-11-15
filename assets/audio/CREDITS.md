@@ -150,3 +150,17 @@ Sons enregistrés (CC0 sauf mention), retravaillés pour le jeu (nettoyage, éga
 | ambience_drone | `ambience_drone.mp3` | [Abandoned passages (horror ambience loop) – freezer.ogg](https://opengameart.org/content/abandoned-passages-horror-ambience-loop) | congusbongus | CC0 1.0 |
 | wind_outside | `wind_outside.mp3` | [Shap, UK – Moaning wind (ShapWind.WAV, Zoom H2N, 'Window moaning in stormy weather')](https://archive.org/details/aporee_55329_63227) | Justin Bennett (radio aporee) | Public Domain Mark 1.0 (archive.org licenseurl publicdomain/mark) |
 | win_door | `win_door.mp3` | [SSE Library: DOORS – 'Wooden door opens and closes' + SSE Library: BELLS – 'Glass bell; medium size'](https://archive.org/details/SSE_Library_DOORS) | USC Cinema / Sunset Editorial SFX collection (uploaded by Internet Archive) | CC0 1.0 (archive.org licenseurl publicdomain/zero) – bell from https://archive.org/details/SSE_Library_BELLS (CC0) |
+
+## Sons générés — garderie (dortoir, bureau, toilettes)
+
+Synthèse originale (numpy / scipy, aucun enregistrement, aucune mélodie existante), produite par
+`pc/scripts/garderie/tools/gen_rooms_sounds.py` (graines fixes) ; même licence que le jeu.
+
+| Son | Fichier | Source | Auteur | Licence |
+|---|---|---|---|---|
+| music_box | `garderie/music_box.mp3` | Synthèse : berceuse originale en 3/4 (mi mineur), peigne d'acier, mécanisme qui s'essouffle | projet (généré) | original |
+| phone_ring | `garderie/phone_ring.mp3` | Synthèse : sonnerie électromécanique à deux timbres (battant 25 Hz) | projet (généré) | original |
+| phone_pickup | `garderie/phone_pickup.mp3` | Synthèse : combiné décroché (plastique + crochet commutateur) | projet (généré) | original |
+| phone_line | `garderie/phone_line.mp3` | Synthèse : souffle de ligne 300–3400 Hz, ronflement, trois respirations, déclic | projet (généré) | original |
+| water_drip | `garderie/water_drip.mp3` | Synthèse : gouttes dans un lavabo, pièce carrelée (boucle de 12 s) | projet (généré) | original |
+| stall_creak | `garderie/stall_creak.mp3` | Synthèse : grincement de charnière métallique (adhérence-glissement) | projet (généré) | original |

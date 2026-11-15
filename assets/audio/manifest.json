@@ -522,5 +522,47 @@
   ],
   "loop": false,
   "gainDb": -2
+ },
+ "music_box": {
+  "files": [
+   "assets/audio/garderie/music_box.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "phone_ring": {
+  "files": [
+   "assets/audio/garderie/phone_ring.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "phone_pickup": {
+  "files": [
+   "assets/audio/garderie/phone_pickup.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "phone_line": {
+  "files": [
+   "assets/audio/garderie/phone_line.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "water_drip": {
+  "files": [
+   "assets/audio/garderie/water_drip.mp3"
+  ],
+  "loop": true,
+  "gainDb": -10
+ },
+ "stall_creak": {
+  "files": [
+   "assets/audio/garderie/stall_creak.mp3"
+  ],
+  "loop": false,
+  "gainDb": -6
  }
 }

@@ -34,6 +34,15 @@ const VEST_COLUMNS := [Vector2(-14.1, 0.55), Vector2(-14.1, 3.65)]
 ## state: on | shadow | flicker | dead
 const VEST_LIGHTS := [[7, 1, "shadow"], [2, 6, "on"], [2, 1, "flicker"], [7, 6, "dead"], [5, 4, "on"]]
 
+# ---------------------------------------------------------------- side rooms
+## Three rooms behind the corridor / vestibule walls: interior box (x0..x1, z0..z1), ceiling, and the door opening
+## (along x) in the wall they share with the corridor (dortoir: its north wall, bureau: its south wall) or with the
+## vestibule (toilettes: its south wall).
+const DORT := {"x0": -10.4, "x1": -4.8, "z0": -3.6, "z1": 1.25, "ceil": 2.4, "door_x0": -8.05, "door_x1": -7.15, "door_h": 2.0}
+const BUR := {"x0": -8.6, "x1": -4.4, "z0": 2.95, "z1": 6.6, "ceil": 2.3, "door_x0": -6.2, "door_x1": -5.3, "door_h": 2.0}
+const WC := {"x0": -15.6, "x1": -11.4, "z0": 5.2, "z1": 9.0, "ceil": 2.5, "door_x0": -12.4, "door_x1": -11.6, "door_h": 2.0}
+const ROOMS := [DORT, BUR, WC]
+
 # ---------------------------------------------------------------- hall
 const HALLB := {"x0": -39.0, "x1": -17.2, "z0": -7.0, "z1": 11.0, "roof": 7.0, "wall": 0.3}
 const LANDING := {"x0": -20.6, "x1": -17.2, "z0": -2.0, "z1": 4.8}
@@ -128,6 +137,15 @@ const BUBBLE_DEMOTE := 0.8
 ## y is the floor height at the node.
 const NAV_NODES := {
 	"gd_door": Vector3(-4.3, UP, 2.1),
+	"gd_corrBur": Vector3(-5.75, UP, 2.1),
+	"gd_bur": Vector3(-5.75, UP, 3.9),
+	"gd_burMid": Vector3(-6.7, UP, 4.6),
+	"gd_corrDort": Vector3(-7.6, UP, 2.1),
+	"gd_dort": Vector3(-7.6, UP, 0.3),
+	"gd_dortMid": Vector3(-7.6, UP, -1.2),
+	"gd_wcDoor": Vector3(-12.0, UP, 4.1),
+	"gd_wc": Vector3(-12.0, UP, 6.0),
+	"gd_wcMid": Vector3(-13.2, UP, 6.8),
 	"gd_corrMid": Vector3(-7.4, UP, 2.1),
 	"gd_corrEnd": Vector3(-10.5, UP, 2.1),
 	"gd_vestIn": Vector3(-12.0, UP, 2.1),
@@ -164,6 +182,9 @@ const NAV_NODES := {
 }
 const NAV_LINKS := [
 	["gd_door", "stairsBottom"], ["gd_door", "swCorner"],
+	["gd_door", "gd_corrBur"], ["gd_corrBur", "gd_corrDort"], ["gd_corrBur", "gd_bur"], ["gd_bur", "gd_burMid"],
+	["gd_corrMid", "gd_corrDort"], ["gd_corrDort", "gd_dort"], ["gd_dort", "gd_dortMid"],
+	["gd_vestIn", "gd_wcDoor"], ["gd_wcDoor", "gd_wc"], ["gd_wc", "gd_wcMid"],
 	["gd_door", "gd_corrMid"], ["gd_corrMid", "gd_corrEnd"], ["gd_corrEnd", "gd_vestIn"], ["gd_vestIn", "gd_vest"],
 	["gd_vest", "gd_vestNorth"], ["gd_vest", "gd_vestSouth"], ["gd_vest", "gd_vestOut"], ["gd_vestOut", "gd_landing"],
 	["gd_landing", "gd_stepsTop"], ["gd_landing", "gd_landingWest"], ["gd_landingWest", "gd_tubeMouth"],
@@ -189,6 +210,9 @@ static func ground_height_at(x: float, z: float, prev_y: float = NAN) -> float:
 		return UP
 	if x >= VEST.x0 - 0.2 and x <= VEST.x1 + 0.2 and z >= VEST.z0 and z <= VEST.z1:
 		return UP
+	for R in ROOMS:
+		if x >= R.x0 - 0.2 and x <= R.x1 + 0.2 and z >= R.z0 - 0.2 and z <= R.z1 + 0.2:
+			return UP
 	if x < HALLB.x0 or x > HALLB.x1 or z < HALLB.z0 or z > HALLB.z1:
 		return NAN
 	if x >= LANDING.x0 and z >= LANDING.z0 and z <= LANDING.z1:
@@ -211,12 +235,22 @@ static func ground_height_at(x: float, z: float, prev_y: float = NAN) -> float:
 static func surface_at(pos: Vector3) -> String:
 	if pos.x > -3.72:
 		return "wood"
+	if in_room(DORT, pos):
+		return "carpet"
+	if in_room(BUR, pos):
+		return "wood"
+	if in_room(WC, pos):
+		return "concrete"
 	if pos.x >= CORR.x0 - 0.2:
 		return "concrete"
 	if pos.y > HALL + 0.6 and pos.x < LANDING.x0 - 0.05:
 		return "vinyl"
 	return "foam"
 
-## True when (x, z) lies inside the area (corridor, vestibule, hall).
+## True when pos stands inside the side room R (DORT / BUR / WC), walls excluded.
+static func in_room(R: Dictionary, pos: Vector3) -> bool:
+	return pos.x >= R.x0 and pos.x <= R.x1 and pos.z >= R.z0 and pos.z <= R.z1
+
+## True when (x, z) lies inside the area (corridor, vestibule, side rooms, hall).
 static func contains(p: Vector3) -> bool:
 	return not is_nan(ground_height_at(p.x, p.z))

@@ -314,11 +314,18 @@ static func _corridor(c) -> void:
 	var ch: float = C.ceil
 	k.box("corr_floor", Vector3(x0, -0.25, z0 - 0.2), Vector3(-3.722, 0.0, z1 + 0.2), Color.WHITE, 0.5, Kit.FACE_PY)
 	c.col("corr").box(Vector3(x0 - 0.25, -0.3, z0 - 0.2), Vector3(-3.45, 0.0, z1 + 0.2))
-	wall(c, "corr", "corr_wall", Vector2(x0, z0 - 0.1), Vector2(x1, z0 - 0.1), 0.2, 0.0, ch, [], true, Color.WHITE, 1.0)
-	wall(c, "corr", "corr_wall", Vector2(x0, z1 + 0.1), Vector2(x1, z1 + 0.1), 0.2, 0.0, ch, [], true, Color.WHITE, 1.0)
+	# the dortoir's door opens in the north wall, the bureau's in the south wall (garderie_rooms.gd builds the rooms)
+	var dn: Dictionary = GL.DORT
+	var db: Dictionary = GL.BUR
+	wall(c, "corr", "corr_wall", Vector2(x0, z0 - 0.1), Vector2(x1, z0 - 0.1), 0.2, 0.0, ch,
+		[[float(dn.door_x0) - x0, float(dn.door_x1) - x0, 0.0, float(dn.door_h)]], true, Color.WHITE, 1.0)
+	wall(c, "corr", "corr_wall", Vector2(x0, z1 + 0.1), Vector2(x1, z1 + 0.1), 0.2, 0.0, ch,
+		[[float(db.door_x0) - x0, float(db.door_x1) - x0, 0.0, float(db.door_h)]], true, Color.WHITE, 1.0)
 	k.box("corr_ceil", Vector3(x0, ch, z0 - 0.2), Vector3(x1, ch + 0.2, z1 + 0.2), Color.WHITE, 1.0)
-	c.occluders.append(AABB(Vector3(x0, 0.05, z0 - 0.18), Vector3(x1 - x0 - 0.1, ch - 0.1, 0.16)))
-	c.occluders.append(AABB(Vector3(x0, 0.05, z1 + 0.02), Vector3(x1 - x0 - 0.1, ch - 0.1, 0.16)))
+	for oc in [[z0 - 0.18, dn], [z1 + 0.02, db]]:
+		var od: Dictionary = oc[1]
+		c.occluders.append(AABB(Vector3(x0, 0.05, oc[0]), Vector3(float(od.door_x0) - 0.06 - x0, ch - 0.1, 0.16)))
+		c.occluders.append(AABB(Vector3(float(od.door_x1) + 0.06, 0.05, oc[0]), Vector3(x1 - 0.1 - float(od.door_x1) - 0.06, ch - 0.1, 0.16)))
 	# pipes along the ceiling: two copper water lines, a black iron gas pipe, a cast-iron drain stack, conduit
 	for pz in [[z0 + 0.08, ch - 0.1, 0.011], [z0 + 0.15, ch - 0.13, 0.009]]:
 		k.tube("metal", PackedVector3Array([Vector3(x1, pz[1], pz[0]), Vector3(x0, pz[1], pz[0])]), pz[2], 10, COPPER)
@@ -391,9 +398,12 @@ static func _vestibule(c) -> void:
 	wall(c, "vest", "vest_wall", Vector2(-17.05, z0 - 0.2), Vector2(-17.05, z1 + 0.2), 0.1, 0.0, top,
 		[[float(vo.z0) - (z0 - 0.2), float(vo.z1) - (z0 - 0.2), 0.0, float(vo.h)]])
 	wall(c, "vest", "vest_wall", Vector2(-17.1, z0 - 0.1), Vector2(-11.0, z0 - 0.1), 0.2, 0.0, top)
-	wall(c, "vest", "vest_wall", Vector2(-17.1, z1 + 0.1), Vector2(-11.0, z1 + 0.1), 0.2, 0.0, top)
+	# south wall: the toilettes' door near its east end (garderie_rooms.gd builds the room)
+	var wc: Dictionary = GL.WC
+	wall(c, "vest", "vest_wall", Vector2(-17.1, z1 + 0.1), Vector2(-11.0, z1 + 0.1), 0.2, 0.0, top,
+		[[float(wc.door_x0) + 17.1, float(wc.door_x1) + 17.1, 0.0, float(wc.door_h)]])
 	c.occluders.append(AABB(Vector3(x0, 0.05, z0 - 0.18), Vector3(x1 - x0, top - 0.1, 0.16)))
-	c.occluders.append(AABB(Vector3(x0, 0.05, z1 + 0.02), Vector3(x1 - x0, top - 0.1, 0.16)))
+	c.occluders.append(AABB(Vector3(x0, 0.05, z1 + 0.02), Vector3(float(wc.door_x0) - 0.06 - x0, top - 0.1, 0.16)))
 	# opening frames (painted steel)
 	for fr in [[-11.2, -11.0, float(vi.z0), float(vi.z1), float(vi.h)], [-17.2, -17.0, float(vo.z0), float(vo.z1), float(vo.h)]]:
 		k.box("steel_up", Vector3(fr[0] - 0.01, 0.0, fr[2] - 0.05), Vector3(fr[1] + 0.01, fr[4] + 0.05, fr[2]), Color(0.15, 0.42, 0.45))
@@ -403,7 +413,8 @@ static func _vestibule(c) -> void:
 	var wh := 1.0
 	var wains := [
 		[Vector3(x0, 0.0, z0), Vector3(x1, wh, z0 + 0.016), []],
-		[Vector3(x0, 0.0, z1 - 0.016), Vector3(x1, wh, z1), []],
+		[Vector3(x0, 0.0, z1 - 0.016), Vector3(float(wc.door_x0) - 0.07, wh, z1), []],
+		[Vector3(float(wc.door_x1) + 0.07, 0.0, z1 - 0.016), Vector3(x1, wh, z1), []],
 	]
 	for wn in wains:
 		k.box("wainscot", wn[0], wn[1], Color.WHITE, 0.7)

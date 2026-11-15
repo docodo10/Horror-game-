@@ -63,6 +63,13 @@ const TABLE := {
 	"breaker_flip": ["sfx", 0.0, {"max": 1, "gap": 0.3, "ref": 1.5, "pos": "powerBox"}],
 	"power_up": ["sfx", -2.0, {"max": 1, "gap": 2.0, "ref": 2.0, "pos": "light"}],
 	"light_pop": ["sfx", 0.0, {"max": 1, "gap": 0.4, "ref": 1.6, "pos": "light"}],
+	# the garderie's side rooms (generated: scripts/garderie/tools/gen_rooms_sounds.py); always played at a position
+	"music_box": ["sfx", 0.0, {"max": 1, "gap": 0.5, "ref": 1.5, "jit": false}],
+	"phone_ring": ["sfx", 0.0, {"max": 1, "gap": 0.5, "ref": 2.2, "jit": false}],
+	"phone_pickup": ["sfx", 0.0, {"max": 1, "gap": 0.2}],
+	"phone_line": ["sfx", 0.0, {"max": 1, "gap": 0.5, "ref": 0.8, "jit": false}],
+	"water_drip": ["sfx", 0.0, {"ref": 1.0, "jit": false}],
+	"stall_creak": ["sfx", 0.0, {"max": 1, "gap": 0.5, "ref": 1.4}],
 	"tv_static": ["sfx", 2.0, {"ref": 1.1, "pos": "tv", "jit": false, "single": true, "rnd": true}],
 	"tv_on": ["sfx", 0.0, {"max": 1, "gap": 0.2, "pos": "tv"}],
 	"tv_off": ["sfx", -2.0, {"max": 1, "gap": 0.2, "pos": "tv"}],

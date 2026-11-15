@@ -43,8 +43,9 @@ process/size_limit=0
 detect_3d/compress_to=0
 """
 
-LOSSLESS = {"mat_edge.png"}
-HQ = {"sign_garderie.jpg", "rules.jpg", "notice_board.jpg", "signin.jpg", "labels.jpg", "cubby_labels.png", "banner.png"}
+LOSSLESS = {"mat_edge.png", "star_cookie.png"}
+HQ = {"sign_garderie.jpg", "rules.jpg", "notice_board.jpg", "signin.jpg", "labels.jpg", "cubby_labels.png", "banner.png",
+      "docs_atlas.jpg"}
 
 d = sys.argv[1]
 res_root = d[d.index("pc/") + 3:] if "pc/" in d else d

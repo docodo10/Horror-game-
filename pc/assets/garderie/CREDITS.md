@@ -46,3 +46,19 @@ any other game.
 Re-generate everything (downloads in a scratch folder, see the scripts' headers):
 `python3 -I pc/scripts/garderie/tools/gen_textures.py pc/assets/garderie/textures --fonts <fonts dir> --ph <Poly Haven JPEG dir>`
 then `python3 -I pc/scripts/garderie/tools/write_imports.py pc/assets/garderie/textures` and `godot --headless --path pc --import`.
+
+## Generated — extra rooms (dortoir, bureau, toilettes)
+Original, procedural (numpy / PIL), written by `pc/scripts/garderie/tools/gen_rooms_textures.py` (fixed seeds):
+`tiles_wall.jpg` + `tiles_wall_n.png` + `tiles_wall_orm.jpg` (8x8 glazed 15 cm wall tiles, one repeat = 1.2 m),
+`tiles_floor.jpg` + `tiles_floor_n.png` + `tiles_floor_orm.jpg` (12x12 matte 10 cm floor tiles, one repeat = 1.2 m),
+`wallpaper_nursery.jpg` + `wallpaper_nursery_n.png` (stars / moons / clouds, one repeat = 1.06 m = two 53 cm strips),
+`carpet.jpg` + `carpet_n.png` (low-pile carpet, one repeat = 0.6 m), `star_cookie.png` (night-light projector cookie),
+`docs_atlas.jpg` (2x2 office papers: presence sheet, nap schedule, notice to parents, phone list — fictional names and
+555-01xx numbers), `drawings2.jpg` (2x2 children's crayon drawings). Normal maps are OpenGL (+Y), ORM = R AO, G roughness,
+B metal. Nothing is copied from any other work.
+
+Fonts baked into `docs_atlas.jpg` (from `pc/assets/fonts`): Special Elite (Apache License 2.0, Astigmatic) for the typed
+text, Caveat (SIL OFL 1.1) for the handwriting.
+
+Re-generate: `python3 -I pc/scripts/garderie/tools/gen_rooms_textures.py`, then `write_imports.py` and
+`godot --headless --path pc --import` as above.

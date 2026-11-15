@@ -61,6 +61,7 @@ func _run() -> void:
 	_test_slides()
 	_test_hide()
 	_test_interact(fake)
+	_test_rooms(fake)
 	await _test_deferred_registration(fake)
 	_test_ground_api()
 	_test_lighting()
@@ -368,7 +369,8 @@ func _test_dressing() -> void:
 	check(int(counts.get("decals", 0)) >= 25 and int(counts.get("decals", 0)) <= 45, "25-40ish decals (%d)" % counts.get("decals", 0))
 	check(int(counts.get("motes", 0)) >= 3, "dust motes under 3-4 fixtures (%d)" % counts.get("motes", 0))
 	var decals: Array = _g.find_children("*", "Decal", true, false)
-	check(decals.all(func(d): return (d as Decal).texture_albedo != null and (d as Decal).distance_fade_enabled), "decals textured, distance-faded")
+	# (the dortoir's night-light stars are an emission-only decal)
+	check(decals.all(func(d): return ((d as Decal).texture_albedo != null or (d as Decal).texture_emission != null) and (d as Decal).distance_fade_enabled), "decals textured, distance-faded")
 	var mmis: Array = _g.find_children("Debris_*", "MultiMeshInstance3D", true, false)
 	check(mmis.all(func(m): return (m as GeometryInstance3D).cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF and (m as GeometryInstance3D).visibility_range_end > 0.0), "debris MultiMeshes: no shadows, visibility range")
 	var wraps: Array = _g.find_children("*_wraps_*", "MeshInstance3D", true, false)
@@ -387,6 +389,37 @@ func _test_dressing() -> void:
 # ---------------------------------------------------------------- physics
 
 var _fake: CharacterBody3D = null
+
+## The side rooms (dortoir, bureau, toilettes): reachable through their doors, floors known to the ground API, one
+## shadowed light each on its own render layer, the things to use registered, stars that survive a power cut.
+func _test_rooms(fake: FakeInteraction) -> void:
+	var rooms := [[GL.DORT, "RoomDort", 4096, "carpet"], [GL.BUR, "RoomBur", 8192, "wood"], [GL.WC, "RoomWc", 16384, "concrete"]]
+	for r in rooms:
+		var R: Dictionary = r[0]
+		var c := Vector3((float(R.x0) + float(R.x1)) * 0.5, 0.0, (float(R.z0) + float(R.z1)) * 0.5)
+		check(_g.in_area(c) and absf(_g.ground_height_at(c.x, c.z)) < 0.001 and _g.surface_at(c) == String(r[3]),
+			"%s: floor at 0, in the area, surface %s" % [r[1], r[3]])
+		check(absf(_ground(c.x, c.z, 1.0)) < 0.02, "%s: a collider under the floor" % r[1])
+		var node := _g.get_node_or_null(String(r[1])) as Node3D
+		var meshes: Array = node.find_children("*", "MeshInstance3D", true, false) if node != null else []
+		check(not meshes.is_empty() and meshes.all(func(m): return (m as MeshInstance3D).layers == int(r[2])), "%s: meshes on layer %d" % [r[1], r[2]])
+		var lit: Array = _g.ctx.lights.filter(func(l): return l.kind == "bulb" and ((l.light as Light3D).light_cull_mask & int(r[2])) != 0 and (l.light as Node).get_parent() == node)
+		check(lit.size() == 1 and (lit[0].light as Light3D).shadow_enabled, "%s: one shadowed light of its own" % r[1])
+		# the doorway is open: a ray along the middle of the opening, through the shared wall, hits nothing
+		var dx := (float(R.door_x0) + float(R.door_x1)) * 0.5
+		var z_in := (float(R.z1) - 0.5) if R == GL.DORT else (float(R.z0) + 0.5)
+		var z_out := (float(R.z1) + 0.6) if R == GL.DORT else (float(R.z0) - 0.6)
+		check(_ray(Vector3(dx, 1.0, z_out), Vector3(dx, 1.0, z_in)).is_empty(), "%s: doorway open" % r[1])
+		var wx := dx + (1.2 if dx < c.x else -1.2)      # toward the middle of the room
+		check(not _ray(Vector3(wx, 1.0, z_out), Vector3(wx, 1.0, z_in)).is_empty(), "%s: wall beside the door" % r[1])
+	var ids := ["garderie.dortoir.musicbox", "garderie.dortoir.note", "garderie.bureau.journal", "garderie.bureau.phone", "garderie.toilettes.note"]
+	check(_g.rooms_fx != null and ids.all(func(id): return fake.entries.has(id)), "side rooms: 5 things to use registered")
+	_g.set_power(false)
+	var dark: bool = _g.ctx.lights.filter(func(l): return String((l.light as Node).name).begins_with("room_")).all(func(l): return not (l.light as Light3D).visible)
+	var stars := _g.find_child("NightLightStars", true, false) as Decal
+	var wash := _g.find_child("NightLightWash", true, false) as Light3D
+	check(dark and wash != null and wash.visible and (stars == null or stars.visible), "power cut: the rooms go dark, the night-light stays")
+	_g.set_power(true)
 
 func _make_fake() -> CharacterBody3D:
 	var f := CharacterBody3D.new()

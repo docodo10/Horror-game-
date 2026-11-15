@@ -34,7 +34,7 @@ func region(name: String) -> Node3D:
 	return regions[name]
 
 ## Kits whose closed boxes get a 6 mm chamfer (furniture, cubbies, counter, doors, props).
-const CHAMFERED := ["props_v", "props_h", "door"]
+const CHAMFERED := ["props_v", "props_h", "door", "room_dort_props", "room_bur_props", "room_wc_props", "room_wc_stall", "room_doors"]
 
 func kit(name: String):
 	if not kits.has(name):
@@ -56,6 +56,12 @@ func col_see(name: String):
 	if not cols.has(key):
 		cols[key] = Kit.Col.new(region(name), "CollidersSeeThrough", LAYER_WORLD)
 	return cols[key]
+
+## Side rooms: one render layer each (their lights are masked to their own room + the corridor / vestibule layer and
+## keep their shadows on every preset, so they spill through the doorway and nowhere else). The door casings and
+## leaves stand in the corridor / vestibule walls and take that layer.
+const ROOM_LAYERS := {"room_dort": 4096, "room_bur": 8192, "room_wc": 16384, "room_doors": 1024}
+var room_fx := {}                # things the rooms' runtime script animates (garderie_rooms_fx.gd)
 
 const FRONT_REGIONS := ["corr", "vest", "door", "props_v", "vest_wraps", "louvers", "dress_v"]
 
@@ -85,6 +91,9 @@ func commit_all(opts := {}) -> int:
 		commit_ms[name] = snappedf((Time.get_ticks_usec() - tc) / 1000.0, 0.1)
 	for name in regions:
 		var layer := 1024 if name in FRONT_REGIONS or String(name).begins_with("vest_") else 2048
+		for rk in ROOM_LAYERS:
+			if String(name).begins_with(rk):
+				layer = ROOM_LAYERS[rk]
 		for gi in (regions[name] as Node).find_children("*", "GeometryInstance3D", true, false):
 			(gi as GeometryInstance3D).layers = layer
 	return tris

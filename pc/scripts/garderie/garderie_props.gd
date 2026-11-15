@@ -128,7 +128,7 @@ static func _counter(c) -> void:
 		k.tube("plastic", PackedVector3Array([Vector3(-15.2 + cos(ang) * 0.015, 1.1, 4.6 + sin(ang) * 0.015), Vector3(-15.2 + cos(ang) * 0.03, 1.2, 4.6 + sin(ang) * 0.03)]),
 			0.004, 6, [Color(0.9, 0.2, 0.2), Color(0.2, 0.5, 0.9), Color(0.95, 0.8, 0.1), Color(0.2, 0.7, 0.3), Color(0.6, 0.3, 0.7)][i])
 	# lost-and-found box with mittens spilling
-	var lb := Vector3(-12.2, 0.0, 4.55)
+	var lb := Vector3(-16.25, 0.0, 4.55)      # west of the counter (the toilettes' door opens east of it)
 	k.box("wood", lb + Vector3(-0.22, 0, -0.18), lb + Vector3(0.22, 0.32, 0.18), Color(0.64, 0.5, 0.34))
 	Shell.sign_quad(k, "tex_labels.jpg", lb + Vector3(0, 0.18, -0.183), Vector3.FORWARD, 0.3, 0.22, Rect2(0, 0, 1.0 / 3.0, 0.5))
 	cl.box(lb + Vector3(-0.22, 0, -0.18), lb + Vector3(0.22, 0.32, 0.18))

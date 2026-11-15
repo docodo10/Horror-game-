@@ -52,6 +52,8 @@ const Props := preload("res://scripts/garderie/garderie_props.gd")
 const Ride := preload("res://scripts/garderie/garderie_ride.gd")
 const Physics := preload("res://scripts/garderie/garderie_physics.gd")
 const Dressing := preload("res://scripts/garderie/garderie_dressing.gd")
+const Rooms := preload("res://scripts/garderie/garderie_rooms.gd")
+const RoomsFx := preload("res://scripts/garderie/garderie_rooms_fx.gd")
 
 const LAYER_WORLD := 1
 const LAYER_INTERACT := 2
@@ -75,6 +77,12 @@ const SFX := {
 	"hum": ["lullaby_hum"],
 	"whisper": ["whisper"],
 	"hall_tone": ["hall_tone", "room_tone"],
+	"music_box": ["music_box", "lullaby_hum"],
+	"phone_ring": ["phone_ring", "clock_chime"],
+	"phone_pickup": ["phone_pickup", "flashlight_click"],
+	"phone_line": ["phone_line", "entity_breath"],
+	"water_drip": ["water_drip"],
+	"stall_creak": ["stall_creak", "door_creak_open"],
 }
 
 var nav_nodes := {}
@@ -108,6 +116,7 @@ var _balls_mat: ShaderMaterial = null
 var _ride: Node = null
 var physics: Node3D = null           # garderie_physics.gd (ball bubble, foam blocks, impact sounds)
 var dressing = null                  # garderie_dressing.gd (debris, decals, motes, lifted mats)
+var rooms_fx: Node3D = null          # garderie_rooms_fx.gd (side rooms: music box, phone, stall door, notes)
 var _buzz_handles: Array = []
 var _dead_tube := -1
 var _rng := RandomNumberGenerator.new()
@@ -136,6 +145,7 @@ func build(world = null) -> void:
 	ms["play"] = (Time.get_ticks_usec() - tt) / 1000.0
 	tt = Time.get_ticks_usec()
 	Props.build(ctx)
+	Rooms.build(ctx)
 	dressing = Dressing.new()
 	dressing.build(ctx)
 	ms["props"] = (Time.get_ticks_usec() - tt) / 1000.0
@@ -170,6 +180,10 @@ func build(world = null) -> void:
 	_setup_slides()
 	_setup_pit()
 	_setup_flicker()
+	rooms_fx = RoomsFx.new()
+	add_child(rooms_fx)
+	rooms_fx.setup(self, ctx)
+	_entries.append_array(rooms_fx.entries)
 	_register_or_wait()
 	set_power(_world_power())
 	if Events.power_changed.is_connected(set_power) == false:
@@ -615,6 +629,11 @@ func _update_zone(force := false, stagger := true) -> void:
 	var cam := get_viewport().get_camera_3d() if is_inside_tree() and get_viewport() else null
 	var p := cam.global_position if cam else Vector3(0, 1.6, 0)
 	var hall := p.x < (HALL_HIDE_X if _hall_shown else HALL_SHOW_X)
+	# The dortoir and the bureau straddle that threshold and see nothing of the hall: while the camera is inside one
+	# of them the hall keeps the state it had at the door (walking around a desk must not show and hide a million
+	# triangles and re-render the hall's shadow maps each time).
+	if not force and (_in_side_room(GL.DORT, p) or _in_side_room(GL.BUR, p)):
+		hall = _hall_shown
 	var changed := force or hall != _hall_shown
 	if force or hall != _hall_shown:
 		_hall_shown = hall
@@ -650,6 +669,9 @@ func _update_zone(force := false, stagger := true) -> void:
 				if not _lights_on_queue.has(lt): _lights_on_queue.append(lt)
 			else:
 				lt.visible = true
+
+static func _in_side_room(R: Dictionary, p: Vector3) -> bool:
+	return p.x > float(R.x0) - 0.2 and p.x < float(R.x1) + 0.2 and p.z > float(R.z0) - 0.25 and p.z < float(R.z1) + 0.25
 
 func _process(dt: float) -> void:
 	if not built:
@@ -844,6 +866,8 @@ func reset_after_caught() -> void:
 		_set_pit(false)
 	if physics != null:
 		physics.release_all()
+	if rooms_fx != null:
+		rooms_fx.call("reset")
 	_zone_t = 0.0        # the player is back in the house: apply its rooms on the next frame
 	_zone_snap = true
 
