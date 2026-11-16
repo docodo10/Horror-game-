@@ -52,6 +52,7 @@ void fragment() {
 var world: Node = null
 var probes: Array[ReflectionProbe] = []
 var mirror_active := false
+const Presets := preload("res://scripts/render/look_presets.gd")
 var quality := "high"
 
 var _power := true
@@ -141,6 +142,7 @@ func set_quality(q: String) -> void:
 	_live_ok = (q == "high" or q == "ultra") and _glass != null and _mirror_root != null
 	if _live_ok:
 		_ensure_live()
+		_refresh_env(true)               # its SSR switch follows the preset
 		var h := 1024 if q == "ultra" else 512
 		var w := int(round(h * (GLASS.maxX - GLASS.minX) / (GLASS.maxY - GLASS.minY)))
 		_vp.size = Vector2i(w, h)
@@ -186,8 +188,8 @@ func _ensure_live() -> void:
 		_live_mat.set_shader_parameter("haze_map", bm.roughness_texture)
 	_refresh_env(true)
 
-## Environment of the mirror camera: the level's own, minus the costly / per-view passes (SDFGI, SSIL, SSR, volumetric
-## fog, glow) and with a linear tonemap at exposure 1 (the glass is unshaded: the main pass tonemaps it once).
+## Environment of the mirror camera: the level's own, minus the costly / per-view passes (SDFGI, SSIL, volumetric
+## fog, glow; SSR reduced to a token pass) and with a linear tonemap at exposure 1 (the glass is unshaded: the main pass tonemaps it once).
 func _refresh_env(force := false) -> void:
 	if _cam == null: return
 	var src := get_world_3d().environment if get_world_3d() != null else null
@@ -197,7 +199,13 @@ func _refresh_env(force := false) -> void:
 	var e: Environment = src.duplicate() if src != null else Environment.new()
 	e.sdfgi_enabled = false
 	e.ssil_enabled = false
-	e.ssr_enabled = false
+	# SSR is not wanted in the glass, but it must stay on when the preset has it for the main view: with SSR the scene
+	# pass writes specular to its own attachment, which is another pipeline for every material. Off here, the mirror
+	# drew each object through pipelines nothing else used, compiled the first time the object showed in the glass
+	# (measured on high: 3 blocking compiles in the first second of play, a 4th in front of the television; none with
+	# this). Four steps: the pass has next to nothing to do.
+	e.ssr_enabled = bool(Presets.P.get(quality, {}).get("ssr", false))
+	e.ssr_max_steps = 4
 	e.volumetric_fog_enabled = false
 	e.glow_enabled = false
 	e.adjustment_enabled = false
