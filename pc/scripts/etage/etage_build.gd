@@ -23,6 +23,7 @@ static func build(c) -> void:
 	_chambre(c)
 	_closet(c)
 	_figures(c)
+	_finish(c)
 
 # ====================================================================== helpers
 
@@ -87,7 +88,7 @@ static func _portrait(k, ctr: Vector3, nrm: Vector3, w: float, h: float, cell: i
 
 ## Window in a wall running along x (the wall face toward the room is at z = z_in, the outside lies toward `out` =
 ## -1 (north) or +1 (south)): frame, mullions, sill, the night behind the panes, and the moon shining through it.
-static func _window(c, k, x0: float, x1: float, zc: float, out: float, target: Vector3, energy: float) -> void:
+static func _window(c, k, x0: float, x1: float, zc: float, out: float, target: Vector3, energy: float, shaft := 1.25) -> void:
 	var y0: float = L.WIN_Y0
 	var y1: float = L.WIN_Y1
 	var t: float = L.WALL
@@ -106,8 +107,10 @@ static func _window(c, k, x0: float, x1: float, zc: float, out: float, target: V
 	k.box("paintwood", Vector3(x0 - 0.06, y0 - 0.04, minf(zs, zc)), Vector3(x1 + 0.06, y0, maxf(zs, zc)), IVORY)
 	# the night outside (never in a shadow pass: the moon shines through it)
 	var sk = c.kit("et_sky")
-	var zo := zc + out * 0.6
-	Shell.sign_quad(sk, "night_sky", Vector3(xm, (y0 + y1) * 0.5, zo), Vector3(0, 0, -out), (x1 - x0) + 1.3, (y1 - y0) + 1.0)
+	# (close behind the panes and wider than the opening: a glance along the wall must not slip past its edge into
+	# the lit haze outside)
+	var zo := zc + out * (t * 0.5 + 0.07)
+	Shell.sign_quad(sk, "night_sky", Vector3(xm, (y0 + y1) * 0.5, zo), Vector3(0, 0, -out), (x1 - x0) + 1.0, (y1 - y0) + 0.8)
 	var moon := SpotLight3D.new()
 	moon.name = "Moon"
 	moon.position = Vector3(xm + 1.5, 5.2, zc + out * 3.6)
@@ -123,10 +126,143 @@ static func _window(c, k, x0: float, x1: float, zc: float, out: float, target: V
 	moon.shadow_normal_bias = 1.5
 	moon.shadow_blur = 1.2
 	moon.light_cull_mask = MASK
-	moon.light_volumetric_fog_energy = 0.5
+	moon.light_volumetric_fog_energy = shaft
 	moon.basis = Basis.looking_at(target - moon.position, Vector3.UP)
 	c.region("et_lights").add_child(moon)
 	c.room_fx["moon"].append(moon)
+	# what the moonlit boards send back into the room (these presets render no indirect light)
+	var bounce := OmniLight3D.new()
+	bounce.name = "MoonBounce"
+	bounce.position = target + Vector3(0, 0.35, 0)
+	bounce.light_color = MOON.lerp(Color(0.5, 0.42, 0.34), 0.35)
+	bounce.light_energy = energy * 0.028
+	bounce.omni_range = 4.2
+	bounce.omni_attenuation = 1.1
+	bounce.light_specular = 0.0
+	bounce.shadow_enabled = false
+	bounce.light_cull_mask = MASK
+	c.region("et_lights").add_child(bounce)
+	_motes(c, (moon.position + target) * 0.5 + (target - moon.position).normalized() * 2.2, Vector3(0.7, 1.0, 0.9))
+
+## Dust hanging in a beam of light.
+static func _motes(c, at: Vector3, extents: Vector3) -> void:
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.006, 0.006)
+	var m := StandardMaterial3D.new()
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.albedo_color = Color(0.86, 0.9, 1.0, 0.75)
+	m.roughness = 1.0
+	m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+	quad.material = m
+	var pm := ParticleProcessMaterial.new()
+	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	pm.emission_box_extents = extents
+	pm.direction = Vector3(0, 1, 0)
+	pm.spread = 180.0
+	pm.initial_velocity_min = 0.0
+	pm.initial_velocity_max = 0.02
+	pm.gravity = Vector3(0, -0.002, 0)
+	pm.scale_min = 0.6
+	pm.scale_max = 1.7
+	pm.turbulence_enabled = true
+	pm.turbulence_noise_strength = 0.5
+	pm.turbulence_noise_scale = 3.0
+	pm.turbulence_noise_speed = Vector3(0.02, 0.01, 0.02)
+	pm.turbulence_influence_min = 0.02
+	pm.turbulence_influence_max = 0.06
+	var e := GPUParticles3D.new()
+	e.name = "DustMotes"
+	e.amount = 110
+	e.lifetime = 14.0
+	e.preprocess = 10.0
+	e.randomness = 0.6
+	e.process_material = pm
+	e.draw_pass_1 = quad
+	e.position = at
+	e.visibility_aabb = AABB(-extents - Vector3(0.6, 0.6, 0.6), extents * 2.0 + Vector3(1.2, 1.2, 1.2))
+	e.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	e.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+	c.region("et_lights").add_child(e)
+
+## Cobweb in a ceiling corner: a quad hanging from `corner` along the horizontal direction `along`.
+static func _cobweb(c, corner: Vector3, along: Vector3, size: float) -> void:
+	var k = c.kit("et_webs")
+	var a := Vector3(along.x, 0.0, along.z).normalized()
+	var tl := corner
+	var tr := corner + a * size
+	var br := tr + Vector3.DOWN * size
+	var bl := corner + Vector3.DOWN * size
+	k.quad("cobweb", bl, br, tr, tl, a.cross(Vector3.UP), Vector2(0, 1), Vector2(1, 1), Vector2(1, 0), Vector2(0, 0))
+
+## The last layer: reflections, haze, stains, cobwebs, mouldings.
+static func _finish(c) -> void:
+	var H: Dictionary = L.HALL
+	var S: Dictionary = L.SALON
+	var R: Dictionary = L.CHAMBRE
+	var m: int = L.L_ET
+	# reflection probes (floorboards, brass, glass, the bedroom mirror)
+	c.room_fx["probes"] = [
+		Shell.probe(c, "et_lights", "ProbeHall", Vector3(float(H.x0), 0.0, float(H.z0)), Vector3(float(H.x1), float(H.ceil), float(H.z1)), Vector3(60.4, 1.4, 0.0), 0.85),
+		Shell.probe(c, "et_lights", "ProbeSalon", Vector3(float(S.x0), 0.0, float(S.z0)), Vector3(float(S.x1), float(S.ceil), float(S.z1)), Vector3(61.0, 1.45, -4.2), 0.85),
+		Shell.probe(c, "et_lights", "ProbeChambre", Vector3(float(R.x0), 0.0, float(R.z0)), Vector3(float(R.x1), float(R.ceil), float(R.z1)), Vector3(54.4, 1.4, -2.6), 0.85),
+	]
+	# old-house haze in the salon, where the moon comes in
+	for fv in [[Vector3(61.0, 1.4, -4.4), Vector3(9.0, 2.8, 6.8), 0.018]]:
+		var fog := FogVolume.new()
+		fog.name = "Haze"
+		fog.shape = RenderingServer.FOG_VOLUME_SHAPE_BOX
+		fog.size = fv[1]
+		fog.position = fv[0]
+		var fm := FogMaterial.new()
+		fm.density = float(fv[2])
+		fm.albedo = Color(0.74, 0.78, 0.86)
+		fm.edge_fade = 0.5
+		fog.material = fm
+		c.region("et_lights").add_child(fog)
+	# stains: water coming down the walls and spreading on the ceilings, grime where the floor meets the wall
+	var hz0: float = H.z0
+	var hz1: float = H.z1
+	var brown := Color(0.2, 0.15, 0.09, 0.75)
+	for d in [[Vector3(55.9, 1.9, hz0 + 0.01), Vector3.BACK, 1.3, 1.4], [Vector3(62.3, 2.0, hz0 + 0.01), Vector3.BACK, 1.1, 1.2], [Vector3(58.6, 1.95, hz1 - 0.01), Vector3.FORWARD, 1.2, 1.3],
+			[Vector3(66.2, 1.9, hz1 - 0.01), Vector3.FORWARD, 1.2, 1.4], [Vector3(60.2, 2.0, float(S.z0) + 0.01), Vector3.BACK, 1.6, 1.6], [Vector3(float(S.x0) + 0.01, 1.9, -3.0), Vector3.RIGHT, 1.5, 1.7],
+			[Vector3(64.2, 2.0, float(S.z1) - 0.01), Vector3.FORWARD, 1.4, 1.6], [Vector3(float(R.x0) + 0.01, 1.8, -4.6), Vector3.RIGHT, 1.3, 1.5], [Vector3(55.4, 1.9, float(R.z0) + 0.01), Vector3.BACK, 1.2, 1.4]]:
+		Shell.decal(c, "et_decals", "decal_water.png", d[0], d[1], Vector2(float(d[2]), float(d[3])), m, brown)
+	for d in [[Vector3(57.2, float(H.ceil), 0.1), 1.7], [Vector3(64.6, float(H.ceil), -0.2), 1.4], [Vector3(59.4, float(S.ceil), -3.2), 2.2], [Vector3(63.2, float(S.ceil), -6.2), 1.9], [Vector3(53.6, float(R.ceil), -2.4), 1.6]]:
+		Shell.decal(c, "et_decals", "decal_spill.png", d[0], Vector3.DOWN, Vector2(float(d[1]), float(d[1])), m, Color(0.3, 0.22, 0.12, 0.6), float(d[1]) * 2.0)
+	var dirt := Color(0.07, 0.06, 0.05, 0.75)
+	for d in [[Vector3(54.4, 0.0, hz0 + 0.3), 2.2, 0.0], [Vector3(59.0, 0.0, hz1 - 0.3), 2.4, 0.0], [Vector3(65.6, 0.0, hz0 + 0.3), 2.2, 0.0], [Vector3(67.5, 0.0, 0.0), 1.5, 1.57],
+			[Vector3(57.3, 0.0, -1.5), 1.6, 0.0], [Vector3(64.9, 0.0, -1.5), 1.4, 0.0], [Vector3(57.0, 0.0, -7.3), 1.5, 0.6], [Vector3(53.0, 0.0, -1.5), 1.4, 0.0]]:
+		Shell.decal(c, "et_decals", "decal_grime.png", d[0], Vector3.UP, Vector2(float(d[1]), 0.7), m, dirt, float(d[2]))
+	for d in [[Vector3(60.7, 0.0, -1.0), 1.2, 0.0], [Vector3(55.04, 0.0, -0.9), 1.0, 0.0], [Vector3(66.9, 0.0, 0.0), 1.2, 1.57], [Vector3(62.8, 0.0, -3.0), 1.4, 0.8]]:
+		Shell.decal(c, "et_decals", "decal_scuffs.png", d[0], Vector3.UP, Vector2(float(d[1]), float(d[1]) * 1.2), m, Color(0.06, 0.05, 0.04, 0.6), float(d[2]))
+	# footprints in the dust of the salon: from one of the sheets to the doorway, and back
+	Shell.decal(c, "et_decals", "decal_footprints.png", Vector3(62.3, 0.0, -2.7), Vector3.UP, Vector2(0.55, 1.0), m, Color(0.5, 0.48, 0.44, 0.34), -1.25)
+	Shell.decal(c, "et_decals", "decal_footprints.png", Vector3(61.2, 0.0, -1.9), Vector3.UP, Vector2(0.55, 1.0), m, Color(0.5, 0.48, 0.44, 0.28), -0.6)
+	# cobwebs in the ceiling corners, on the clock, on the chandelier
+	var hc: float = H.ceil
+	var sc: float = S.ceil
+	for w in [[Vector3(float(H.x0) + 0.01, hc - 0.01, hz0 + 0.02), Vector3(1, 0, 0.35), 0.7], [Vector3(float(H.x1) - 0.01, hc - 0.01, hz1 - 0.02), Vector3(-1, 0, -0.3), 0.8],
+			[Vector3(float(H.x1) - 0.01, hc - 0.01, hz0 + 0.02), Vector3(-1, 0, 0.4), 0.6], [Vector3(57.9, hc - 0.01, hz1 - 0.02), Vector3(-1, 0, -0.15), 0.55],
+			[Vector3(63.48, hc - 0.01, hz0 + 0.02), Vector3(1, 0, 0.2), 0.6], [Vector3(60.0, 2.15, hz0 - 0.02), Vector3(1, 0, 0), 0.5],
+			[Vector3(float(S.x0) + 0.02, sc - 0.01, float(S.z0) + 0.02), Vector3(1, 0, 1), 1.0], [Vector3(float(S.x1) - 0.02, sc - 0.01, float(S.z0) + 0.02), Vector3(-1, 0, 1), 0.9],
+			[Vector3(float(S.x0) + 0.02, sc - 0.01, float(S.z1) - 0.02), Vector3(1, 0, -1), 0.8], [Vector3(float(S.x1) - 0.38, sc - 0.01, -3.57), Vector3(-1, 0, 0.5), 0.7],
+			[Vector3(60.72, sc - 0.02, -4.4), Vector3(1, 0, 0.1), 0.6], [Vector3(61.28, sc - 0.02, -4.4), Vector3(-1, 0, -0.2), 0.55],
+			[Vector3(float(R.x0) + 0.02, float(R.ceil) - 0.01, float(R.z0) + 0.02), Vector3(1, 0, 1), 0.8], [Vector3(float(R.x1) - 0.02, float(R.ceil) - 0.01, float(R.z1) - 0.02), Vector3(-1, 0, -1), 0.6]]:
+		_cobweb(c, w[0], w[1], float(w[2]))
+	# crown mouldings and a picture rail in the hallway and the salon
+	var tk = c.kit("et_trim")
+	var cream := Color(0.5, 0.47, 0.4)
+	for z in [[hz0, 1.0], [hz1, -1.0]]:
+		var zf: float = z[0]
+		var sd: float = z[1]
+		tk.box("paintwood", Vector3(float(H.x0), hc - 0.07, minf(zf, zf + sd * 0.05)), Vector3(float(H.x1), hc, maxf(zf, zf + sd * 0.05)), cream)
+		tk.box("paintwood", Vector3(float(H.x0), hc - 0.11, minf(zf, zf + sd * 0.025)), Vector3(float(H.x1), hc - 0.07, maxf(zf, zf + sd * 0.025)), cream)
+	for e in [[Vector3(float(S.x0), sc - 0.09, float(S.z0)), Vector3(float(S.x1), sc, float(S.z0) + 0.06)], [Vector3(float(S.x0), sc - 0.09, float(S.z1) - 0.06), Vector3(float(S.x1), sc, float(S.z1))],
+			[Vector3(float(S.x0), sc - 0.09, float(S.z0)), Vector3(float(S.x0) + 0.06, sc, float(S.z1))], [Vector3(float(S.x1) - 0.06, sc - 0.09, float(S.z0)), Vector3(float(S.x1), sc, float(S.z1))]]:
+		tk.box("paintwood", e[0], e[1], cream)
+	tk.box("panel", Vector3(float(S.x0), 2.05, float(S.z0)), Vector3(float(S.x1), 2.09, float(S.z0) + 0.02), DARK_WOOD)
+	tk.box("panel", Vector3(float(S.x0), 2.05, float(S.z0)), Vector3(float(S.x0) + 0.02, 2.09, float(S.z1)), DARK_WOOD)
 
 ## A sconce on a wall (nrm = away from the wall): backplate, arm, a frosted shade lit from inside; shadowed omni.
 static func _sconce(c, k, at: Vector3, nrm: Vector3, i: int) -> void:
@@ -302,7 +438,8 @@ static func _hall(c) -> void:
 	pk.tube("fabric", PackedVector3Array([Vector3(x1 - 0.3, 0.1, 0.62), Vector3(x1 - 0.26, 0.98, 0.66)]), 0.02, 6, Color(0.05, 0.05, 0.05))
 	cl.box(Vector3(x1 - 0.42, 0.0, 0.5), Vector3(x1 - 0.18, 0.6, 0.74))
 	# window in the south wall: the moon lays its panes across the runner
-	_window(c, tk, float(L.WIN_HALL[0]), float(L.WIN_HALL[1]), z1 + 0.1, 1.0, Vector3(63.6, 0.0, -0.3), 7.0)
+	# (a weak shaft here: down the hallway the eye looks along the beam, and a strong one whites the panes out)
+	_window(c, tk, float(L.WIN_HALL[0]), float(L.WIN_HALL[1]), z1 + 0.1, 1.0, Vector3(63.6, 0.0, -0.3), 7.0, 0.3)
 	# the tall clock against the north wall
 	var ck: Vector3 = L.CLOCK
 	pk.box("panel", ck + Vector3(-0.26, 0.0, -0.16), ck + Vector3(0.26, 0.42, 0.14), DARK_WOOD)

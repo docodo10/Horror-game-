@@ -281,7 +281,7 @@ func _make(id: String) -> Material:
 				"tint_low": Color(0.7, 0.7, 0.72), "tint_high": Color(0.7, 0.7, 0.72)})
 		"floorboards":
 			return _paint("ph_distressed_painted_planks_diff_1k.jpg", "ph_distressed_painted_planks_nor_gl_1k.jpg", "ph_distressed_painted_planks_arm_1k.jpg", {
-				"uv_scale": 0.8, "paint": 1.0, "lum_ref": 0.5, "lum_contrast": 0.9, "floor_y": -10.0, "grime": 0.0, "blotch": 0.3, "rough_mul": 0.7,
+				"uv_scale": 0.8, "paint": 1.0, "lum_ref": 0.5, "lum_contrast": 0.9, "floor_y": -10.0, "grime": 0.0, "blotch": 0.3, "rough_mul": 0.48,
 				"tint_low": Color(0.3, 0.2, 0.12), "tint_high": Color(0.3, 0.2, 0.12)})
 		"panel":
 			# dark stained wood of the office furniture and wainscot
@@ -290,18 +290,23 @@ func _make(id: String) -> Material:
 				"tint_low": Color(0.26, 0.15, 0.08), "tint_high": Color(0.26, 0.15, 0.08)})
 		"mirror":
 			# a mirror gone dull: tarnished silvering behind dirty glass (no reflection is rendered in these rooms)
+			# (silvered glass: what it shows comes from its room's reflection probe, and from screen-space reflections
+			# on the presets that have them; a little tarnish keeps it from being a perfect chrome plate)
 			var mr := StandardMaterial3D.new()
-			mr.albedo_color = Color(0.2, 0.23, 0.22)
-			mr.metallic = 0.35
-			mr.roughness = 0.16
+			mr.albedo_color = Color(0.62, 0.66, 0.64)
+			mr.metallic = 1.0
+			mr.roughness = 0.13
 			mr.metallic_specular = 0.9
 			return mr
 		"wet":
 			# standing water on the tiles: dark, glossy
 			var wt := StandardMaterial3D.new()
-			wt.albedo_color = Color(0.1, 0.12, 0.11)
-			wt.roughness = 0.04
+			wt.albedo_color = Color(0.05, 0.06, 0.055)
+			wt.roughness = 0.03
 			wt.metallic_specular = 1.0
+			wt.clearcoat_enabled = true
+			wt.clearcoat = 1.0
+			wt.clearcoat_roughness = 0.02
 			return wt
 		"night_glow":
 			return _emit(Color(1.0, 0.74, 0.4), 2.2)
@@ -337,7 +342,17 @@ func _make(id: String) -> Material:
 			ns.roughness = 1.0
 			return ns
 		"brass":
-			return _paint("", "", "", {"rough_mul": 0.45, "grime": 0.2, "blotch": 0.3, "tint_low": Color(0.5, 0.38, 0.14), "tint_high": Color(0.5, 0.38, 0.14)})
+			return _paint("", "", "", {"rough_mul": 0.3, "metal_mul": 0.9, "grime": 0.2, "blotch": 0.3, "tint_low": Color(0.62, 0.46, 0.18), "tint_high": Color(0.62, 0.46, 0.18)})
+		"cobweb":
+			var cw := StandardMaterial3D.new()
+			cw.albedo_texture = tex("cobweb.png")
+			cw.albedo_color = Color(0.8, 0.8, 0.78, 0.55)
+			cw.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			cw.cull_mode = BaseMaterial3D.CULL_DISABLED
+			cw.roughness = 1.0
+			cw.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+			cw.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+			return cw
 		"star_glow":
 			return _emit(Color(0.62, 0.74, 1.0), 2.6)
 	var g := StandardMaterial3D.new()

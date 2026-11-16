@@ -244,6 +244,9 @@ func _aftermath() -> void:
 					(e.emit as StandardMaterial3D).emission_energy_multiplier = 0.0
 				(e.light as Light3D).visible = false
 		_g.call("_play", "fluo_pop", (l as Light3D).global_position, -3.0, 1.1)
+		var rp = fx.get("dort_probe")
+		if rp is ReflectionProbe:
+			(rp as ReflectionProbe).update_mode = ReflectionProbe.UPDATE_ONCE     # the room's reflections follow: dark now
 	await _wait(1.6)
 	_g.call("_play", "giggle", Vector3(float(GL.DORT.x0) + 1.6, 0.4, float(GL.DORT.z0) + 0.7), -6.0, 0.92)
 	_music_state = 3

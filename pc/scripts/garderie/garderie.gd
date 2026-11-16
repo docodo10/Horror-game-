@@ -188,6 +188,10 @@ func build(world = null) -> void:
 	set_power(_world_power())
 	if Events.power_changed.is_connected(set_power) == false:
 		Events.power_changed.connect(set_power)
+	# The side rooms' probes are first captured during loading, sometimes before their room is lit (measured: the
+	# toilettes' capture came out black): taken again each time play starts, a face per frame.
+	Events.game_state.connect(func(s: String, _p: String) -> void:
+		if s == "playing" and built and is_inside_tree(): get_tree().create_timer(0.4, false).timeout.connect(_recapture_rooms))
 	built = true
 	build_ms = (Time.get_ticks_usec() - t0) / 1000.0
 	stats = {
@@ -519,6 +523,20 @@ func set_power(on: bool) -> void:
 		_ambience(false)
 	if dressing != null:
 		dressing.set_motes(on and _zone == "hall")
+	# Reflections: the probes hold a capture of the lit rooms. The big ones are faded when the fixtures die (a new
+	# capture of the hall would render a million triangles six times); the three small side rooms are captured
+	# again, a face per frame, once the lights have changed.
+	var redo := false
+	for rp in ctx.probes:
+		var pr := rp as ReflectionProbe
+		if pr == null:
+			continue
+		if String(pr.name).begins_with("ProbeRoom"):
+			redo = true
+		else:
+			pr.intensity = 0.9 if on else 0.15
+	if redo and built and is_inside_tree():
+		get_tree().create_timer(0.6, false).timeout.connect(_recapture_rooms)
 	# SORTIE signs: a faint glow while the fixtures are on; when the power dies their battery emergency heads come on
 	# and, with our neon (its own circuit), they become the only key lights of the dark garderie
 	for s in ctx.signs:
@@ -538,6 +556,12 @@ func set_power(on: bool) -> void:
 		if em2 is StandardMaterial3D:
 			(em2 as StandardMaterial3D).emission_energy_multiplier = REFL_EMIT * (1.0 if on else 0.0)
 	_update_zone(true)
+
+func _recapture_rooms() -> void:
+	for rp in ctx.probes:
+		var pr := rp as ReflectionProbe
+		if pr != null and String(pr.name).begins_with("ProbeRoom"):
+			pr.update_mode = ReflectionProbe.UPDATE_ONCE
 
 ## Emission of the tubes behind the fixtures (bright cores behind louvers / reflectors, like the reference).
 const TUBE_EMIT := 10.0

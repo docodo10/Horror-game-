@@ -399,6 +399,16 @@ static func _dortoir(c) -> void:
 	var l := _room_light(c, reg, bc - Vector3(0, 0.06, 0), "on", L_DORT, 0.85, 6.5, Color(1.0, 0.78, 0.52), em)
 	c.room_fx["dort_light"] = l
 	c.room_fx["dort_fill"] = _fill(c, reg, Vector3(-7.6, 0.7, -1.3), L_DORT, 0.11, 5.0, Color(1.0, 0.8, 0.6))
+	c.room_fx["dort_probe"] = Shell.probe(c, reg, "ProbeRoomDortoir", Vector3(x0, 0.0, z0), Vector3(x1, ch, z1), Vector3(-7.6, 1.3, -1.3), 0.8)
+	# what years of naps and a leaking pipe left: crayon on the wallpaper, a spill, stains coming down from the ceiling
+	Shell.decal(c, reg, "decal_crayon.png", Vector3(x1 - 0.01, 0.75, -0.95), Vector3.LEFT, Vector2(0.9, 0.7), L_DORT, Color(1, 1, 1, 0.9))
+	Shell.decal(c, reg, "decal_crayon.png", Vector3(-9.2, 0.62, z0 + 0.01), Vector3.BACK, Vector2(0.7, 0.55), L_DORT, Color(1, 1, 1, 0.8))
+	Shell.decal(c, reg, "decal_spill.png", Vector3(-6.3, 0.0, -0.4), Vector3.UP, Vector2(1.1, 0.9), L_DORT, Color(0.3, 0.24, 0.2, 0.75), 0.7)
+	Shell.decal(c, reg, "decal_spill.png", Vector3(-8.9, 0.0, -2.1), Vector3.UP, Vector2(0.7, 0.6), L_DORT, Color(0.24, 0.22, 0.2, 0.6), 2.1)
+	Shell.decal(c, reg, "decal_water.png", Vector3(x0 + 0.01, 1.75, -2.9), Vector3.RIGHT, Vector2(1.5, 1.3), L_DORT, Color(0.5, 0.4, 0.26, 0.75))
+	Shell.decal(c, reg, "decal_water.png", Vector3(-5.6, 1.8, z0 + 0.01), Vector3.BACK, Vector2(1.2, 1.2), L_DORT, Color(0.5, 0.4, 0.26, 0.65))
+	Shell.decal(c, reg, "decal_grime.png", Vector3(-8.6, 0.0, 0.9), Vector3.UP, Vector2(1.8, 0.8), L_DORT, Color(0.2, 0.18, 0.16, 0.7))
+	Shell.decal(c, reg, "decal_scuffs.png", Vector3(-7.6, 0.0, 0.7), Vector3.UP, Vector2(1.0, 1.2), L_DORT, Color(0.25, 0.23, 0.2, 0.6), 0.2)
 
 # ====================================================================== le bureau
 
@@ -547,6 +557,12 @@ static func _bureau(c) -> void:
 	var bc := _bulb_fixture(c, reg, Vector3(-6.4, ch, 4.6), em, true)
 	_room_light(c, reg, bc - Vector3(0, 0.06, 0), "on", L_BUR, 1.0, 5.5, Color(1.0, 0.76, 0.48), em)
 	_fill(c, reg, Vector3(-6.4, 0.7, 4.7), L_BUR, 0.08, 4.0, Color(1.0, 0.74, 0.5))
+	c.room_fx["bur_probe"] = Shell.probe(c, reg, "ProbeRoomBureau", Vector3(x0, 0.0, z0), Vector3(x1, ch, z1), Vector3(-6.4, 1.3, 4.6), 0.8)
+	Shell.decal(c, reg, "decal_scuffs.png", Vector3(-5.8, 0.0, 3.7), Vector3.UP, Vector2(1.1, 1.4), L_BUR, Color(0.12, 0.1, 0.08, 0.7), 0.1)
+	Shell.decal(c, reg, "decal_scuffs.png", Vector3(-6.7, 0.0, 6.1), Vector3.UP, Vector2(1.3, 0.8), L_BUR, Color(0.12, 0.1, 0.08, 0.6), 1.4)
+	Shell.decal(c, reg, "decal_water.png", Vector3(x0 + 0.01, 1.7, 5.6), Vector3.RIGHT, Vector2(1.3, 1.2), L_BUR, Color(0.3, 0.26, 0.2, 0.7))
+	Shell.decal(c, reg, "decal_grime.png", Vector3(-4.9, 0.0, 5.2), Vector3.UP, Vector2(0.9, 1.6), L_BUR, Color(0.1, 0.09, 0.08, 0.7), 1.57)
+	Shell.decal(c, reg, "decal_spill.png", Vector3(-7.4, 0.0, 5.0), Vector3.UP, Vector2(0.6, 0.5), L_BUR, Color(0.08, 0.07, 0.06, 0.7))
 
 # ====================================================================== les toilettes
 
@@ -666,3 +682,13 @@ static func _toilettes(c) -> void:
 	var wf := _fill(c, reg, Vector3(-13.5, 0.6, 6.9), L_WC, 0.12, 4.5, Color(0.86, 1.0, 0.94))
 	c.lights[c.lights.size() - 1]["state"] = "flicker"      # the fill follows the flickering tube (see garderie._setup_flicker)
 	wf.name = "troffer_spill_flicker"
+	c.room_fx["wc_probe"] = Shell.probe(c, reg, "ProbeRoomToilettes", Vector3(x0, 0.0, z0), Vector3(x1, ch, z1), Vector3(-13.4, 1.25, 6.6), 1.0)
+	# water everywhere it has been: under the basins, down the tiles, small wet footprints from the stalls to the door
+	Shell.decal(c, reg, "decal_water.png", Vector3(x0 + 0.01, 1.0, cz0 + 0.9), Vector3.RIGHT, Vector2(2.0, 1.6), L_WC, Color(0.42, 0.36, 0.24, 0.7))
+	Shell.decal(c, reg, "decal_water.png", Vector3(-13.9, 1.6, z1 - 0.01), Vector3.FORWARD, Vector2(1.4, 1.6), L_WC, Color(0.4, 0.34, 0.22, 0.65))
+	Shell.decal(c, reg, "decal_water.png", Vector3(x1 - 0.01, 1.5, 8.2), Vector3.LEFT, Vector2(1.2, 1.5), L_WC, Color(0.4, 0.34, 0.22, 0.6))
+	Shell.decal(c, reg, "decal_spill.png", Vector3(x0 + 1.15, 0.0, cz0 + 1.05), Vector3.UP, Vector2(1.5, 1.3), L_WC, Color(0.05, 0.06, 0.055, 0.6), 0.5)
+	Shell.decal(c, reg, "decal_grime.png", Vector3(-13.4, 0.0, zf - 0.35), Vector3.UP, Vector2(2.9, 0.8), L_WC, Color(0.12, 0.12, 0.1, 0.7))
+	Shell.decal(c, reg, "decal_grime.png", Vector3(x1 - 0.4, 0.0, 8.3), Vector3.UP, Vector2(0.8, 1.4), L_WC, Color(0.12, 0.12, 0.1, 0.7), 1.57)
+	Shell.decal(c, reg, "decal_footprints.png", Vector3(-13.6, 0.0, 6.9), Vector3.UP, Vector2(0.5, 0.9), L_WC, Color(0.04, 0.05, 0.045, 0.5), -0.9)
+	Shell.decal(c, reg, "decal_footprints.png", Vector3(-12.6, 0.0, 6.0), Vector3.UP, Vector2(0.5, 0.9), L_WC, Color(0.04, 0.05, 0.045, 0.38), -0.75)

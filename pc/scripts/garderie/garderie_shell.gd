@@ -87,6 +87,61 @@ static func sign_quad(k, mat: String, ctr: Vector3, nrm: Vector3, w: float, h: f
 	var tl := ctr - r * w * 0.5 + u * h * 0.5
 	k.quad(mat, bl, br, tr, tl, nrm, Vector2(uv.position.x, uv.end.y), uv.end, Vector2(uv.end.x, uv.position.y), uv.position, col)
 
+## Decal (stain, grime, scuffs...) projected on a floor (nrm = UP: the texture's top toward -z, turned by yaw) or on
+## a wall facing nrm (the texture's top toward the ceiling). size = (width, height on the surface); mask = render
+## layers it touches.
+static func decal(c, region: String, tex_name: String, pos: Vector3, nrm: Vector3, size: Vector2, mask: int, modulate := Color.WHITE, yaw := 0.0) -> Decal:
+	var t: Texture2D = c.mats.tex(tex_name)
+	if t == null:
+		return null
+	var d := Decal.new()
+	d.name = "Decal_%s" % tex_name.get_basename()
+	d.texture_albedo = t
+	d.size = Vector3(size.x, 0.3, size.y)
+	d.modulate = modulate
+	d.albedo_mix = 1.0
+	d.upper_fade = 0.25
+	d.lower_fade = 0.25
+	d.normal_fade = 0.45
+	d.cull_mask = mask
+	d.distance_fade_enabled = true
+	d.distance_fade_begin = 14.0
+	d.distance_fade_length = 3.0
+	var b := Basis(Vector3.UP, yaw)
+	if nrm.y < -0.5:
+		b = Basis(Vector3.RIGHT, PI) * b            # a ceiling: projected upward
+	elif absf(nrm.y) < 0.5:
+		var n := Vector3(nrm.x, 0.0, nrm.z).normalized()
+		b = Basis(n.cross(Vector3.DOWN), n, Vector3.DOWN)
+	d.transform = Transform3D(b, pos)
+	c.region(region).add_child(d)
+	return d
+
+## Box-projected reflection probe of a room (captured once; whoever changes the room's lights asks for a new
+## capture by setting update_mode to UPDATE_ONCE again). Registered in c.probes.
+static func probe(c, region: String, probe_name: String, mn: Vector3, mx: Vector3, capture: Vector3, intensity := 0.9) -> ReflectionProbe:
+	var rp := ReflectionProbe.new()
+	rp.name = probe_name
+	var ctr := (mn + mx) * 0.5
+	rp.position = ctr
+	rp.size = (mx - mn) + Vector3(0.1, 0.1, 0.1)
+	rp.origin_offset = capture - ctr
+	rp.box_projection = true
+	rp.interior = true
+	rp.enable_shadows = true
+	rp.update_mode = ReflectionProbe.UPDATE_ONCE
+	rp.intensity = intensity
+	# The box is the room, wall to wall, and what reflects most hangs on the walls (a mirror, glazed tiles): with the
+	# usual blend margin those surfaces sit in the faded rim of the box and get almost nothing. No fade here; the
+	# rooms only meet inside the thickness of their walls.
+	rp.blend_distance = 0.02
+	rp.ambient_mode = ReflectionProbe.AMBIENT_DISABLED
+	rp.max_distance = 14.0
+	rp.mesh_lod_threshold = 4.0
+	c.region(region).add_child(rp)
+	c.probes.append(rp)
+	return rp
+
 ## Thin board behind a sign (so signs have thickness and cast a contact shadow).
 static func board(k, mat: String, ctr: Vector3, nrm: Vector3, w: float, h: float, t: float, col := Color.WHITE) -> void:
 	var r := (-nrm).cross(Vector3.UP).normalized()

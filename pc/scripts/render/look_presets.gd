@@ -55,7 +55,7 @@ const P := {
 	},
 	"medium": {
 		"msaa": Viewport.MSAA_DISABLED, "ssaa": Viewport.SCREEN_SPACE_AA_SMAA, "taa": false,
-		"sharpen": 0.0, "aniso": 3, "lod": 1.0,
+		"sharpen": 0.14, "aniso": 4, "lod": 1.0,      # SMAA softens fine texture detail a little: sharpened back in the post pass
 		"atlas": 4096, "quads": [16, 16, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "light_size": false,
 		"sdfgi": false, "ssil": false, "ssr": false, "gi_half": true,
 		"ssao": true, "ssao_q": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "ssao_half": true,
@@ -69,8 +69,8 @@ const P := {
 	"high": {
 		# SMAA, not TAA: a sharp image that does not smear or ghost when the camera moves (TAA stays on ultra)
 		"msaa": Viewport.MSAA_DISABLED, "ssaa": Viewport.SCREEN_SPACE_AA_SMAA, "taa": false,
-		"sharpen": 0.0, "aniso": 4, "lod": 1.0,
-		"atlas": 8192, "quads": [16, 16, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_LOW, "light_size": true,
+		"sharpen": 0.18, "aniso": 4, "lod": 0.75,
+		"atlas": 8192, "quads": [16, 16, 16, 16], "soft": RenderingServer.SHADOW_QUALITY_SOFT_MEDIUM, "light_size": true,
 		# No SDFGI here (ultra only): its cascades follow the camera, and every 30-40 cm walked a slab of the level is
 		# voxelised again. Measured walking in the basement (tools: scratch gi_walk): one frame in four took 3.2x the
 		# time of the others on this preset and none on medium; standing still both are flat. That was the "lag when I
@@ -78,7 +78,7 @@ const P := {
 		# and the same bounce stand-ins as medium.
 		"sdfgi": false, "gi_half": true,
 		"ssil": true, "ssil_q": RenderingServer.ENV_SSIL_QUALITY_LOW, "ssil_half": true,
-		"ssr": true, "ssr_steps": 32, "ssr_rough": RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_LOW,
+		"ssr": true, "ssr_steps": 48, "ssr_rough": RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_MEDIUM,
 		"ssao": true, "ssao_q": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "ssao_half": true,
 		"vfog": true, "vfog_size": 64, "vfog_depth": 64, "glow": true, "glow_bicubic": true,
 		"dof": true, "dof_q": RenderingServer.DOF_BLUR_QUALITY_LOW, "dof_amount": 0.11,

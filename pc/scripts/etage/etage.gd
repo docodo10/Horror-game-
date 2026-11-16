@@ -94,7 +94,7 @@ func build() -> void:
 	ctx.root = self
 	ctx.mats = Mats.new()
 	Build.build(ctx)
-	var tris: int = ctx.commit_all({"et_sky": {"no_shadow": ["night_sky"]}, "et_key": {"no_shadow": ["brass"]}})
+	var tris: int = ctx.commit_all({"et_sky": {"no_shadow": ["night_sky"]}, "et_key": {"no_shadow": ["brass"]}, "et_webs": {"no_shadow": ["cobweb"]}})
 	for g in find_children("*", "GeometryInstance3D", true, false):
 		(g as GeometryInstance3D).layers = L.L_ET
 	_setup_nodes()
@@ -331,7 +331,17 @@ func begin() -> void:
 		if p.has_method("give_flashlight"):
 			p.call("give_flashlight")
 	_objective("Trouve la sortie.")
+	_recapture(0.3)
 	_intro()
+
+## The reflection probes hold a capture of the rooms as they were lit: taken again when the lights change.
+func _recapture(delay: float) -> void:
+	if not is_inside_tree():
+		return
+	await get_tree().create_timer(delay, false).timeout
+	for rp in ctx.room_fx.get("probes", []):
+		if rp is ReflectionProbe:
+			(rp as ReflectionProbe).update_mode = ReflectionProbe.UPDATE_ONCE
 
 func _intro() -> void:
 	if not await _wait(1.4):
@@ -384,6 +394,7 @@ func _reset_level() -> void:
 		(s.light as Light3D).light_energy = float(s.base)
 		(s.emit as StandardMaterial3D).emission_energy_multiplier = 3.0
 	_rock_on = false
+	_recapture(0.3)
 	_stop_sounds()
 	_start_ambience()
 	_objective("Trouve la clé de la porte d’entrée." if _door_tried else "Trouve la sortie.")
@@ -536,6 +547,7 @@ func _awaken() -> void:
 	_doors.chambre.goal = 1.0
 	(_doors.chambre.node as Node3D).rotation.y = float(_doors.chambre.open)
 	_door_solid("chambre", false)
+	_recapture(0.2)
 	_layer = _loop("dread_layer", {"volume_db": -40.0})
 	if not await _wait(1.0):
 		return
