@@ -33,6 +33,10 @@ static func zone_of(p: Vector3) -> int:
 	var x := p.x
 	var y := p.y
 	var z := p.z
+	# The garderie (west) and l'étage (far east) lie outside the house: one zone for everything there, whatever
+	# its height or its z, so that two points of those areas never count as being on two sides of a house wall.
+	if x < float(R.minX) - 0.3 or x > float(R.maxX) + 0.3:
+		return Z_WALL
 	if y > float(R.ceilingY) + 0.05:
 		if z < float(R.minZ) - 0.05:
 			return Z_HALL if (x >= float(UH.minX) and x <= float(UH.maxX)) else Z_WALL

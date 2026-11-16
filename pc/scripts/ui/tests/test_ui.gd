@@ -83,7 +83,7 @@ func _run() -> void:
 	var ids := []
 	for it in scr.items:
 		ids.append(it.id)
-	ok(ids == ["play", "explore", "options", "controls", "credits", "quit"], "index items %s" % [ids])
+	ok(ids == ["play", "explore", "etage", "options", "controls", "credits", "quit"], "index items %s" % [ids])
 	ok(bool(ui.loading_state.hidden), "loading hidden after show_menu")
 	# camera frames the TV
 	var cam: Camera3D = root.get_viewport().get_camera_3d()
@@ -97,6 +97,8 @@ func _run() -> void:
 	# keyboard navigation
 	await key(KEY_DOWN)
 	ok(scr.sel_id == "explore", "↓ selects EXPLORER")
+	await key(KEY_DOWN)
+	ok(scr.sel_id == "etage", "↓ selects CHAPITRE 2")
 	await key(KEY_DOWN)
 	ok(scr.sel_id == "options", "↓ selects OPTIONS")
 	await key(KEY_ENTER)

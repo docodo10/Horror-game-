@@ -12,6 +12,7 @@ const Quality := preload("res://scripts/render/quality.gd")
 const SurfacesModule := preload("res://scripts/surfaces/surfaces.gd")
 const GarderieModule := preload("res://scripts/garderie/garderie.gd")
 const FearModule := preload("res://scripts/fear/fear_director.gd")
+const EtageModule := preload("res://scripts/etage/etage.gd")
 const AutoQuality := preload("res://scripts/render/auto_quality.gd")
 
 func _ready() -> void:
@@ -36,6 +37,11 @@ func _ready() -> void:
 		world.hide_spots.append_array(garderie.hide_spots)   # the closet stays first
 		world.add_nav(garderie.nav_nodes, garderie.nav_links)
 		if garderie.has_method("apply_quality"): garderie.apply_quality(str(Settings.get_value("quality", "high")))
+	# Chapter 2, "l'étage": built far east of the house, hidden until it is started from the TV menu.
+	if not DebugTools.args.has("no-etage"):
+		ui.show_loading(0.9, "L’étage…")
+		var etage := EtageModule.new(); etage.name = "Etage"; add_child(etage); Game.etage = etage
+		await etage.build()
 	Events.settings_changed.connect(_on_settings_changed)
 
 	var inventory := Inventory.new(); inventory.name = "Inventory"; add_child(inventory); Game.inventory = inventory
@@ -85,7 +91,8 @@ const CALIB_VIEWS := [[0.25, 1.6, 1.6, 0.0, -3.0], [-17.9, 0.55, 2.7, 94.0, -11.
 ## hall entry / centre / far end, play frame deck.
 const WARMUP_STOPS := [[0.4, 1.6, 0.2], [1.4, 1.6, -3.6], [-2.0, 1.6, -1.4], [-3.0, 2.8, 0.2], [-3.0, 4.35, -2.3],
 	[-3.0, 4.35, -3.6], [-7.5, 1.6, 2.1], [-14.0, 1.6, 2.1], [-19.5, 0.55, 2.5], [-26.0, 0.55, 2.0], [-33.0, 0.55, 6.0],
-	[-28.5, 2.4, 3.0], [-7.6, 1.6, -1.2], [-6.5, 1.6, 4.6], [-13.4, 1.6, 6.8]]
+	[-28.5, 2.4, 3.0], [-7.6, 1.6, -1.2], [-6.5, 1.6, 4.6], [-13.4, 1.6, 6.8],
+	[55.0, 1.6, 0.0], [61.0, 1.6, -0.2], [61.2, 1.6, -4.4], [54.4, 1.6, -3.0]]      # the last four: l'étage (chapter 2)
 ## yaw, pitch (degrees) looked at from each stop: four sides, then up and down.
 const WARMUP_DIRS := [[0.0, -12.0], [90.0, -12.0], [180.0, -12.0], [270.0, -12.0], [45.0, 62.0], [225.0, -62.0]]
 
@@ -198,6 +205,7 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 		mi.mesh = m
 		mi.scale = Vector3.ONE * 0.1
 		props.add_child(mi)
+	if Game.etage and Game.etage.has_method("prewarm"): Game.etage.prewarm(true)
 	_rebuild_geometry()
 	var ent = Game.entity
 	# La Gardienne joins only while she is idle upstairs (or switched off): never touch her in the middle of a visit
@@ -229,6 +237,7 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 			di += 1
 		si += 1
 	if has_ent: ent.debug_release()
+	if Game.etage and Game.etage.has_method("prewarm"): Game.etage.prewarm(false)
 	props.queue_free()
 	for gp in parts:
 		if is_instance_valid(gp): (gp as GPUParticles3D).emitting = false

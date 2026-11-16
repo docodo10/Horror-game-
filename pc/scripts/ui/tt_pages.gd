@@ -162,6 +162,7 @@ func main(b: TT) -> void:
 	var r := 5
 	b.item(r, {"id": "play", "label": "JOUER (AVEC LA GARDIENNE)", "right": "101", "on": Callable(ui, "tv_start_game").bind("normal")}); r += 1
 	b.item(r, {"id": "explore", "label": "EXPLORER (SANS MONSTRE)", "right": "102", "on": Callable(ui, "tv_start_game").bind("explore")}); r += 1
+	b.item(r, {"id": "etage", "label": "CHAPITRE 2 — L’ÉTAGE", "right": "103", "color": Y, "on": Callable(ui, "tv_start_game").bind("etage")}); r += 1
 	b.item(r, {"id": "options", "label": "OPTIONS", "right": "200", "on": _goto.bind(b, "options")}); r += 1
 	b.item(r, {"id": "controls", "label": "CONTRÔLES", "right": "300", "on": _goto.bind(b, "controls")}); r += 1
 	b.item(r, {"id": "credits", "label": "CRÉDITS", "right": "400", "on": _goto.bind(b, "credits")}); r += 1

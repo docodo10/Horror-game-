@@ -62,3 +62,18 @@ text, Caveat (SIL OFL 1.1) for the handwriting.
 
 Re-generate: `python3 -I pc/scripts/garderie/tools/gen_rooms_textures.py`, then `write_imports.py` and
 `godot --headless --path pc --import` as above.
+
+## Generated — l'étage (old wooden house, ground floor)
+Original, procedural (numpy / scipy / PIL), written by `pc/scripts/etage/tools/gen_etage_textures.py` (fixed seeds), no
+fonts, nothing copied from any other work:
+`wallpaper_house.jpg` + `wallpaper_house_n.png` (dark bottle-green damask, ochre motif every 26.5 cm in a half-drop, one
+repeat = 1.06 m = two 53 cm strips with seams at u = 0.25 and 0.75; grime, water runs, lifted seams, small tears),
+`plaster_old.jpg` + `plaster_old_n.png` (off-white ceiling plaster, hairline cracks, water rings, flaked patches, one
+repeat = 2 m), `rug_runner.jpg` (512x1024 worn hallway runner, 0.8 m wide x 1.6 m long, seamless along v only),
+`night_window.png` (512x768 night sky behind a window: backlit torn clouds, bare branches; max luminance 34 %, lossless
+import), `portraits_atlas.jpg` (2x2 sepia photographs: seated woman with the face scratched out, five children at a door
+with worn faces, house in winter with one lit window, the same woman water-damaged with burnt eyes — generic drawn
+figures, no real person), `sheet_n.png` (512 normal map of a cotton dust sheet). Normal maps are OpenGL (+Y).
+
+Re-generate: `python3 -I pc/scripts/etage/tools/gen_etage_textures.py`, then `write_imports.py` (new files only) and
+`godot --headless --path pc --import` as above.

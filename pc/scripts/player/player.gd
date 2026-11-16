@@ -688,7 +688,11 @@ func _update_ground(dt: float, body: Vector3) -> void:
 	on_stairs = (x >= float(S.minX) and x <= float(S.maxX) and z <= float(S.bottomZ) and z > float(Layout.ROOM.minZ) - 0.01 \
 		and _ground > 0.1) or _ground > 1.5
 	var gard = Game.garderie
-	if x < -3.7 and gard != null and is_instance_valid(gard) and gard.in_area(body):
+	var et = Game.etage
+	if et != null and is_instance_valid(et) and et.in_area(body):
+		# chapter 2: old floorboards, a runner rug down the hallway
+		surface = "wood" if str(et.surface_at(body)) == "wood" else "carpet"
+	elif x < -3.7 and gard != null and is_instance_valid(gard) and gard.in_area(body):
 		# garderie floors: concrete corridor, foam mats / vinyl (soft steps), wooden decks
 		var gs := str(gard.surface_at(body))
 		surface = "concrete" if gs == "concrete" else ("wood" if gs == "wood" else "carpet")

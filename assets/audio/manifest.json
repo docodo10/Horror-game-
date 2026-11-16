@@ -564,5 +564,37 @@
   ],
   "loop": false,
   "gainDb": -6
+ },
+ "etage_theme": {
+  "files": [
+   "assets/audio/etage/etage_theme.mp3"
+  ],
+  "loop": true,
+  "gainDb": -10
+ },
+ "dread_layer": {
+  "files": [
+   "assets/audio/etage/dread_layer.mp3"
+  ],
+  "loop": true,
+  "gainDb": -8
+ },
+ "piano_sting": {
+  "files": [
+   "assets/audio/etage/piano_sting_1.mp3",
+   "assets/audio/etage/piano_sting_2.mp3",
+   "assets/audio/etage/piano_sting_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "floor_creak_long": {
+  "files": [
+   "assets/audio/etage/floor_creak_long_1.mp3",
+   "assets/audio/etage/floor_creak_long_2.mp3",
+   "assets/audio/etage/floor_creak_long_3.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
  }
 }

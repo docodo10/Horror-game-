@@ -147,6 +147,43 @@ func _flush() -> void:
 	f.close()
 	_rows.clear()
 
+## Chapter 2 on foot (run with: -- --autostart --mode=etage --part=etage): the hallway, the front door, her door,
+## the salon and its figures, the key, the way back with the walker behind, then the level is reset for the next lap.
+func _tour_etage() -> void:
+	var E = G.get(&"etage")
+	var I: Node = G.get(&"interaction")
+	if E == null:
+		return
+	E.call("reset_after_caught")
+	await idle("etage start", 30)
+	await spin("etage start spin")
+	await walk_to("hall walk 1", 57.5, 0.0, 200)
+	await spin("hall spin 1")
+	await walk_to("hall walk 2", 66.9, 0.0, 300)
+	I.call("activate", "etage.front", true)
+	await idle("front door locked", 20)
+	await spin("hall east spin")
+	await walk_to("back to her door", 55.04, -0.25, 400)
+	I.call("activate", "etage.chambre", true)
+	await idle("her door", 70)
+	await walk_to("to the salon door", 60.7, -0.3, 200)
+	await walk_to("into the salon", 60.7, -2.0, 120)
+	await spin("salon spin")
+	await walk_to("salon to piano", 58.0, -5.4, 200)
+	await spin("piano spin")
+	await walk_to("salon to mantel a", 62.6, -2.6, 200)
+	await walk_to("salon to mantel b", 64.5, -4.3, 160)
+	I.call("activate", "etage.key", true)
+	await idle("key taken", 110)
+	await spin("salon spin after key")
+	await walk_to("leave salon a", 62.4, -2.4, 160)
+	await walk_to("leave salon b", 60.7, -1.6, 160)
+	await walk_to("leave salon c", 60.7, -0.1, 100)
+	await spin("hall spin after key", 13, 0.26)
+	await walk_to("run to the door", 66.9, 0.0, 300)
+	await spin("door spin", 26, 0.26)
+	await idle("wait at the door", 40)
+
 func idle(label: String, n: int) -> void:
 	_step = label
 	for i in n: await _frame()
@@ -241,6 +278,9 @@ func _tour_quick() -> void:
 func _lap_tour() -> void:
 	if _part == "quick":
 		await _tour_quick()
+		return
+	if _part == "etage":
+		await _tour_etage()
 		return
 	if _part != "garderie": await _tour_basement()
 	if _part != "basement": await _tour_garderie()

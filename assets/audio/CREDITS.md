@@ -164,3 +164,19 @@ Synthèse originale (numpy / scipy, aucun enregistrement, aucune mélodie exista
 | phone_line | `garderie/phone_line.mp3` | Synthèse : souffle de ligne 300–3400 Hz, ronflement, trois respirations, déclic | projet (généré) | original |
 | water_drip | `garderie/water_drip.mp3` | Synthèse : gouttes dans un lavabo, pièce carrelée (boucle de 12 s) | projet (généré) | original |
 | stall_creak | `garderie/stall_creak.mp3` | Synthèse : grincement de charnière métallique (adhérence-glissement) | projet (généré) | original |
+
+## Sons générés — l'étage (vieille maison de bois)
+
+Synthèse originale (numpy / scipy, aucun enregistrement, aucune mélodie existante), produite par
+`pc/scripts/etage/tools/gen_etage_sounds.py` (graines fixes) ; même licence que le jeu.
+
+| Son | Fichier | Source | Auteur | Licence |
+|---|---|---|---|---|
+| etage_theme | `etage/etage_theme.mp3` | Synthèse : bourdon grave désaccordé (55 Hz + quinte), notes isolées de piano feutré (secondes mineures, tritons), pleurage de bande (boucle de 72 s) | projet (généré) | original |
+| dread_layer | `etage/dread_layer.mp3` | Synthèse : grappe de cordes frottées 180–420 Hz, pulsation grave 40 Hz toutes les 1,6 s, harmoniques de métal frotté (boucle de 40 s) | projet (généré) | original |
+| piano_sting | `etage/piano_sting_1.mp3` | Synthèse : grappe grave dissonante (do2, do♯2, fa2, fa♯2), piano droit désaccordé, cordes raides inharmoniques | projet (généré) | original |
+| piano_sting | `etage/piano_sting_2.mp3` | Synthèse : idem (do♯2, ré2, fa♯2) | projet (généré) | original |
+| piano_sting | `etage/piano_sting_3.mp3` | Synthèse : idem (do2, mi♭2, mi2, fa♯2) | projet (généré) | original |
+| floor_creak_long | `etage/floor_creak_long_1.mp3` | Synthèse : long grincement de plancher (adhérence-glissement 90–260 Hz, chocs de bois), 1,35 s | projet (généré) | original |
+| floor_creak_long | `etage/floor_creak_long_2.mp3` | Synthèse : idem, descendant, 1,70 s | projet (généré) | original |
+| floor_creak_long | `etage/floor_creak_long_3.mp3` | Synthèse : idem, montant puis retombant, 1,98 s | projet (généré) | original |

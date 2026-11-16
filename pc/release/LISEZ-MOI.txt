@@ -1,5 +1,5 @@
-﻿LA GARDIENNE — Chapitre 1 : Le sous-sol
-=======================================
+﻿LA GARDIENNE — Chapitre 1 : Le sous-sol · Chapitre 2 : L'étage
+==============================================================
 
 JOUER
   Double-clique sur LaGardienne.exe
@@ -7,6 +7,12 @@ JOUER
   Si Windows affiche « Windows a protégé votre ordinateur » :
   clique sur « Informations complémentaires » puis « Exécuter quand même ».
   (Le jeu n'est pas signé numériquement, c'est normal pour un jeu indépendant.)
+
+DEUX CHAPITRES (dans le menu de la télé)
+  JOUER / EXPLORER ........ Chapitre 1 : le sous-sol (et la garderie derrière la porte au bas de l'escalier)
+  CHAPITRE 2 — L'ÉTAGE .... le rez-de-chaussée de la maison, la nuit. Trouve la clé de la porte d'entrée.
+                            Un conseil : ne tourne pas le dos à ce qui se tient sous les draps.
+                            Accroupi (C), le plancher ne craque pas. Mets des écouteurs.
 
 COMMANDES (clavier + souris, ou manette)
   W A S D / flèches ....... marcher   (Z Q S D sur un clavier AZERTY)

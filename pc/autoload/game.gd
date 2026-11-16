@@ -21,6 +21,7 @@ var interaction: Node = null # scripts/game/interaction.gd
 var inventory: Node = null   # scripts/game/inventory.gd
 var puzzles: Node = null     # scripts/game/puzzles.gd
 var garderie: Node = null    # scripts/garderie/garderie.gd (soft-play area west of the basement)
+var etage: Node = null       # scripts/etage/etage.gd (chapter 2: the ground floor of the house; mode "etage")
 var debug := false
 
 func _ready() -> void:
@@ -54,12 +55,15 @@ func start() -> void:
 	time_played = 0.0
 	var dbg = get_node_or_null("/root/DebugTools")
 	if dbg and (dbg.get("args") as Dictionary).has("mode"): mode = str(dbg.args["mode"])
+	# "etage": chapter 2 — the level has its own threat, objectives and reset; the basement's puzzles never start
+	var chapter2: bool = mode == "etage" and etage != null and is_instance_valid(etage)
 	# "explore": no monster — La Gardienne is switched off for the whole run (puzzles have fallbacks for that)
-	if entity and is_instance_valid(entity) and entity.has_method("set_enabled"): entity.set_enabled(mode != "explore")
+	if entity and is_instance_valid(entity) and entity.has_method("set_enabled"): entity.set_enabled(mode == "normal")
 	set_state("playing")
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	if puzzles and puzzles.has_method("start"): puzzles.start()
+	if chapter2: etage.begin()
+	elif puzzles and puzzles.has_method("start"): puzzles.start()
 
 func pause() -> void:
 	if state != "playing": return
@@ -103,7 +107,7 @@ func on_caught() -> void:
 		night = 1
 		return
 	if ui: await ui.show_caught(night, NIGHTS_TOTAL)
-	for n in [player, entity, world, puzzles, garderie]:
+	for n in [player, entity, world, puzzles, garderie, etage]:      # (the étage last: it puts the player back at ITS start)
 		if n and n.has_method("reset_after_caught"): n.reset_after_caught()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	set_state("playing")
@@ -123,6 +127,7 @@ func _process(delta: float) -> void:
 	if state == "playing": time_played += delta
 	var target := 0.0
 	if entity and (state == "playing" or state == "caught"): target = float(entity.get("fear") if entity.get("fear") != null else 0.0)
+	if etage and etage.get("active") == true and state == "playing": target = maxf(target, float(etage.get("fear")))
 	fear = lerpf(fear, target, clampf(delta * 2.5, 0.0, 1.0))
 	Audio.set_fear(fear)
 

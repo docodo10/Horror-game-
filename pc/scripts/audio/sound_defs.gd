@@ -70,6 +70,11 @@ const TABLE := {
 	"phone_line": ["sfx", 0.0, {"max": 1, "gap": 0.5, "ref": 0.8, "jit": false}],
 	"water_drip": ["sfx", 0.0, {"ref": 1.0, "jit": false}],
 	"stall_creak": ["sfx", 0.0, {"max": 1, "gap": 0.5, "ref": 1.4}],
+	# l'étage (generated: scripts/etage/tools/gen_etage_sounds.py)
+	"etage_theme": ["music", 0.0, {"rv": 0.0, "jit": false, "single": true}],
+	"dread_layer": ["music", 0.0, {"rv": 0.0, "jit": false, "single": true}],
+	"piano_sting": ["sfx", 0.0, {"max": 1, "gap": 1.0, "ref": 2.2, "jit": false}],
+	"floor_creak_long": ["sfx", 0.0, {"max": 2, "gap": 0.15, "ref": 1.4}],
 	"tv_static": ["sfx", 2.0, {"ref": 1.1, "pos": "tv", "jit": false, "single": true, "rnd": true}],
 	"tv_on": ["sfx", 0.0, {"max": 1, "gap": 0.2, "pos": "tv"}],
 	"tv_off": ["sfx", -2.0, {"max": 1, "gap": 0.2, "pos": "tv"}],
