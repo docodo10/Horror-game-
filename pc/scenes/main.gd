@@ -206,6 +206,8 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 		mi.scale = Vector3.ONE * 0.1
 		props.add_child(mi)
 	if Game.etage and Game.etage.has_method("prewarm"): Game.etage.prewarm(true)
+	var refl = Game.world.get("reflections") if Game.world else null      # the mirror's own view draws the tour too
+	if refl != null and refl.has_method("prewarm"): refl.prewarm(true)
 	_rebuild_geometry()
 	var ent = Game.entity
 	# La Gardienne joins only while she is idle upstairs (or switched off): never touch her in the middle of a visit
@@ -238,6 +240,7 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 		si += 1
 	if has_ent: ent.debug_release()
 	if Game.etage and Game.etage.has_method("prewarm"): Game.etage.prewarm(false)
+	if refl != null and refl.has_method("prewarm"): refl.prewarm(false)
 	props.queue_free()
 	for gp in parts:
 		if is_instance_valid(gp): (gp as GPUParticles3D).emitting = false

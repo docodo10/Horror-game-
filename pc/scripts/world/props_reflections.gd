@@ -52,7 +52,6 @@ void fragment() {
 var world: Node = null
 var probes: Array[ReflectionProbe] = []
 var mirror_active := false
-const Presets := preload("res://scripts/render/look_presets.gd")
 var quality := "high"
 
 var _power := true
@@ -142,7 +141,6 @@ func set_quality(q: String) -> void:
 	_live_ok = (q == "high" or q == "ultra") and _glass != null and _mirror_root != null
 	if _live_ok:
 		_ensure_live()
-		_refresh_env(true)               # its SSR switch follows the preset
 		var h := 1024 if q == "ultra" else 512
 		var w := int(round(h * (GLASS.maxX - GLASS.minX) / (GLASS.maxY - GLASS.minY)))
 		_vp.size = Vector2i(w, h)
@@ -189,7 +187,7 @@ func _ensure_live() -> void:
 	_refresh_env(true)
 
 ## Environment of the mirror camera: the level's own, minus the costly / per-view passes (SDFGI, SSIL, volumetric
-## fog, glow; SSR reduced to a token pass) and with a linear tonemap at exposure 1 (the glass is unshaded: the main pass tonemaps it once).
+## fog, glow, SSR) and with a linear tonemap at exposure 1 (the glass is unshaded: the main pass tonemaps it once).
 func _refresh_env(force := false) -> void:
 	if _cam == null: return
 	var src := get_world_3d().environment if get_world_3d() != null else null
@@ -199,13 +197,9 @@ func _refresh_env(force := false) -> void:
 	var e: Environment = src.duplicate() if src != null else Environment.new()
 	e.sdfgi_enabled = false
 	e.ssil_enabled = false
-	# SSR is not wanted in the glass, but it must stay on when the preset has it for the main view: with SSR the scene
-	# pass writes specular to its own attachment, which is another pipeline for every material. Off here, the mirror
-	# drew each object through pipelines nothing else used, compiled the first time the object showed in the glass
-	# (measured on high: 3 blocking compiles in the first second of play, a 4th in front of the television; none with
-	# this). Four steps: the pass has next to nothing to do.
-	e.ssr_enabled = bool(Presets.P.get(quality, {}).get("ssr", false))
-	e.ssr_max_steps = 4
+	# No SSR in the glass: nothing of it would show through the aged silvering. (The pipelines this SSR-less view
+	# needs on presets where the main view has SSR are compiled during loading: see prewarm().)
+	e.ssr_enabled = false
 	e.volumetric_fog_enabled = false
 	e.glow_enabled = false
 	e.adjustment_enabled = false
@@ -214,13 +208,24 @@ func _refresh_env(force := false) -> void:
 	e.tonemap_white = 1.0
 	_cam.environment = e
 
+## Loading screen (scenes/main.gd dress rehearsal). The mirror view has no SSR, so on presets where the main view
+## has it (specular in its own attachment) the two views draw every material through different pipelines; those of
+## the mirror view were compiled the first time an object showed in the glass: 3 blocking compiles in the first second
+## of play and a 4th in front of the television, measured on high. While this is on, the mirror view follows the
+## rehearsal camera, so that everything the rehearsal shows is drawn once through the mirror view too.
+var _prewarm := false
+
+func prewarm(on: bool) -> void:
+	_prewarm = on and _live_ok and _vp != null
+	if _vp != null: _vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if (mirror_active or _prewarm) else SubViewport.UPDATE_DISABLED
+
 func _set_mirror_live(on: bool) -> void:
 	mirror_active = on
 	if _glass != null and _glass.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:
 		# flat on the wall: no visible shadow, and as a shadow caster each material switch below would make every
 		# light around re-render its shadow map
 		_glass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	if _vp != null: _vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if on else SubViewport.UPDATE_DISABLED
+	if _vp != null: _vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if (on or _prewarm) else SubViewport.UPDATE_DISABLED
 	if _glass != null:
 		_glass.material_override = _live_mat if on else null
 
@@ -251,9 +256,15 @@ func _process(dt: float) -> void:
 
 ## Places the mirror camera right before rendering (after the player wrote its camera this frame).
 func _pre_draw() -> void:
-	if not mirror_active or _cam == null or not is_inside_tree(): return
+	if _cam == null or not is_inside_tree(): return
 	var cam := get_viewport().get_camera_3d()
 	if cam == null: return
+	if _prewarm:
+		_cam.global_transform = cam.global_transform
+		_cam.force_update_transform()
+		_cam.set_perspective(cam.fov, cam.near, minf(cam.far, 30.0))
+		return
+	if not mirror_active: return
 	var mw := _mirror_root.global_transform
 	var mx := mw.basis.x.normalized()
 	var my := mw.basis.y.normalized()
@@ -265,6 +276,13 @@ func _pre_draw() -> void:
 	var veye := eye - n * (2.0 * dist)
 	var basis := Basis(-mx, my, -n)                  # looks along +n (into the room), right = -mirror X
 	_cam.global_transform = Transform3D(basis, veye)
+	# This runs after the scene tree has flushed its transform notifications for the frame: without the next line the
+	# renderer would only get this transform one frame late, while set_frustum() below applies at once. Walking toward
+	# the glass, the near plane (the new, shorter distance) then stood behind the glass as seen from last frame's
+	# eye: the view showed the inside of the wall, a black mirror for as long as the player kept walking (measured:
+	# luminance 0.00 for 90 frames, 0.4 standing still).
+	_cam.force_update_transform()
+	RenderingServer.camera_set_transform(_cam.get_camera_rid(), _cam.global_transform)
 	var cw := mw * Vector3((GLASS.minX + GLASS.maxX) * 0.5, (GLASS.minY + GLASS.maxY) * 0.5, GLASS.z)
 	var cl := basis.transposed() * (cw - veye)
 	var near := maxf(0.01, -cl.z - 0.0004)
