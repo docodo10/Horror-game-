@@ -218,3 +218,20 @@ targeted interactable gets a faint, light-dependent brightening instead (scripts
 Interaction; it swells while holding a hold-to-use). Subtitles, objectives and story alerts stay. `hud` = `"full"`
 (Options page 2: INTERFACE AUCUNE / COMPLÈTE) brings the old HUD back. New interactables need nothing special: any
 registered entry's node gets the highlight.
+
+## 9. Chapters (2026-11-19): one run, three levels
+
+- `Game.mode`: `normal` | `explore` (chapter 1, the basement and the garderie) · `etage` (chapter 2, `scripts/etage/`,
+  world x 52..68, render layer 32768) · `dehors` (chapter 3, `scripts/dehors/`, world x >= 100, render layer 65536).
+  Each chapter module has `build()`, `begin()`, `reset_after_caught()`, `prewarm(on)`, `active`, `fear`, and ends by
+  calling `Game.on_win()`.
+- **Chaining** (`autoload/game.gd`): `CHAPTER_ORDER = [normal, etage, dehors]`. `on_win()` shows the win page
+  (`ui.show_win(time, night, total, chapter, next)`: "FIN DU CHAPITRE n" + "CONTINUER — CHAPITRE n+1", or the real
+  ending with the total time), stores the next mode in `Game.pending_mode`, reloads the scene; `scenes/main.gd` then
+  starts it without the menu and the loading page names it (`ui.loading_chapter()`). `Game.run_time` carries the time
+  of the chapters already finished. Test: `scripts/game/tests/test_chain.gd`.
+- Chapter 3 specifics: `look_rig.set_outdoor(overrides)` lays its sky / fog over the interior look; `Acoustics.far_fade`
+  is widened while it runs; input action `throw` (G, right click, pad X); its sounds have their own manifest
+  (`assets/audio/dehors/manifest.json`, listed in `audio_manager.gd` `EXTRA_MANIFESTS`). Its moon is a far spot light
+  (a directional shadow was far too slow), drawn once.
+- Debug args: `--mode=etage|dehors`, `--no-garderie`, `--no-etage`, `--no-dehors`; hitch tours `--part=etage|dehors`.

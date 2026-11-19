@@ -161,7 +161,7 @@ func _game_shot(s: String, notes: Dictionary) -> void:
 			ui.end_finish()
 			await _wait(8, 0.4)
 		"win":
-			ui.show_win(754.0, 2, 3)
+			ui.show_win(754.0, 2, 3, "normal", "etage")
 			await _wait(settle, 2.2)
 			await _save(s)
 			ui.end_finish()

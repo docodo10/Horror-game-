@@ -698,7 +698,8 @@ func _update_ground(dt: float, body: Vector3) -> void:
 		surface = ds if STEP_SFX.has(ds) else "grass"
 	elif et != null and is_instance_valid(et) and et.in_area(body):
 		# chapter 2: old floorboards, a runner rug down the hallway
-		surface = "wood" if str(et.surface_at(body)) == "wood" else "carpet"
+		var es := str(et.surface_at(body))          # (the bathroom's and the pantry's tiles sound like concrete)
+		surface = es if es in ["wood", "concrete"] else "carpet"
 	elif x < -3.7 and gard != null and is_instance_valid(gard) and gard.in_area(body):
 		# garderie floors: concrete corridor, foam mats / vinyl (soft steps), wooden decks
 		var gs := str(gard.surface_at(body))
