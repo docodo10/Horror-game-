@@ -1,5 +1,5 @@
-﻿LA GARDIENNE — Chapitre 1 : Le sous-sol · Chapitre 2 : L'étage
-==============================================================
+﻿LA GARDIENNE — Le sous-sol · L'étage · Dehors
+=============================================
 
 JOUER
   Double-clique sur LaGardienne.exe
@@ -8,11 +8,16 @@ JOUER
   clique sur « Informations complémentaires » puis « Exécuter quand même ».
   (Le jeu n'est pas signé numériquement, c'est normal pour un jeu indépendant.)
 
-DEUX CHAPITRES (dans le menu de la télé)
-  JOUER / EXPLORER ........ Chapitre 1 : le sous-sol (et la garderie derrière la porte au bas de l'escalier)
-  CHAPITRE 2 — L'ÉTAGE .... le rez-de-chaussée de la maison, la nuit. Trouve la clé de la porte d'entrée.
-                            Un conseil : ne tourne pas le dos à ce qui se tient sous les draps.
+TROIS CHAPITRES (ils s'enchaînent ; on peut aussi les lancer un par un dans le menu de la télé)
+  CHAPITRE 1 — LE SOUS-SOL  le sous-sol (et la garderie derrière la porte au bas de l'escalier).
+                            « SANS MONSTRE » : le même, pour visiter tranquille.
+  CHAPITRE 2 — L'ÉTAGE .... le rez-de-chaussée de la maison, la nuit. La clé de la porte d'entrée est dans
+                            une boîte à trois chiffres sur la cheminée : fouille la cuisine, la salle de bain,
+                            sa chambre. Un conseil : ne tourne pas le dos à ce qui se tient sous les draps.
                             Accroupi (C), le plancher ne craque pas. Mets des écouteurs.
+  CHAPITRE 3 — DEHORS ..... la cour, dans le brouillard. La grille est fermée par une chaîne.
+                            Elle ne te voit pas : elle t'écoute. Marche dans l'herbe, évite le gravier
+                            et les feuilles, accroupis-toi. Lance un caillou (G) pour l'envoyer ailleurs.
 
 COMMANDES (clavier + souris, ou manette)
   W A S D / flèches ....... marcher   (Z Q S D sur un clavier AZERTY)
@@ -21,6 +26,7 @@ COMMANDES (clavier + souris, ou manette)
   C ou Ctrl ............... s'accroupir
   E ou clic gauche ........ interagir / ramasser (garde le bouton enfoncé pour certaines actions)
   F ....................... lampe de poche
+  G ou clic droit ......... lancer un caillou (chapitre 3)
   Tab ..................... objectif
   Échap ou P .............. pause / options
   F3 ...................... compteur de performance

@@ -191,3 +191,21 @@ Pièces ajoutées à l'étage (cuisine, garde-manger, salle de bain, cage d'esca
 | furniture_drag | `etage/furniture_drag.mp3` | Synthèse : buffet poussé sur du linoléum (adhérence-glissement, pieds qui butent, vaisselle), 2,6 s | projet (généré) | original |
 | curtain_rings | `etage/curtain_rings.mp3` | Synthèse : anneaux de métal glissant sur une tringle, toile qui suit, 1,05 s | projet (généré) | original |
 | pipe_knock | `etage/pipe_knock.mp3` | Synthèse : trois coups sur un tuyau d'eau dans un mur, résonances, 2,2 s | projet (généré) | original |
+
+Chapitre 3, « Dehors » (le jardin, la nuit) : synthèse originale produite par
+`pc/scripts/dehors/tools/gen_dehors_sounds.py` (graines fixes, Ogg Vorbis) ; même licence que le jeu. Les fichiers sont
+déclarés dans `dehors/manifest.json` (fusionné par `pc/autoload/audio_manager.gd`).
+
+| Son | Fichier | Source | Auteur | Licence |
+|---|---|---|---|---|
+| footstep_grass / footstep_gravel / footstep_leaves | `dehors/footstep_*_1..5.ogg` | Synthèse : pas dans l'herbe (choc sourd, froissement), sur le gravier (grains roulés du talon à la pointe), dans les feuilles mortes | projet (généré) | original |
+| dh_her_grass / dh_her_gravel / dh_her_leaves | `dehors/dh_her_*_1..4.ogg` | Synthèse : les mêmes surfaces, pas plus lourds et plus longs | projet (généré) | original |
+| dh_lantern | `dehors/dh_lantern.ogg` | Synthèse : anse d'une lampe-tempête qui couine dans ses œillets (boucle de 2,5 s) | projet (généré) | original |
+| dh_wind, dh_theme | `dehors/dh_wind.ogg`, `dehors/dh_theme.ogg` | Synthèse : vent de nuit dans des arbres nus (boucle de 32 s) ; bourdon grave et notes de cloche froides, espacées (boucle de 48 s) | projet (généré) | original |
+| dh_owl, dh_twig, dh_gust | `dehors/dh_owl_*.ogg`, `dh_twig_*.ogg`, `dh_gust_*.ogg` | Synthèse : hulotte lointaine, branche qui casse, rafale dans les feuilles | projet (généré) | original |
+| dh_chimes | `dehors/dh_chimes.ogg` | Synthèse : carillon à tubes secoué puis qui se calme, 8 s | projet (généré) | original |
+| dh_horn, dh_horn_dead | `dehors/dh_horn.ogg`, `dh_horn_dead.ogg` | Synthèse : klaxon à deux tons dont la batterie faiblit ; relais et râle d'une batterie à plat | projet (généré) | original |
+| dh_radio | `dehors/dh_radio.ogg` | Synthèse : valse lente originale (la mineur) dans un petit haut-parleur, souffle, craquements (boucle de 16 s) | projet (généré) | original |
+| dh_chain, dh_cut, dh_gate | `dehors/dh_chain_*.ogg`, `dh_cut.ogg`, `dh_gate.ogg` | Synthèse : chaîne secouée, maillon coupé et chaîne qui tombe, portail rouillé traîné dans le gravier | projet (généré) | original |
+| dh_trap_open, dh_trap_slam | `dehors/dh_trap_open.ogg`, `dh_trap_slam.ogg` | Synthèse : portes de cave soulevées (gonds, deux chocs sourds) ; les mêmes qui retombent | projet (généré) | original |
+| dh_pot, dh_glass_bang, dh_stone_hard, dh_stone_soft, dh_swing | `dehors/dh_pot_*.ogg`, `dh_glass_bang.ogg`, `dh_stone_*.ogg`, `dh_swing.ogg` | Synthèse : pot de terre cuite soulevé, deux paumes sur une vitre, caillou qui rebondit (dur / herbe), balançoire qui grince seule, 8,5 s | projet (généré) | original |

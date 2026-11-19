@@ -56,7 +56,10 @@ func _make(id: String) -> Material:
 			return _paint("bark.jpg", "bark_n.png", "", {"uv_scale": 1.0, "floor_y": 0.0, "grime": 0.3, "grime_h": 0.6, "blotch": 0.3,
 				"rough_mul": 0.95, "normal_strength": 1.2, "grime_color": Color(0.2, 0.3, 0.14)})
 		"dh_trees":
-			return _cut("trees.png", Color(1.0, 1.0, 1.0), 0.35)
+			# (silhouettes: plain mip-mapped filtering is enough, and these cards fill the screen along the fence)
+			var tr := _cut("trees.png", Color(1.0, 1.0, 1.0), 0.35)
+			tr.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+			return tr
 		"dh_tuft":
 			# (both faces of a tuft are in the mesh, their normals up: see dehors_util.card)
 			var tf := _cut("tuft.png", Color(0.75, 0.78, 0.7), 0.4)

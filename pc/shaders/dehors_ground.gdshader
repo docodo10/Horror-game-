@@ -38,7 +38,7 @@ void fragment() {
 	vec3 g2 = texture(grass_tex, p * 0.19 + vec2(0.3, 0.7)).rgb;
 	vec3 grass = mix(g1, g2, 0.45) * mix(vec3(0.72, 0.78, 0.7), vec3(1.12, 1.05, 0.8), nz.a);
 	vec3 gn = texture(grass_n, p * 0.45).xyz;
-	vec3 gravel = texture(gravel_tex, p * 0.62).rgb * mix(0.8, 1.1, nz.b);
+	vec3 gravel = texture(gravel_tex, p * 0.62).rgb * mix(0.6, 0.85, nz.b);
 	vec3 gvn = texture(gravel_n, p * 0.62).xyz;
 	vec3 leaves = texture(leaves_tex, p * 0.55).rgb;
 	vec3 ln = texture(leaves_n, p * 0.55).xyz;

@@ -7,7 +7,11 @@ const NIGHTS_TOTAL := 3
 var state := "loading"
 var night := 1
 var time_played := 0.0
-var mode := "normal"        # normal (with La Gardienne) | explore (no monster) — chosen on the TV menu
+var mode := "normal"        # normal (with La Gardienne) | explore (no monster) | etage | dehors — chosen on the TV menu
+## The chapters in story order: winning one leads straight on to the next (after the reload and its loading screen).
+const CHAPTER_ORDER := ["normal", "etage", "dehors"]
+var pending_mode := ""       # set by on_win(): the chapter scenes/main.gd starts by itself once the scene is rebuilt
+var run_time := 0.0          # play time of the chapters already finished in this run (the last win screen shows the total)
 var fear := 0.0              # smoothed 0..1 (from entity.fear)
 
 # Registered by scenes/main.gd once built:
@@ -55,7 +59,12 @@ func start() -> void:
 	_busy = false
 	time_played = 0.0
 	var dbg = get_node_or_null("/root/DebugTools")
-	if dbg and (dbg.get("args") as Dictionary).has("mode"): mode = str(dbg.args["mode"])
+	if pending_mode != "":           # the next chapter of a run in progress
+		mode = pending_mode
+		pending_mode = ""
+	else:
+		run_time = 0.0
+		if dbg and (dbg.get("args") as Dictionary).has("mode"): mode = str(dbg.args["mode"])
 	# "etage": chapter 2 — the level has its own threat, objectives and reset; the basement's puzzles never start
 	var chapter2: bool = mode == "etage" and etage != null and is_instance_valid(etage)
 	var chapter3: bool = mode == "dehors" and dehors != null and is_instance_valid(dehors)
@@ -120,11 +129,23 @@ func on_win() -> void:
 	if state != "playing": return
 	set_state("won")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var nxt := next_mode()
+	var total := run_time + time_played
 	if ui:
 		await ui.fade_to(1.0, 2.5)
-		await ui.show_win(time_played, night, NIGHTS_TOTAL)
+		await ui.show_win(time_played if nxt != "" else total, night, NIGHTS_TOTAL, mode, nxt)
 	night = 1
+	run_time = total if nxt != "" else 0.0
+	pending_mode = nxt
 	get_tree().reload_current_scene()
+
+## The chapter that follows the one being played ("" after the last one, or when its level was not built).
+func next_mode() -> String:
+	var i := CHAPTER_ORDER.find("normal" if mode == "explore" else mode)
+	if i < 0 or i + 1 >= CHAPTER_ORDER.size(): return ""
+	var nxt: String = CHAPTER_ORDER[i + 1]
+	var level: Node = etage if nxt == "etage" else dehors
+	return nxt if level != null and is_instance_valid(level) else ""
 
 func _process(delta: float) -> void:
 	if state == "playing": time_played += delta

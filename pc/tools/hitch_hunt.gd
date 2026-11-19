@@ -209,7 +209,7 @@ func _tour_dehors() -> void:
 	await idle("gate chained", 30)
 	await spin("gate spin")
 	dtp.call(117.0, 0.0, 1.2, 90.0)
-	await idle("she comes out", 330)
+	await idle("she comes out", 250)
 	await spin("lantern spin")
 	await walk_to("past the swing", 120.4, -2.3, 120)
 	await idle("the swing", 45)

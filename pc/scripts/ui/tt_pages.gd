@@ -316,7 +316,7 @@ func loading(b: TT) -> void:
 	b.pnum("100", "RECHERCHE DU SIGNAL", G)
 	b.bar(3, R, 2)
 	b.text(3, "c", "LA GARDIENNE", Y, true)
-	b.text(5, "c", "CHAPITRE 1 — LE SOUS-SOL", C)
+	b.text(5, "c", ui.loading_chapter(), C)
 	b.text(7, "c", str(L.get("text", "")) if str(L.get("text", "")) != "" else "CHARGEMENT…", W)
 	var p := Style.clamp01(float(L.get("p", 0.0)))
 	var n := 24
@@ -456,12 +456,12 @@ func win(b: TT) -> void:
 		b.rect(roundf(i * bw), 0, roundf((i + 1) * bw) - roundf(i * bw), 5, bars[i])
 	for i in b.cols:
 		b.rect(i, 5, 1, 1, K if i % 2 else W)
-	b.text(6, "c", "FIN DE LA DIFFUSION", W, true)
-	b.text(8, "c", "TU T’ES ÉCHAPPÉ.", Y)
-	b.info(9, "TEMPS", str(e.get("time_str", "")))
+	b.text(6, "c", str(e.get("title", "FIN DE LA DIFFUSION")), W, true)
+	b.text(8, "c", str(e.get("head", "TU T’ES ÉCHAPPÉ.")), Y)
+	b.info(9, str(e.get("time_label", "TEMPS")), str(e.get("time_str", "")))
 	b.info(10, "NUITS", "%d / %d" % [int(e.get("nights_used", 1)), int(e.get("total", 3))])
 	var ls := b.wrap_text(str(e.get("text", "")), b.cols - 4)
 	for i in mini(2, ls.size()):
 		b.text(11 + i, "c", ls[i], C)
-	_end_item(b, b.rows - 3, "REJOUER")
-	b.ticker("MERCI D’AVOIR REGARDÉ CANAL 3   ·   CHAPITRE 2 BIENTÔT   ·   BONNE NUIT", B, Y)
+	_end_item(b, b.rows - 3, str(e.get("go", "REJOUER")))
+	b.ticker(str(e.get("ticker", "MERCI D’AVOIR REGARDÉ CANAL 3   ·   BONNE NUIT")), B, Y)

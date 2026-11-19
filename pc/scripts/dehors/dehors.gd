@@ -581,8 +581,8 @@ func _on_setting(key: String, value: Variant) -> void:
 func prewarm(on: bool) -> void:
 	if active:
 		return
-	# (not shown yet: only while the tour camera stands in the yard, see prewarm_view — the moon is a directional
-	# light, and the rooms of the other chapters must be rehearsed without it, as they are played)
+	# (not shown yet: only while the tour camera stands in the yard, see prewarm_view — the rooms of the other
+	# chapters must be rehearsed as they are played, without this level's sky, fog and moon)
 	visible = false
 	_prewarming = on
 	for n in ["hands", "led", "pebble"]:
@@ -596,19 +596,27 @@ func prewarm(on: bool) -> void:
 		_set_look(false)
 		_apply_state()
 
-## Called for every view of the rehearsal: the night look only where the yard is, and her in front of the camera.
+## Called for every view of the rehearsal, before its first frame: the night look only where the yard is. She is not
+## in this frame: her skin uses subsurface scattering, which switches the whole frame to another set of pipelines,
+## and every view must be drawn once without it (measured: three draw-time compilations on the first frame of play
+## otherwise) and once with it (prewarm_her).
 func prewarm_view(cam: Camera3D) -> void:
 	if active or not _prewarming or cam == null:
 		return
 	var inside := L.contains(cam.global_position)
 	visible = inside
 	_set_look(inside)
-	if inside:
-		var f := -cam.global_transform.basis.z
-		f = Vector3(f.x, 0.0, f.z).normalized()
-		var at := cam.global_position + f * 3.4 + Vector3(f.z, 0.0, -f.x) * 0.9
-		at.y = ground_height_at(at.x, at.z, cam.global_position.y - 1.6)
-		her.prewarm_at(at, atan2(-f.x, -f.z))
+	her.visible = false
+
+## Second frame of the same view: she stands in front of the camera, lantern lit.
+func prewarm_her(cam: Camera3D) -> void:
+	if active or not _prewarming or cam == null or not L.contains(cam.global_position):
+		return
+	var f := -cam.global_transform.basis.z
+	f = Vector3(f.x, 0.0, f.z).normalized()
+	var at := cam.global_position + f * 3.4 + Vector3(f.z, 0.0, -f.x) * 0.9
+	at.y = ground_height_at(at.x, at.z, cam.global_position.y - 1.6)
+	her.prewarm_at(at, atan2(-f.x, -f.z))
 
 # ====================================================================== start / reset
 

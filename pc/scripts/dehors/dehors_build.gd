@@ -689,27 +689,31 @@ static func _gate(c) -> void:
 
 static func _lights(c) -> void:
 	var lr: Node3D = c.region("dh_lights")
-	# the moon, low in the south-east, through thin cloud
-	var moon := DirectionalLight3D.new()
+	# The moon, in the south-east, through thin cloud. Not a DirectionalLight3D: its shadow would be drawn again every
+	# frame (measured on the test machine's software renderer: 9 s a frame with it, 0.8 s without). A spot light 110 m
+	# away, in the moon's direction, whose cone holds the whole plot: nothing that casts a shadow here ever moves, so
+	# its shadow map is drawn once and kept. Its range is very long on purpose (the near plane of a spot's shadow is a
+	# fraction of its range: a long range is what gives the depth its precision at 110 m, and no falloff over the yard).
+	var to_moon := Vector3(0.48, 0.62, 0.62).normalized()
+	var centre := Vector3(125.0, 0.0, 0.0)
+	var moon := SpotLight3D.new()
 	moon.name = "Moon"
+	moon.position = centre + to_moon * 110.0
+	moon.basis = Basis.looking_at(-to_moon, Vector3.UP)
 	moon.light_color = MOON
-	moon.light_energy = 1.4
+	moon.light_energy = 0.95
 	moon.light_specular = 0.9
+	moon.spot_range = 1400.0
+	moon.spot_attenuation = 0.0
+	moon.spot_angle = 18.5
+	moon.spot_angle_attenuation = 0.25
 	moon.light_cull_mask = MASK
 	moon.shadow_enabled = true
-	moon.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
-	moon.directional_shadow_max_distance = 46.0
-	moon.directional_shadow_split_1 = 0.3
-	moon.directional_shadow_blend_splits = true
-	moon.directional_shadow_fade_start = 0.85
-	moon.shadow_bias = 0.06
-	moon.shadow_normal_bias = 2.0
-	moon.shadow_blur = 1.6
-	moon.light_angular_distance = 1.2
-	moon.light_volumetric_fog_energy = 1.0
-	moon.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_ONLY
-	var to_moon := Vector3(0.48, 0.62, 0.62).normalized()
-	moon.basis = Basis.looking_at(-to_moon, Vector3.UP)
+	# (the engine divides a spot's bias by distance / range: with this range, 0.001 is about 20 cm at the yard)
+	moon.shadow_bias = 0.001
+	moon.shadow_normal_bias = 1.5
+	moon.shadow_blur = 2.0
+	moon.light_volumetric_fog_energy = 1.7
 	lr.add_child(moon)
 	c.room_fx["moon"] = moon
 	c.room_fx["moon_dir"] = to_moon
@@ -832,11 +836,9 @@ static func _finish(c) -> void:
 	st.ambient_color_energy = 0.0
 	st.cull_mask = m
 	(c.room_fx["probes"] as Array).append(st)
-	# mist lying on the lawn, thicker in the hollows; a breath of it in the greenhouse
+	# mist lying on the lawn, thicker in the hollow under the oak
 	_fog(c, Vector3(125.0, 0.5, 0.0), Vector3(46.0, 1.4, 38.0), 0.05, 1.6)
 	_fog(c, Vector3(133.0, 0.9, -1.5), Vector3(13.0, 2.4, 12.0), 0.035, 0.8)
-	_fog(c, Vector3(145.0, 1.0, 8.5), Vector3(8.0, 2.6, 8.0), 0.045, 0.6)
-	_fog(c, Vector3(127.0, 1.2, 14.1), Vector3(5.6, 2.2, 3.4), 0.03)
 	c.room_fx["dust"] = _dust(c, c.room_fx["cave_dust"], Vector3(2.2, 0.05, 2.0))
 	# dead leaves blown against things, on the porch, on the car, down the cellar steps
 	var lf := Color(1.0, 1.0, 1.0, 0.95)

@@ -807,14 +807,33 @@ func show_game_over() -> void:
 	var total := int(Game.NIGHTS_TOTAL)
 	await _show_end("gameover", {"total": total, "text": "Trois nuits. Personne n’est venu te chercher. Tu fais partie du sous-sol, maintenant."}, 2.2)
 
-func show_win(time: float, night_: int, total: int) -> void:
+## chapter: the Game.mode that was just won; next: the mode that follows ("" = the game is finished).
+func show_win(time: float, night_: int, total: int, chapter := "", next := "") -> void:
 	var s := maxi(0, roundi(time))
 	var hh := s / 3600
 	var mm := (s % 3600) / 60
 	var ss := s % 60
 	var time_str := ("%d H %02d MIN" % [hh, mm]) if hh > 0 else ("%d MIN %02d S" % [mm, ss])
-	var text := "Sans te faire attraper une seule fois." if night_ <= 1 else "En bas, quelqu’un fredonne encore."
-	await _show_end("win", {"time_str": time_str, "nights_used": night_, "total": total, "text": text}, 2.0)
+	var cfg := {"time_str": time_str, "nights_used": night_, "total": total, "next": next}
+	if next == "etage":
+		cfg.merge({"title": "FIN DU CHAPITRE 1", "head": "TU ES SORTI DU SOUS-SOL.", "go": "CONTINUER — CHAPITRE 2",
+			"text": "Mais la maison est encore au-dessus de toi.", "ticker": "À SUIVRE : CHAPITRE 2 — L’ÉTAGE   ·   NE FAIS PAS DE BRUIT"})
+	elif next == "dehors":
+		cfg.merge({"title": "FIN DU CHAPITRE 2", "head": "LA PORTE D’ENTRÉE EST OUVERTE.", "go": "CONTINUER — CHAPITRE 3",
+			"text": "Dehors, il fait nuit. La grille est au bout de l’allée.", "ticker": "À SUIVRE : CHAPITRE 3 — DEHORS   ·   ELLE ÉCOUTE"})
+	else:
+		cfg.merge({"title": "FIN DE LA DIFFUSION", "head": "TU T’ES ÉCHAPPÉ.", "go": "REJOUER",
+			"text": "Sans te faire attraper une seule fois." if night_ <= 1 else "Derrière toi, quelqu’un fredonne encore.",
+			"ticker": "MERCI D’AVOIR REGARDÉ CANAL 3   ·   BONNE NUIT"})
+		if chapter == "dehors": cfg["time_label"] = "TEMPS TOTAL"
+	await _show_end("win", cfg, 2.0)
+
+## The chapter named on the loading page: the one about to start when the page follows a won chapter.
+func loading_chapter() -> String:
+	match Game.pending_mode:
+		"etage": return "CHAPITRE 2 — L’ÉTAGE"
+		"dehors": return "CHAPITRE 3 — DEHORS"
+	return "CHAPITRE 1 — LE SOUS-SOL"
 
 # ================================================================ fade
 

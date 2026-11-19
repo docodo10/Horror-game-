@@ -45,7 +45,7 @@ static func _walls(c, reg: String, R: Dictionary, bands: Array, sides: Dictionar
 		var liner: bool = d.get("liner", false)
 		var t: float = 0.012 if liner else float(d.get("t", 0.1))
 		var o := t * 0.5 * (1.0 if liner else -1.0)        # toward the inside for a facing, outside for a wall
-		var ext := 0.0 if liner else t
+		var ext := 0.0 if liner else 0.1               # how far a wall runs on past the corners
 		var a := Vector2.ZERO
 		var b := Vector2.ZERO
 		var u0 := 0.0
@@ -59,12 +59,13 @@ static func _walls(c, reg: String, R: Dictionary, bands: Array, sides: Dictionar
 				b = Vector2(x1 + ext, z1 - o)
 				u0 = a.x
 			"W":
-				a = Vector2(x0 + o, z0)
-				b = Vector2(x0 + o, z1)
+				# (run on into the thickness of the walls at both ends: no seam at the corners)
+				a = Vector2(x0 + o, z0 - ext)
+				b = Vector2(x0 + o, z1 + ext)
 				u0 = a.y
 			_:
-				a = Vector2(x1 - o, z0)
-				b = Vector2(x1 - o, z1)
+				a = Vector2(x1 - o, z0 - ext)
+				b = Vector2(x1 - o, z1 + ext)
 				u0 = a.y
 		var opens: Array = d.get("open", [])
 		for bd in bands:
@@ -105,7 +106,8 @@ static func _slabs(c, reg: String, R: Dictionary, floor_mat: String, ceil_col :=
 	var k = c.kit(reg)
 	var ch: float = R.ceil
 	k.box(floor_mat, Vector3(float(R.x0), -0.2, float(R.z0)), Vector3(float(R.x1), 0.0, float(R.z1)), W, 1.0, Kit.FACE_PY)
-	k.box("plaster", Vector3(float(R.x0), ch, float(R.z0)), Vector3(float(R.x1), ch + 0.2, float(R.z1)), ceil_col, 1.0, Kit.FACE_NY)
+	# (the top face too: seen from the moon outside, it is what keeps its light out of the room)
+	k.box("plaster", Vector3(float(R.x0) - 0.1, ch, float(R.z0) - 0.1), Vector3(float(R.x1) + 0.1, ch + 0.2, float(R.z1) + 0.1), ceil_col, 1.0, Kit.FACE_NY | Kit.FACE_PY)
 	c.col(reg).box(Vector3(float(R.x0), ch, float(R.z0)), Vector3(float(R.x1), ch + 0.2, float(R.z1)))
 
 ## A light that only fills (no shadow), masked to the level.
@@ -250,7 +252,9 @@ static func _cuisine(c) -> void:
 		"N": {"liner": true, "open": [[float(dq.x0) - 0.02, float(dq.x1) + 0.02, 0.0, float(dq.h) + 0.02]]},
 		"S": {"open": [[float(wn[0]), float(wn[1]), float(wn[2]), float(wn[3])]]},
 		"W": {"open": [[float(dp.z0), float(dp.z1), 0.0, float(dp.h)]]},
-		"E": {}}, 1.3, "panel")
+		# (the east wall is thick: the hallway window's moon rakes it from outside, and through 10 cm its shadow
+		# starts late enough to leave a line of light up the corner behind the fridge)
+		"E": {"t": 0.35}}, 1.3, "panel")
 	# the pantry door's threshold and casing (the wall is the two rooms' walls back to back)
 	k.box("panel", Vector3(x0 - 0.2, -0.02, float(dp.z0)), Vector3(x0, 0.006, float(dp.z1)), Color(0.8, 0.8, 0.8))
 	Build._casing_z(k, float(dp.z0), float(dp.z1), x0 - 0.1, 0.2, float(dp.h))
@@ -899,20 +903,22 @@ static func _escalier(c) -> void:
 	var dark := Color(0.86, 0.86, 0.86)
 	k.box("floorboards", Vector3(x0, -0.2, z0), Vector3(x1, 0.0, z1), W, 1.0, Kit.FACE_PY)
 	# ceilings: over the foot of the stairs and the passage beside them; lower under the upper landing
-	k.box("plaster", Vector3(x0, ch, zf), Vector3(x1, ch + 0.2, z1), W, 1.0, Kit.FACE_NY)
-	k.box("plaster", Vector3(x0, ch, zl), Vector3(sx0, ch + 0.2, zf), W, 1.0, Kit.FACE_NY)
+	k.box("plaster", Vector3(x0, ch, zf), Vector3(x1, ch + 0.2, z1), W, 1.0, Kit.FACE_NY | Kit.FACE_PY)
+	k.box("plaster", Vector3(x0, ch, zl), Vector3(sx0, ch + 0.2, zf), W, 1.0, Kit.FACE_NY | Kit.FACE_PY)
 	k.box("plaster", Vector3(x0, ly - 0.2, z0), Vector3(sx0, ly, zl), W, 1.0, Kit.FACE_NY | Kit.FACE_PY)
 	k.box("wallpaper_house", Vector3(x0, ly - 0.2, zl - 0.02), Vector3(sx0 - 0.02, ly, zl), W)
 	cl.box(Vector3(x0, ch, zf), Vector3(x1, ch + 0.2, z1))
 	cl.box(Vector3(x0, ch, zl), Vector3(sx0, ch + 0.2, zf))
 	cl.box(Vector3(x0, ly - 0.2, z0), Vector3(sx0, ch + 0.2, zl))
 	# east and north walls, all the way up the stair void; the void's own walls above the ceilings
-	Shell.wall(c, reg, "wallpaper_house", Vector2(x1 + 0.05, z0 - 0.1), Vector2(x1 + 0.05, z1), 0.1, 0.0, vt + 0.2)
-	Shell.wall(c, reg, "wallpaper_house", Vector2(x0, z0 - 0.05), Vector2(x1 + 0.1, z0 - 0.05), 0.1, 0.0, vt + 0.2,
-		[[float(wn[0]) - x0, float(wn[1]) - x0, float(wn[2]), float(wn[3])]])
+	# (both run on into the walls they meet: no seam for the moon to find)
+	Shell.wall(c, reg, "wallpaper_house", Vector2(x1 + 0.05, z0 - 0.1), Vector2(x1 + 0.05, z1 + 0.1), 0.1, 0.0, vt + 0.2)
+	Shell.wall(c, reg, "wallpaper_house", Vector2(x0 - 0.1, z0 - 0.05), Vector2(x1 + 0.1, z0 - 0.05), 0.1, 0.0, vt + 0.2,
+		[[float(wn[0]) - x0 + 0.1, float(wn[1]) - x0 + 0.1, float(wn[2]), float(wn[3])]])
 	k.box("wallpaper_house", Vector3(sx0 - 0.1, ch, zl), Vector3(sx0, vt + 0.2, zf), W)
 	k.box("wallpaper_house", Vector3(sx0 - 0.1, ch, zf), Vector3(x1, vt + 0.2, zf + 0.1), W)
-	k.box("plaster", Vector3(x0, vt, z0), Vector3(x1, vt + 0.2, zf), W, 1.0, Kit.FACE_NY)
+	# (its top face keeps the moon out: the light comes in through the window only)
+	k.box("plaster", Vector3(x0 - 0.1, vt, z0 - 0.1), Vector3(x1 + 0.1, vt + 0.2, zf + 0.1), W, 1.0, Kit.FACE_NY | Kit.FACE_PY)
 	# the upper landing goes on west into the dark: a short passage nobody uses any more
 	k.box("wallpaper_house", Vector3(x0, ly, zl - 0.02), Vector3(sx0 - 0.1, vt + 0.2, zl), W)
 	k.box("dark", Vector3(x0, ly, z0), Vector3(x0 + 0.02, vt, zl), W)
@@ -1148,7 +1154,7 @@ static func _finish(c) -> void:
 	var pc: float = P.ceil
 	var vt: float = L.VOID_TOP
 	for w in [[Vector3(float(Q.x0) + 0.02, qc - 0.01, float(Q.z0) + 0.03), Vector3(1, 0, 1), 0.8], [Vector3(float(Q.x1) - 0.02, qc - 0.01, float(Q.z1) - 0.02), Vector3(-1, 0, -1), 0.9],
-			[Vector3(float(Q.x1) - 0.02, qc - 0.01, float(Q.z0) + 0.03), Vector3(-1, 0, 1), 0.6], [Vector3(60.4, 1.86, 3.0), Vector3(1, 0, 0.2), 0.4],
+			[Vector3(60.4, 1.86, 3.0), Vector3(1, 0, 0.2), 0.4],
 			[Vector3(float(B.x0) + 0.02, bc - 0.01, float(B.z1) - 0.02), Vector3(1, 0, -1), 0.7], [Vector3(float(B.x1) - 0.02, bc - 0.01, float(B.z0) + 0.03), Vector3(-1, 0, 1), 0.6],
 			[Vector3(float(P.x0) + 0.02, pc - 0.01, float(P.z0) + 0.02), Vector3(1, 0, 1), 0.7], [Vector3(float(P.x1) - 0.02, pc - 0.01, float(P.z1) - 0.02), Vector3(-1, 0, -1), 0.7],
 			[Vector3(float(P.x0) + 0.36, 2.04, float(P.z1) - 0.04), Vector3(0, 0, -1), 0.5], [Vector3(float(E.x0) + 0.02, float(E.ceil) - 0.01, float(E.z1) - 0.02), Vector3(1, 0, -0.4), 0.7],

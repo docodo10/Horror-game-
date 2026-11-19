@@ -71,7 +71,7 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a == "--autostart" or a.begins_with("--shot"):
 			autostart = true
-	if autostart:
+	if autostart or Game.pending_mode != "":      # (pending_mode: the chapter before was just won — straight on to the next)
 		Game.start()
 	else:
 		Game.set_state("menu")
@@ -244,6 +244,8 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 				var at := cam.global_position + flat * 2.2
 				ent.debug_place(Vector3(at.x, st[1] - 1.6, at.z), atan2(-flat.x, -flat.z), "walk" if di % 2 == 0 else "chase", -1.0, "camera")
 				if ent.has_method("prewarm_frame"): ent.prewarm_frame(0.05)
+			# (chapter 3's own figure too: like La Gardienne, after a first frame of the view without her)
+			if Game.dehors and Game.dehors.has_method("prewarm_her"): Game.dehors.prewarm_her(cam)
 			await get_tree().process_frame
 			if shot != "" and di < 2 and si in [0, 9]:
 				await RenderingServer.frame_post_draw
