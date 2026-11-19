@@ -214,10 +214,40 @@ func _refresh_env(force := false) -> void:
 ## of play and a 4th in front of the television, measured on high. While this is on, the mirror view follows the
 ## rehearsal camera, so that everything the rehearsal shows is drawn once through the mirror view too.
 var _prewarm := false
+## The camera the mirror answers to. Null: the viewport's current camera. The loading rehearsal sets its own here:
+## while the television menu is on, the menu takes the current camera back every frame, so during the rehearsal
+## "the current camera" was the menu's and the glass never met the rehearsal's views (it stayed off through the
+## whole loading; measured).
+var view_camera: Camera3D = null
+
+func _view_cam() -> Camera3D:
+	if view_camera != null and is_instance_valid(view_camera): return view_camera
+	return get_viewport().get_camera_3d()
 
 func prewarm(on: bool) -> void:
 	_prewarm = on and _live_ok and _vp != null
 	if _vp != null: _vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if (mirror_active or _prewarm) else SubViewport.UPDATE_DISABLED
+
+## Camera poses from which the glass is live in play. The rehearsal ends on them, once the mirror view is back to
+## normal: prewarm() draws the room through the mirror view, but not the glass switching to its live material nor
+## the reflected view itself. Those were compiled by chance when the rehearsal ended in the basement; with the stops
+## of the other chapters after it they were not, and the first second of play in the basement compiled them
+## (measured on high with a chapter loaded: 15 blocking compiles at the start and in front of the television).
+func prewarm_poses() -> Array:
+	var out: Array = []
+	if not _live_ok or _mirror_root == null or _glass == null or not _glass.is_visible_in_tree(): return out
+	var mw := _mirror_root.global_transform
+	var n := mw.basis.z.normalized()
+	var side := mw.basis.x.normalized()
+	var c := mw * Vector3(0.0, (GLASS.minY + GLASS.maxY) * 0.5, GLASS.z)
+	for d in [0.9, 2.2, ACTIVE_DIST - 0.4]:
+		for k in [-1.0, 0.0, 1.0]:
+			var eye: Vector3 = c + n * d + side * (k * d * 0.45)
+			eye.y = c.y + 0.1
+			var t := Transform3D(Basis.IDENTITY, eye).looking_at(c, Vector3.UP)
+			for yaw in [-0.5, 0.0, 0.5]:          # the glass in the middle of the view, then near each edge of it
+				out.append(Transform3D(Basis(Vector3.UP, yaw) * t.basis, eye))
+	return out
 
 func _set_mirror_live(on: bool) -> void:
 	mirror_active = on
@@ -237,7 +267,7 @@ func _process(dt: float) -> void:
 	if _env_check <= 0.0:
 		_env_check = 1.0
 		_refresh_env()
-	var cam := get_viewport().get_camera_3d()
+	var cam := _view_cam()
 	var want := false
 	if cam != null and _glass.is_visible_in_tree():
 		var mw := _mirror_root.global_transform
@@ -257,7 +287,7 @@ func _process(dt: float) -> void:
 ## Places the mirror camera right before rendering (after the player wrote its camera this frame).
 func _pre_draw() -> void:
 	if _cam == null or not is_inside_tree(): return
-	var cam := get_viewport().get_camera_3d()
+	var cam := _view_cam()
 	if cam == null: return
 	if _prewarm:
 		_cam.global_transform = cam.global_transform

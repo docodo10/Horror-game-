@@ -220,7 +220,9 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 	if Game.etage and Game.etage.has_method("prewarm"): Game.etage.prewarm(true)
 	if Game.dehors and Game.dehors.has_method("prewarm"): Game.dehors.prewarm(true)
 	var refl = Game.world.get("reflections") if Game.world else null      # the mirror's own view draws the tour too
-	if refl != null and refl.has_method("prewarm"): refl.prewarm(true)
+	if refl != null and refl.has_method("prewarm"):
+		refl.set("view_camera", cam)
+		refl.prewarm(true)
 	_rebuild_geometry()
 	var ent = Game.entity
 	# La Gardienne joins only while she is idle upstairs (or switched off): never touch her in the middle of a visit
@@ -265,6 +267,23 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 	for n in shown:
 		if is_instance_valid(n): (n as Node3D).visible = false
 	if Game.interaction and Game.interaction.has_method("prewarm_end"): Game.interaction.prewarm_end(hl)
+	# Last, with everything back as it is in play: the basement mirror for real (its glass switching to the live
+	# reflection, the reflected view), from where the player meets it. The stops above end far from it.
+	if refl != null and refl.has_method("prewarm_poses"):
+		var first := true
+		var wlog := DebugTools.args.has("warmup-log")
+		for t in refl.prewarm_poses():
+			cam.global_transform = t
+			keep.call()
+			if first:
+				first = false
+				_refresh_zone()
+			var c0 := [RenderingServer.get_rendering_info(9), RenderingServer.get_rendering_info(8)]
+			await get_tree().process_frame
+			await get_tree().process_frame
+			if wlog: print("[warmup] mirror pose %s live=%s current=%s compiles draw+%d surface+%d" % [str(t.origin), str(refl.get("mirror_active")),
+				str(vp.get_camera_3d().name if vp.get_camera_3d() else "-"), RenderingServer.get_rendering_info(9) - c0[0], RenderingServer.get_rendering_info(8) - c0[1]])
+	if refl != null: refl.set("view_camera", null)
 	if shot != "" and Game.ui and Game.ui.get("crt") is CanvasItem: (Game.ui.get("crt") as CanvasItem).visible = true
 	vp.use_occlusion_culling = occ
 	RenderingServer.frame_pre_draw.disconnect(keep)
