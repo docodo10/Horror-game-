@@ -75,6 +75,12 @@ const TABLE := {
 	"dread_layer": ["music", 0.0, {"rv": 0.0, "jit": false, "single": true}],
 	"piano_sting": ["sfx", 0.0, {"max": 1, "gap": 1.0, "ref": 2.2, "jit": false}],
 	"floor_creak_long": ["sfx", 0.0, {"max": 2, "gap": 0.15, "ref": 1.4}],
+	# l'étage, the rooms added later (generated: scripts/etage/tools/gen_etage2_sounds.py)
+	"tap_run": ["sfx", 0.0, {"max": 2, "ref": 1.0, "jit": false, "rnd": true}],
+	"fridge_hum": ["sfx", 0.0, {"max": 1, "ref": 0.9, "jit": false, "rnd": true}],
+	"furniture_drag": ["sfx", 0.0, {"max": 1, "gap": 0.5, "ref": 1.6, "jit": false}],
+	"curtain_rings": ["sfx", 0.0, {"max": 1, "gap": 0.3, "ref": 1.2}],
+	"pipe_knock": ["sfx", 0.0, {"max": 1, "gap": 1.0, "ref": 1.6}],
 	"tv_static": ["sfx", 2.0, {"ref": 1.1, "pos": "tv", "jit": false, "single": true, "rnd": true}],
 	"tv_on": ["sfx", 0.0, {"max": 1, "gap": 0.2, "pos": "tv"}],
 	"tv_off": ["sfx", -2.0, {"max": 1, "gap": 0.2, "pos": "tv"}],

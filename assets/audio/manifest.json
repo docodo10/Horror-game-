@@ -596,5 +596,40 @@
   ],
   "loop": false,
   "gainDb": -4
+ },
+ "tap_run": {
+  "files": [
+   "assets/audio/etage/tap_run.mp3"
+  ],
+  "loop": true,
+  "gainDb": -8
+ },
+ "fridge_hum": {
+  "files": [
+   "assets/audio/etage/fridge_hum.mp3"
+  ],
+  "loop": true,
+  "gainDb": -12
+ },
+ "furniture_drag": {
+  "files": [
+   "assets/audio/etage/furniture_drag.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "curtain_rings": {
+  "files": [
+   "assets/audio/etage/curtain_rings.mp3"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "pipe_knock": {
+  "files": [
+   "assets/audio/etage/pipe_knock.mp3"
+  ],
+  "loop": false,
+  "gainDb": -2
  }
 }
