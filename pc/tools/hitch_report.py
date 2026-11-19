@@ -7,7 +7,17 @@ from collections import OrderedDict
 
 path = sys.argv[1]
 show_all = "--all" in sys.argv
-rows = list(csv.DictReader(open(path)))
+# (a step label may hold commas: everything between the lap and the last 17 fields is the label)
+_lines = open(path).read().splitlines()
+_head = _lines[0].split(",")
+rows = []
+for _l in _lines[1:]:
+    _f = _l.split(",")
+    if len(_f) < len(_head):
+        continue
+    _extra = len(_f) - len(_head)
+    _f = [_f[0], ",".join(_f[1:2 + _extra])] + _f[2 + _extra:]
+    rows.append(dict(zip(_head, _f)))
 for r in rows:
     for k in ("lap", "frame", "draw_calls", "prims", "objects", "c_draw", "c_surface", "c_mesh", "c_spec", "c_canvas", "vmem_mb"):
         r[k] = int(r[k])
