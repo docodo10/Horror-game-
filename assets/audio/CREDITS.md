@@ -180,3 +180,14 @@ Synthèse originale (numpy / scipy, aucun enregistrement, aucune mélodie exista
 | floor_creak_long | `etage/floor_creak_long_1.mp3` | Synthèse : long grincement de plancher (adhérence-glissement 90–260 Hz, chocs de bois), 1,35 s | projet (généré) | original |
 | floor_creak_long | `etage/floor_creak_long_2.mp3` | Synthèse : idem, descendant, 1,70 s | projet (généré) | original |
 | floor_creak_long | `etage/floor_creak_long_3.mp3` | Synthèse : idem, montant puis retombant, 1,98 s | projet (généré) | original |
+
+Pièces ajoutées à l'étage (cuisine, garde-manger, salle de bain, cage d'escalier) : synthèse originale produite par
+`pc/scripts/etage/tools/gen_etage2_sounds.py` (graines fixes) ; même licence que le jeu.
+
+| Son | Fichier | Source | Auteur | Licence |
+|---|---|---|---|---|
+| tap_run | `etage/tap_run.mp3` | Synthèse : eau d'un vieux robinet dans une vasque émaillée (souffle, corps, glouglous), boucle de 4 s | projet (généré) | original |
+| fridge_hum | `etage/fridge_hum.mp3` | Synthèse : compresseur d'un vieux réfrigérateur (50 Hz et harmoniques, tôle qui vibre), boucle de 4 s | projet (généré) | original |
+| furniture_drag | `etage/furniture_drag.mp3` | Synthèse : buffet poussé sur du linoléum (adhérence-glissement, pieds qui butent, vaisselle), 2,6 s | projet (généré) | original |
+| curtain_rings | `etage/curtain_rings.mp3` | Synthèse : anneaux de métal glissant sur une tringle, toile qui suit, 1,05 s | projet (généré) | original |
+| pipe_knock | `etage/pipe_knock.mp3` | Synthèse : trois coups sur un tuyau d'eau dans un mur, résonances, 2,2 s | projet (généré) | original |

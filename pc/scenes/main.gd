@@ -13,6 +13,7 @@ const SurfacesModule := preload("res://scripts/surfaces/surfaces.gd")
 const GarderieModule := preload("res://scripts/garderie/garderie.gd")
 const FearModule := preload("res://scripts/fear/fear_director.gd")
 const EtageModule := preload("res://scripts/etage/etage.gd")
+const DehorsModule := preload("res://scripts/dehors/dehors.gd")
 const AutoQuality := preload("res://scripts/render/auto_quality.gd")
 
 func _ready() -> void:
@@ -42,6 +43,11 @@ func _ready() -> void:
 		ui.show_loading(0.9, "L’étage…")
 		var etage := EtageModule.new(); etage.name = "Etage"; add_child(etage); Game.etage = etage
 		await etage.build()
+	# Chapter 3, "dehors": the yard, built further east still, hidden until it is started.
+	if not DebugTools.args.has("no-dehors"):
+		ui.show_loading(0.94, "Dehors…")
+		var dehors := DehorsModule.new(); dehors.name = "Dehors"; add_child(dehors); Game.dehors = dehors
+		await dehors.build()
 	Events.settings_changed.connect(_on_settings_changed)
 
 	var inventory := Inventory.new(); inventory.name = "Inventory"; add_child(inventory); Game.inventory = inventory
@@ -92,7 +98,10 @@ const CALIB_VIEWS := [[0.25, 1.6, 1.6, 0.0, -3.0], [-17.9, 0.55, 2.7, 94.0, -11.
 const WARMUP_STOPS := [[0.4, 1.6, 0.2], [1.4, 1.6, -3.6], [-2.0, 1.6, -1.4], [-3.0, 2.8, 0.2], [-3.0, 4.35, -2.3],
 	[-3.0, 4.35, -3.6], [-7.5, 1.6, 2.1], [-14.0, 1.6, 2.1], [-19.5, 0.55, 2.5], [-26.0, 0.55, 2.0], [-33.0, 0.55, 6.0],
 	[-28.5, 2.4, 3.0], [-7.6, 1.6, -1.2], [-6.5, 1.6, 4.6], [-13.4, 1.6, 6.8],
-	[55.0, 1.6, 0.0], [61.0, 1.6, -0.2], [61.2, 1.6, -4.4], [54.4, 1.6, -3.0]]      # the last four: l'étage (chapter 2)
+	[55.0, 1.6, 0.0], [61.0, 1.6, -0.2], [61.2, 1.6, -4.4], [54.4, 1.6, -3.0],      # these four: l'étage (chapter 2)
+	# dehors (chapter 3): porch, lawn, driveway by the car, greenhouse, shed, cellar, gate, under the oak
+	[105.5, 1.96, 0.0], [118.0, 1.6, -1.0], [114.0, 1.6, 7.6], [127.0, 1.6, 14.0], [140.4, 1.65, -13.6], [108.2, -0.9, -13.1],
+	[143.2, 1.6, 8.5], [130.0, 1.6, -4.0]]
 ## yaw, pitch (degrees) looked at from each stop: four sides, then up and down.
 const WARMUP_DIRS := [[0.0, -12.0], [90.0, -12.0], [180.0, -12.0], [270.0, -12.0], [45.0, 62.0], [225.0, -62.0]]
 
@@ -206,6 +215,7 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 		mi.scale = Vector3.ONE * 0.1
 		props.add_child(mi)
 	if Game.etage and Game.etage.has_method("prewarm"): Game.etage.prewarm(true)
+	if Game.dehors and Game.dehors.has_method("prewarm"): Game.dehors.prewarm(true)
 	var refl = Game.world.get("reflections") if Game.world else null      # the mirror's own view draws the tour too
 	if refl != null and refl.has_method("prewarm"): refl.prewarm(true)
 	_rebuild_geometry()
@@ -222,6 +232,8 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 			_tour_view(cam, [st[0], st[1], st[2], d[0], d[1]])
 			keep.call()
 			if di == 0: _refresh_zone()
+			# (the yard of chapter 3 has its own sky and fog: on while the camera stands in it, off elsewhere)
+			if Game.dehors and Game.dehors.has_method("prewarm_view"): Game.dehors.prewarm_view(cam)
 			var fwd := -cam.global_transform.basis.z
 			var flat := Vector3(fwd.x, 0.0, fwd.z).normalized()
 			props.global_position = cam.global_position + fwd * 1.2
@@ -240,6 +252,7 @@ func _dress_rehearsal(cam: Camera3D) -> void:
 		si += 1
 	if has_ent: ent.debug_release()
 	if Game.etage and Game.etage.has_method("prewarm"): Game.etage.prewarm(false)
+	if Game.dehors and Game.dehors.has_method("prewarm"): Game.dehors.prewarm(false)
 	if refl != null and refl.has_method("prewarm"): refl.prewarm(false)
 	props.queue_free()
 	for gp in parts:

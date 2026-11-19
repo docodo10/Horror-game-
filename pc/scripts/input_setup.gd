@@ -28,6 +28,7 @@ static func setup() -> void:
 		"crouch": [_key(KEY_C), _key(KEY_CTRL), _joy(JOY_BUTTON_B)],
 		"interact": [_key(KEY_E), _mouse(MOUSE_BUTTON_LEFT), _joy(JOY_BUTTON_A)],
 		"flashlight": [_key(KEY_F), _joy(JOY_BUTTON_Y)],
+		"throw": [_key(KEY_G), _mouse(MOUSE_BUTTON_RIGHT), _joy(JOY_BUTTON_X)],      # chapter 3: a pebble
 		"pause": [_key(KEY_ESCAPE), _key(KEY_P), _joy(JOY_BUTTON_START)],
 		"objective": [_key(KEY_TAB), _joy(JOY_BUTTON_BACK)],
 	}

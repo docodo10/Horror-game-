@@ -133,7 +133,7 @@ const BASIN := Vector3(52.4, 0.84, 2.1)              # on the west wall: the poi
 const MIRROR := Vector3(52.4, 1.52, 2.1)             # centre of the glass, 0.56 wide (z), 0.76 high
 const MIRROR_SIZE := Vector2(0.56, 0.76)
 const HEATER := Vector3(53.05, 1.72, 1.24)           # the water heater, on the north wall
-const BATH_FIGURE := [Vector3(53.3, 0.1, 3.8), 1.72, Vector3(55.0, 0.0, 1.7)]      # in the tub; later, at the door
+const BATH_FIGURE := [Vector3(53.3, 0.1, 3.8), 1.72, Vector3(54.2, 0.0, 1.75)]     # in the tub; later, beside the door
 
 ## la cage d'escalier
 const STAIR := {"x0": 67.0, "x1": 68.0, "z_foot": -2.4, "run": 0.26, "rise": 0.19, "steps": 12}
@@ -144,14 +144,15 @@ const FUSE_BOARD := Vector3(65.7, 1.46, -4.3)        # centre of the board, on t
 const STAIR_FIGURE := [Vector3(67.5, 2.28, -5.84), 1.78]
 
 ## Doorways as the walkers use them: room -> [the room it opens from, a point before the door, a point past it,
-## half the free width of the doorway]. Every room hangs from the hallway (the pantry from the kitchen).
+## half the free width of the doorway]. Every room hangs from the hallway (the pantry from the kitchen). In the
+## hallway the points lie near its middle line: the clock and the console table stand against the walls.
 const PORTALS := {
-	"salon": ["hall", Vector3(60.7, 0.0, -0.35), Vector3(60.7, 0.0, -1.5), 0.5],
-	"chambre": ["hall", Vector3(55.04, 0.0, -0.35), Vector3(55.04, 0.0, -1.5), 0.2],
-	"closet": ["hall", Vector3(57.4, 0.0, 0.35), Vector3(57.4, 0.0, 1.35), 0.2],
-	"bain": ["hall", Vector3(55.03, 0.0, 0.35), Vector3(55.03, 0.0, 1.5), 0.2],
-	"cuisine": ["hall", Vector3(60.35, 0.0, 0.35), Vector3(60.35, 0.0, 1.5), 0.22],
-	"escalier": ["hall", Vector3(67.13, 0.0, -0.35), Vector3(67.13, 0.0, -1.5), 0.2],
+	"salon": ["hall", Vector3(60.7, 0.0, -0.1), Vector3(60.7, 0.0, -1.5), 0.5],
+	"chambre": ["hall", Vector3(55.04, 0.0, -0.1), Vector3(55.04, 0.0, -1.5), 0.2],
+	"closet": ["hall", Vector3(57.4, 0.0, 0.1), Vector3(57.4, 0.0, 1.35), 0.2],
+	"bain": ["hall", Vector3(55.03, 0.0, 0.1), Vector3(55.03, 0.0, 1.5), 0.2],
+	"cuisine": ["hall", Vector3(60.35, 0.0, 0.1), Vector3(60.35, 0.0, 1.5), 0.22],
+	"escalier": ["hall", Vector3(67.13, 0.0, -0.1), Vector3(67.13, 0.0, -1.5), 0.2],
 	"cellier": ["cuisine", Vector3(58.86, 0.0, 3.7), Vector3(57.6, 0.0, 3.7), 0.2],
 }
 

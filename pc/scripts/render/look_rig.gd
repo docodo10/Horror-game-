@@ -298,6 +298,8 @@ func _apply_environment() -> void:
 	e.volumetric_fog_temporal_reprojection_enabled = true
 	e.volumetric_fog_temporal_reprojection_amount = 0.85
 	e.adjustment_enabled = false
+	# an outdoor level lays its night over all this while it is shown (set_outdoor)
+	for k in _outdoor: e.set(k, _outdoor[k])
 	if _dbg.has("look-nogi"):
 		e.sdfgi_enabled = false
 		e.ssil_enabled = false
@@ -382,7 +384,17 @@ static func parse_tune(text: String) -> Dictionary:
 
 func set_fill(v: float) -> void:
 	_fill = maxf(0.0, v)
-	if environment != null and not preset.is_empty(): environment.ambient_light_energy = float(preset.ambient) * _fill
+	if environment != null and not preset.is_empty() and not _outdoor.has("ambient_light_energy"):
+		environment.ambient_light_energy = float(preset.ambient) * _fill
+
+## Outdoor hook (chapter 3, scripts/dehors/dehors.gd): Environment properties laid over the interior look while a
+## level under the open sky is shown — sky, depth fog, ambient, fog tuning. Keys are Environment property names;
+## {} gives the interior look back. Applied again after every preset change.
+var _outdoor := {}
+
+func set_outdoor(overrides: Dictionary) -> void:
+	_outdoor = overrides.duplicate()
+	if not preset.is_empty(): _apply_environment()
 
 func set_fear(v: float) -> void:
 	_fear_set = clampf(v, 0.0, 1.0)

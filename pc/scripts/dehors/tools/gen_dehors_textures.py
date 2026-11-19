@@ -294,7 +294,7 @@ def clapboard():
     rng = np.random.default_rng(72)
     tone = rng.uniform(0.9, 1.05, nb)[rows]
     paint = np.stack([0.62 * tone, 0.61 * tone, 0.56 * tone], -1) * (0.9 + 0.14 * grain[..., None])
-    wood = np.stack([0.24 + 0.14 * grain, 0.21 + 0.12 * grain, 0.17 + 0.1 * grain], -1)
+    wood = np.stack([0.36 + 0.12 * grain, 0.34 + 0.11 * grain, 0.31 + 0.1 * grain], -1)
     # paint peels along the grain, more toward the lower edge of each board
     peel_a = fft_noise(S, 1.9, 73, sx=0.6, sy=1.4)
     peel_b = fft_noise(S, 0.8, 74, lo=10, sx=0.35, sy=1.6)
@@ -303,7 +303,7 @@ def clapboard():
     for b in range(nb):                                 # every board flakes on its own
         m = rows == b
         peel_n[m] = (np.roll(peel_a, int(shifts[b]), 1) + 0.3 * np.roll(peel_b, int(shifts[b]) * 3, 1))[m]
-    peel = np.clip((peel_n + 0.2 * v - 0.84) * 7.0, 0, 1)
+    peel = np.clip((peel_n + 0.2 * v - 0.92) * 7.0, 0, 1)
     rgb = paint * (1 - peel[..., None]) + wood * peel[..., None]
     # shadow under each lap, dirt runs
     lap = np.clip(1.0 - v / 0.07, 0, 1)

@@ -126,12 +126,17 @@ static func occlusion(sz: int, lz: int, door_t: float, sp: Vector3, lp: Vector3)
 	return Vector2(hz, g)
 
 
-## Web Audio "inverse" distance model (PannerNode: refDistance, rolloffFactor), plus a smooth fade 20 -> 25 m.
+## Where every sound fades out (m: full level up to x, silent from y on). The house is small: 20 -> 25 m. An open
+## level sets its own while it runs (chapter 3, scripts/dehors/dehors.gd) and puts FAR_FADE back when it ends.
+const FAR_FADE := Vector2(20.0, 25.0)
+static var far_fade := FAR_FADE
+
+## Web Audio "inverse" distance model (PannerNode: refDistance, rolloffFactor), plus a smooth fade (far_fade).
 static func distance_gain(ref: float, roll: float, d: float) -> float:
 	var dd := maxf(d, ref)
 	var g := ref / (ref + roll * (dd - ref))
-	if d > 20.0:
-		g *= 1.0 - smoothstep(20.0, 25.0, d)
+	if d > far_fade.x:
+		g *= 1.0 - smoothstep(far_fade.x, far_fade.y, d)
 	return g
 
 

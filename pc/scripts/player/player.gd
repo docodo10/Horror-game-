@@ -61,8 +61,10 @@ const LAYER_WORLD := 1
 const LAYER_PLAYER := 4
 
 # noise loudness table (ARCHITECTURE.md §4)
-const LOUD := {"crouch": 0.03, "carpet": 0.10, "concrete": 0.10, "wood": 0.18, "sprint": 0.45, "bump": 0.3, "click": 0.02, "land": 0.3}
-const STEP_SFX := {"carpet": "footstep_carpet", "wood": "footstep_wood", "concrete": "footstep_concrete"}
+const LOUD := {"crouch": 0.03, "carpet": 0.10, "concrete": 0.10, "wood": 0.18, "sprint": 0.45, "bump": 0.3, "click": 0.02, "land": 0.3,
+	"grass": 0.05, "gravel": 0.34, "leaves": 0.28}                # the last three: outdoors (chapter 3)
+const STEP_SFX := {"carpet": "footstep_carpet", "wood": "footstep_wood", "concrete": "footstep_concrete",
+	"grass": "footstep_grass", "gravel": "footstep_gravel", "leaves": "footstep_leaves"}
 
 # flashlight: three.js SpotLight(0xfff0dc, 42 cd, 18 m, 0.42 rad, penumbra 0.45, decay 2), camera-local offset right/down.
 # Godot (non-physical units) multiplies energy by PI and its Lambert BRDF divides by PI: 42 cd <=> 42 / PI.
@@ -689,7 +691,12 @@ func _update_ground(dt: float, body: Vector3) -> void:
 		and _ground > 0.1) or _ground > 1.5
 	var gard = Game.garderie
 	var et = Game.etage
-	if et != null and is_instance_valid(et) and et.in_area(body):
+	var dh = Game.dehors
+	if dh != null and is_instance_valid(dh) and dh.in_area(body):
+		# chapter 3: grass, gravel, dead leaves, the boards of the porch and the shed, the stone of the cellar
+		var ds := str(dh.surface_at(body))
+		surface = ds if STEP_SFX.has(ds) else "grass"
+	elif et != null and is_instance_valid(et) and et.in_area(body):
 		# chapter 2: old floorboards, a runner rug down the hallway
 		surface = "wood" if str(et.surface_at(body)) == "wood" else "carpet"
 	elif x < -3.7 and gard != null and is_instance_valid(gard) and gard.in_area(body):
@@ -784,7 +791,7 @@ func _footstep(hs: float) -> void:
 	var loud := 0.0
 	if crouched:
 		vol = 0.3
-		loud = float(LOUD.crouch) * (1.5 if surf == "wood" else 1.0)
+		loud = float(LOUD.crouch) * (1.5 if surf in ["wood", "gravel", "leaves"] else 1.0)
 	elif run_fast:
 		vol = 1.0
 		loud = LOUD.sprint

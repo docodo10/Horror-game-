@@ -77,3 +77,13 @@ figures, no real person), `sheet_n.png` (512 normal map of a cotton dust sheet).
 
 Re-generate: `python3 -I pc/scripts/etage/tools/gen_etage_textures.py`, then `write_imports.py` (new files only) and
 `godot --headless --path pc --import` as above.
+
+The rooms added to l'étage (kitchen, pantry, bathroom, stairwell): original, procedural, written by
+`pc/scripts/etage/tools/gen_etage2_textures.py` (fixed seeds; lettering set in the fonts the game already ships in
+`pc/assets/fonts`: Gelasio, Caveat, Special Elite, all OFL): `lino_checker.jpg` (worn kitchen linoleum, 8 x 8 checks of
+20 cm, one repeat = 1.6 m), `calendar_1994.jpg` (512x768 wall calendar, "NOVEMBRE 1994", a drawn landscape, days 1-11
+crossed in pencil), `digits_hand.png` (5 x 2 atlas of the digits 0-9 drawn by hand, alpha; lossless), `fog_mirror.png`
+(condensation on a mirror with runs of drops, alpha; lossless), `steam_puff.png` (one puff of steam, alpha; lossless),
+`etage_labels.jpg` (2x2 atlas: the fuse board's card, four jar labels, the tin of fuses, a key tag and a strip of
+sticking plaster). The script writes the `.import` presets of its new files itself; then
+`godot --headless --path pc --import`.

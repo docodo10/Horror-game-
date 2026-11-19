@@ -58,7 +58,10 @@ func _make(id: String) -> Material:
 		"dh_trees":
 			return _cut("trees.png", Color(1.0, 1.0, 1.0), 0.35)
 		"dh_tuft":
-			return _cut("tuft.png", Color(0.6, 0.62, 0.55), 0.4)
+			# (both faces of a tuft are in the mesh, their normals up: see dehors_util.card)
+			var tf := _cut("tuft.png", Color(0.75, 0.78, 0.7), 0.4)
+			tf.cull_mode = BaseMaterial3D.CULL_BACK
+			return tf
 		"dh_glass":
 			# greenhouse panes: dirty, see-through, a mirror at grazing angles
 			var gl := StandardMaterial3D.new()

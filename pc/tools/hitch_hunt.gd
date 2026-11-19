@@ -184,6 +184,117 @@ func _tour_etage() -> void:
 	await spin("door spin", 26, 0.26)
 	await idle("wait at the door", 40)
 
+## Chapter 3 on foot (run with: -- --autostart --mode=dehors --no-garderie --no-etage --part=dehors): the porch, the
+## lawn, the gate (she comes out of the house), the swing, a thrown pebble, the car (horn, the boot), the greenhouse
+## (pots, the hand prints), the shed (door, radio), the playhouse, the chimes, the cellar (doors, steps, the slam),
+## the chain cut (her lantern out), a capture. The level is started afresh at the top of each lap.
+func _tour_dehors() -> void:
+	var D = G.get(&"dehors")
+	var I: Node = G.get(&"interaction")
+	if D == null:
+		return
+	var dtp := func(x: float, y: float, z: float, yaw_deg: float) -> void:
+		D.call("teleport_player", Vector3(x, y, z), deg_to_rad(yaw_deg), 0.0)
+	D.call("restart")
+	await idle("dehors start", 30)
+	await spin("porch spin")
+	await walk_to("down the steps", 109.6, 0.0, 120)
+	await spin("path spin")
+	dtp.call(118.0, 0.0, -1.0, -90.0)
+	await idle("lawn", 10)
+	await spin("lawn spin")
+	dtp.call(143.4, 0.0, 8.5, -90.0)
+	await idle("gate", 10)
+	I.call("activate", "dehors.gate", true)
+	await idle("gate chained", 30)
+	await spin("gate spin")
+	dtp.call(117.0, 0.0, 1.2, 90.0)
+	await idle("she comes out", 330)
+	await spin("lantern spin")
+	await walk_to("past the swing", 120.4, -2.3, 120)
+	await idle("the swing", 45)
+	I.call("activate", "dehors.pebbles_0", true)
+	dtp.call(121.0, 0.0, 8.5, -90.0)
+	await idle("driveway", 10)
+	D.call("throw_pebble")
+	await idle("pebble", 60)
+	await spin("driveway spin")
+	dtp.call(113.2, 0.0, 8.5, 180.0)
+	await idle("car", 10)
+	await spin("car spin")
+	I.call("activate", "dehors.horn", true)
+	await idle("horn", 40)
+	dtp.call(109.15, 0.0, 10.6, -90.0)
+	I.call("activate", "dehors.hide_car", true)
+	await idle("in the boot", 90)
+	I.call("activate", "dehors.exit_car", true)
+	await idle("out of the boot", 70)
+	dtp.call(127.0, 0.0, 10.8, 180.0)
+	await idle("serre door", 10)
+	await walk_to("into the serre", 127.0, 14.1, 100)
+	await spin("serre spin")
+	for i in 4:
+		I.call("activate", "dehors.pot_%d" % i, true)
+		await idle("pot %d" % i, 14)
+	I.call("activate", "dehors.key_shed", true)
+	await idle("hand prints", 60)
+	await spin("serre spin 2")
+	dtp.call(140.05, 0.0, -10.4, 0.0)
+	await idle("shed door", 10)
+	I.call("activate", "dehors.shed_door", true)
+	await idle("shed opens", 70)
+	await walk_to("into the shed", 140.3, -13.5, 120)
+	await spin("shed spin")
+	I.call("activate", "dehors.key_cave", true)
+	I.call("activate", "dehors.radio", true)
+	await idle("radio on", 40)
+	I.call("activate", "dehors.radio", true)
+	await idle("radio off", 10)
+	dtp.call(116.1, 0.0, -6.5, 90.0)
+	await idle("playhouse", 10)
+	I.call("activate", "dehors.hide_cabane", true)
+	await idle("in the playhouse", 80)
+	I.call("activate", "dehors.exit_cabane", true)
+	await idle("out of the playhouse", 60)
+	dtp.call(108.0, 0.0, 2.4, 80.0)
+	I.call("activate", "dehors.chimes", true)
+	await idle("chimes", 50)
+	dtp.call(115.4, 0.0, -13.1, 90.0)
+	await idle("cellar doors", 10)
+	I.call("activate", "dehors.trap", true)
+	await idle("padlock", 10)
+	I.call("activate", "dehors.trap", true)
+	await idle("doors open", 80)
+	await walk_to("down the steps a", 113.0, -13.1, 90)
+	await walk_to("down the steps b", 110.0, -13.1, 140)
+	await spin("cellar spin")
+	await walk_to("to the table", 106.9, -12.5, 110)
+	I.call("activate", "dehors.cutters", true)
+	await idle("the doors slam", 130)
+	await spin("cellar dark spin")
+	I.call("activate", "dehors.trap_in", true)
+	await idle("doors pushed open", 60)
+	dtp.call(143.4, 0.0, 8.5, -90.0)
+	await idle("gate again", 10)
+	I.call("activate", "dehors.gate", true)
+	await idle("chain cut", 60)
+	await spin("gate spin 2")
+	# she walks into the player: the capture, the card, the level as it was
+	dtp.call(128.0, 0.0, 4.0, 90.0)
+	D.get("her").call("spawn", Vector3(124.5, 0.0, 4.0))
+	await idle("she is close", 20)
+	E.emit_signal("noise", Vector3(128.0, 0.0, 4.0), 0.6, "tour")
+	var guard := 0
+	while String(G.get(&"state")) == "playing" and guard < 240:
+		await idle("she comes", 1)
+		guard += 1
+	guard = 0
+	while String(G.get(&"state")) != "playing" and guard < 600:
+		await idle("caught screen", 1)
+		guard += 1
+	await idle("after caught", 50)
+	await spin("porch again spin")
+
 func idle(label: String, n: int) -> void:
 	_step = label
 	for i in n: await _frame()
@@ -281,6 +392,9 @@ func _lap_tour() -> void:
 		return
 	if _part == "etage":
 		await _tour_etage()
+		return
+	if _part == "dehors":
+		await _tour_dehors()
 		return
 	if _part != "garderie": await _tour_basement()
 	if _part != "basement": await _tour_garderie()

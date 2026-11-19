@@ -52,7 +52,7 @@ const PovLayer := preload("res://scripts/audio/pov_layer.gd")
 
 const MANIFEST_PATH := "res://assets/audio/manifest.json"
 ## Extra manifests merged into the library (same format, new names only): the fear module's synthesized sounds.
-const EXTRA_MANIFESTS := ["res://assets/audio/fear/manifest.json"]
+const EXTRA_MANIFESTS := ["res://assets/audio/fear/manifest.json", "res://assets/audio/dehors/manifest.json"]
 const SELFTEST_PATH := "res://scripts/audio/tests/audio_selftest.gd"
 const POOL_3D := 64
 const POOL_2D := 24

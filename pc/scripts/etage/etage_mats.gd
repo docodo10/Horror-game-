@@ -43,6 +43,7 @@ func _make(id: String) -> Material:
 			# preserving jars: dark glass, what is inside gives the colour (vertex colours)
 			var j := StandardMaterial3D.new()
 			j.vertex_color_use_as_albedo = true
+			j.vertex_color_is_srgb = true
 			j.roughness = 0.08
 			j.metallic_specular = 0.9
 			j.clearcoat_enabled = true
@@ -56,13 +57,13 @@ func _make(id: String) -> Material:
 				"normal_strength": 0.6, "tint_low": Color(0.5, 0.52, 0.44), "tint_high": Color(0.56, 0.57, 0.5)})
 		"frost_glow":
 			# frosted panes with the night behind them
-			return _emit(Color(0.2, 0.27, 0.4), 0.55)
+			return _emit(Color(0.2, 0.25, 0.33), 0.4)
 		"fridge_glow":
 			return _emit(Color(1.0, 0.97, 0.8), 5.0)
 		"pilot_glow":
 			return _emit(Color(1.0, 0.4, 0.1), 3.0)
 		"fog_mirror":
-			return _alpha_tex("fog_mirror.png", Color(1, 1, 1, 0.0), 0)
+			return _alpha_tex("fog_mirror.png", Color(0.42, 0.46, 0.45, 0.0), 0)
 		"digit_fog":
 			# the digit a finger left in the steam: clear glass, so darker than the mist around it
 			return _alpha_tex("digits_hand.png", Color(0.03, 0.04, 0.04, 0.0), 1)
@@ -70,6 +71,15 @@ func _make(id: String) -> Material:
 			var di := _alpha_tex("digits_hand.png", Color(0.1, 0.1, 0.24, 0.92), 1)
 			di.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 			return di
+		"cal_page":
+			# printed paper that does not burn white in the torch's beam
+			var cp := _paper("calendar_1994.jpg", false)
+			cp.albedo_color = Color(0.56, 0.54, 0.48)
+			return cp
+		"labels_page":
+			var lp := _paper("etage_labels.jpg", false)
+			lp.albedo_color = Color(0.6, 0.58, 0.52)
+			return lp
 		"red_pencil":
 			var rp := StandardMaterial3D.new()
 			rp.albedo_color = Color(0.5, 0.05, 0.04)

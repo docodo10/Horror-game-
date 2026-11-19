@@ -346,7 +346,9 @@ func _refresh_ctx(dt: float) -> void:
 	var in_garderie: bool = feet.x < -3.68 and g != null
 	var et = Game.etage
 	var in_etage: bool = et != null and is_instance_valid(et) and et.in_area(feet)      # chapter 2 runs its own frights
-	var in_house: bool = not in_garderie and not in_etage and feet.y < 2.2
+	var dh = Game.dehors
+	var in_dehors: bool = dh != null and is_instance_valid(dh) and dh.in_area(feet)    # so does chapter 3
+	var in_house: bool = not in_garderie and not in_etage and not in_dehors and feet.y < 2.2
 	var in_nook: bool = feet.z < float(R.minZ) - 0.05 and feet.x > 0.1
 	var dark: bool = not power
 	var ent = entity()

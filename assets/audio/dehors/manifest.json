@@ -1,0 +1,215 @@
+{
+ "footstep_grass": {
+  "files": [
+   "assets/audio/dehors/footstep_grass_1.ogg",
+   "assets/audio/dehors/footstep_grass_2.ogg",
+   "assets/audio/dehors/footstep_grass_3.ogg",
+   "assets/audio/dehors/footstep_grass_4.ogg",
+   "assets/audio/dehors/footstep_grass_5.ogg"
+  ],
+  "loop": false,
+  "gainDb": -7
+ },
+ "footstep_gravel": {
+  "files": [
+   "assets/audio/dehors/footstep_gravel_1.ogg",
+   "assets/audio/dehors/footstep_gravel_2.ogg",
+   "assets/audio/dehors/footstep_gravel_3.ogg",
+   "assets/audio/dehors/footstep_gravel_4.ogg",
+   "assets/audio/dehors/footstep_gravel_5.ogg"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "footstep_leaves": {
+  "files": [
+   "assets/audio/dehors/footstep_leaves_1.ogg",
+   "assets/audio/dehors/footstep_leaves_2.ogg",
+   "assets/audio/dehors/footstep_leaves_3.ogg",
+   "assets/audio/dehors/footstep_leaves_4.ogg",
+   "assets/audio/dehors/footstep_leaves_5.ogg"
+  ],
+  "loop": false,
+  "gainDb": -3
+ },
+ "dh_her_grass": {
+  "files": [
+   "assets/audio/dehors/dh_her_grass_1.ogg",
+   "assets/audio/dehors/dh_her_grass_2.ogg",
+   "assets/audio/dehors/dh_her_grass_3.ogg",
+   "assets/audio/dehors/dh_her_grass_4.ogg"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "dh_her_gravel": {
+  "files": [
+   "assets/audio/dehors/dh_her_gravel_1.ogg",
+   "assets/audio/dehors/dh_her_gravel_2.ogg",
+   "assets/audio/dehors/dh_her_gravel_3.ogg",
+   "assets/audio/dehors/dh_her_gravel_4.ogg"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "dh_her_leaves": {
+  "files": [
+   "assets/audio/dehors/dh_her_leaves_1.ogg",
+   "assets/audio/dehors/dh_her_leaves_2.ogg",
+   "assets/audio/dehors/dh_her_leaves_3.ogg",
+   "assets/audio/dehors/dh_her_leaves_4.ogg"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "dh_lantern": {
+  "files": [
+   "assets/audio/dehors/dh_lantern.ogg"
+  ],
+  "loop": true,
+  "gainDb": -8
+ },
+ "dh_wind": {
+  "files": [
+   "assets/audio/dehors/dh_wind.ogg"
+  ],
+  "loop": true,
+  "gainDb": -6
+ },
+ "dh_theme": {
+  "files": [
+   "assets/audio/dehors/dh_theme.ogg"
+  ],
+  "loop": true,
+  "gainDb": -6
+ },
+ "dh_owl": {
+  "files": [
+   "assets/audio/dehors/dh_owl_1.ogg",
+   "assets/audio/dehors/dh_owl_2.ogg"
+  ],
+  "loop": false,
+  "gainDb": -8
+ },
+ "dh_twig": {
+  "files": [
+   "assets/audio/dehors/dh_twig_1.ogg",
+   "assets/audio/dehors/dh_twig_2.ogg",
+   "assets/audio/dehors/dh_twig_3.ogg"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "dh_gust": {
+  "files": [
+   "assets/audio/dehors/dh_gust_1.ogg",
+   "assets/audio/dehors/dh_gust_2.ogg"
+  ],
+  "loop": false,
+  "gainDb": -6
+ },
+ "dh_chimes": {
+  "files": [
+   "assets/audio/dehors/dh_chimes.ogg"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "dh_horn": {
+  "files": [
+   "assets/audio/dehors/dh_horn.ogg"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "dh_horn_dead": {
+  "files": [
+   "assets/audio/dehors/dh_horn_dead.ogg"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "dh_radio": {
+  "files": [
+   "assets/audio/dehors/dh_radio.ogg"
+  ],
+  "loop": true,
+  "gainDb": -2
+ },
+ "dh_chain": {
+  "files": [
+   "assets/audio/dehors/dh_chain_1.ogg",
+   "assets/audio/dehors/dh_chain_2.ogg"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "dh_cut": {
+  "files": [
+   "assets/audio/dehors/dh_cut.ogg"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "dh_gate": {
+  "files": [
+   "assets/audio/dehors/dh_gate.ogg"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "dh_trap_open": {
+  "files": [
+   "assets/audio/dehors/dh_trap_open.ogg"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "dh_trap_slam": {
+  "files": [
+   "assets/audio/dehors/dh_trap_slam.ogg"
+  ],
+  "loop": false,
+  "gainDb": 2
+ },
+ "dh_pot": {
+  "files": [
+   "assets/audio/dehors/dh_pot_1.ogg",
+   "assets/audio/dehors/dh_pot_2.ogg",
+   "assets/audio/dehors/dh_pot_3.ogg"
+  ],
+  "loop": false,
+  "gainDb": -4
+ },
+ "dh_glass_bang": {
+  "files": [
+   "assets/audio/dehors/dh_glass_bang.ogg"
+  ],
+  "loop": false,
+  "gainDb": 2
+ },
+ "dh_stone_hard": {
+  "files": [
+   "assets/audio/dehors/dh_stone_hard_1.ogg",
+   "assets/audio/dehors/dh_stone_hard_2.ogg",
+   "assets/audio/dehors/dh_stone_hard_3.ogg"
+  ],
+  "loop": false,
+  "gainDb": 0
+ },
+ "dh_stone_soft": {
+  "files": [
+   "assets/audio/dehors/dh_stone_soft_1.ogg",
+   "assets/audio/dehors/dh_stone_soft_2.ogg"
+  ],
+  "loop": false,
+  "gainDb": -2
+ },
+ "dh_swing": {
+  "files": [
+   "assets/audio/dehors/dh_swing.ogg"
+  ],
+  "loop": false,
+  "gainDb": -2
+ }
+}

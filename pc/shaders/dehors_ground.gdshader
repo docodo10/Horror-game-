@@ -25,7 +25,7 @@ void fragment() {
 	vec2 p = wpos.xz;
 	vec4 nz = texture(noise_tex, p * 0.043);
 	vec4 nz2 = texture(noise_tex, p * 0.31 + vec2(0.37, 0.11));
-	vec2 warp = (vec2(nz.r, nz.g) - 0.5) * 0.9 + (vec2(nz2.b, nz2.a) - 0.5) * 0.22;
+	vec2 warp = (vec2(nz.r, nz.g) - 0.5) * 0.5 + (vec2(nz2.b, nz2.a) - 0.5) * 0.14;
 	vec4 m = texture(mask_tex, (p + warp - mask_rect.xy) * mask_rect.zw);
 	// sharpen the layer edges with the fine noise (stones spill onto the grass, leaves thin out)
 	float k_gravel = smoothstep(0.38, 0.62, m.r + (nz2.r - 0.5) * 0.35);

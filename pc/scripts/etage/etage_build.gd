@@ -1,8 +1,9 @@
 ## Geometry of l'étage (etage_layout.gd): the hallway, the salon under its dust sheets, her bedroom, the closet, the
-## doors and windows, the standing figures. Built with the garderie's kit / build context (regions, colliders, shared
-## material factory). What moves at runtime gets a region of its own, authored around its pivot (door leaves around
-## their hinge, figures around their feet): etage.gd places and drives those nodes. Things etage.gd needs are left
-## in c.room_fx (lights, positions).
+## doors and windows, the standing figures (the kitchen, the pantry, the bathroom and the stairwell are in
+## etage_rooms.gd). Built with the garderie's kit / build context (regions, colliders, shared material factory).
+## What moves at runtime gets a region of its own, authored around its pivot (door leaves around their hinge, figures
+## around their feet, the pillow around its middle): etage.gd places and drives those nodes. Things etage.gd needs
+## are left in c.room_fx (lights, positions).
 extends RefCounted
 
 const L := preload("res://scripts/etage/etage_layout.gd")
@@ -385,7 +386,7 @@ static func _hall(c) -> void:
 	var ch: float = H.ceil
 	var top := ch + 0.2
 	k.box("floorboards", Vector3(x0 - 0.2, -0.2, z0 - 0.2), Vector3(x1 + 0.2, 0.0, z1 + 0.2), Color.WHITE, 1.0, Kit.FACE_PY)
-	cl.box(Vector3(x0 - 0.3, -0.3, -8.4), Vector3(x1 + 0.3, 0.0, 2.3))                  # one slab under the whole level
+	cl.box(Vector3(x0 - 0.3, -0.3, -8.4), Vector3(x1 + 0.3, 0.0, 5.6))                  # one slab under the whole level
 	k.box("plaster", Vector3(x0, ch, z0), Vector3(x1, top, z1), Color.WHITE, 1.0, Kit.FACE_NY | Kit.FACE_PY)
 	cl.box(Vector3(x0, ch, z0), Vector3(x1, top, z1))
 	# the runner: u across its width, v along the hallway
@@ -397,13 +398,20 @@ static func _hall(c) -> void:
 	var dc: Dictionary = L.DOOR_CHAMBRE
 	var ds: Dictionary = L.DOOR_SALON
 	var dk: Dictionary = L.DOOR_CLOSET
+	var dbn: Dictionary = L.DOOR_BAIN
+	var dcu: Dictionary = L.DOOR_CUISINE
+	var des: Dictionary = L.DOOR_ESCALIER
 	var wx0 := x0 - 0.2
 	var wx1 := x1 + 0.2
-	# north wall (bedroom door, the salon's wide doorway), south wall (closet door, window)
+	# north wall (bedroom door, the salon's wide doorway, the stairwell's door), south wall (bathroom door, closet
+	# door, the kitchen's doorway, window)
 	Shell.wall(c, "et_shell", "wallpaper_house", Vector2(wx0, z0 - 0.1), Vector2(wx1, z0 - 0.1), 0.2, 0.0, top,
-		[[float(dc.x0) - wx0, float(dc.x1) - wx0, 0.0, float(dc.h)], [float(ds.x0) - wx0, float(ds.x1) - wx0, 0.0, float(ds.h)]])
+		[[float(dc.x0) - wx0, float(dc.x1) - wx0, 0.0, float(dc.h)], [float(ds.x0) - wx0, float(ds.x1) - wx0, 0.0, float(ds.h)],
+		[float(des.x0) - wx0, float(des.x1) - wx0, 0.0, float(des.h)]])
 	Shell.wall(c, "et_shell", "wallpaper_house", Vector2(wx0, z1 + 0.1), Vector2(wx1, z1 + 0.1), 0.2, 0.0, top,
-		[[float(dk.x0) - wx0, float(dk.x1) - wx0, 0.0, float(dk.h)], [float(L.WIN_HALL[0]) - wx0, float(L.WIN_HALL[1]) - wx0, float(L.WIN_Y0), float(L.WIN_Y1)]])
+		[[float(dbn.x0) - wx0, float(dbn.x1) - wx0, 0.0, float(dbn.h)], [float(dk.x0) - wx0, float(dk.x1) - wx0, 0.0, float(dk.h)],
+		[float(dcu.x0) - wx0, float(dcu.x1) - wx0, 0.0, float(dcu.h)],
+		[float(L.WIN_HALL[0]) - wx0, float(L.WIN_HALL[1]) - wx0, float(L.WIN_Y0), float(L.WIN_Y1)]])
 	# end walls: the basement door behind the player (west), the front door (east)
 	var db: Dictionary = L.DOOR_BASEMENT
 	var df: Dictionary = L.DOOR_FRONT
@@ -414,13 +422,17 @@ static func _hall(c) -> void:
 	_casing_x(tk, float(dc.x0), float(dc.x1), z0 - 0.1, 0.2, float(dc.h))
 	_casing_x(tk, float(ds.x0), float(ds.x1), z0 - 0.1, 0.2, float(ds.h))
 	_casing_x(tk, float(dk.x0), float(dk.x1), z1 + 0.1, 0.2, float(dk.h))
+	_casing_x(tk, float(des.x0), float(des.x1), z0 - 0.1, 0.2, float(des.h))
+	_casing_x(tk, float(dbn.x0), float(dbn.x1), z1 + 0.1, 0.2, float(dbn.h))
+	_casing_x(tk, float(dcu.x0), float(dcu.x1), z1 + 0.1, 0.2, float(dcu.h))
 	_casing_z(tk, float(db.z0), float(db.z1), x0 - 0.1, 0.2, float(db.h))
 	_casing_z(tk, float(df.z0), float(df.z1), x1 + 0.1, 0.2, float(df.h))
 	# wainscot between the openings
-	var spans_n := [[x0, float(dc.x0) - 0.09], [float(dc.x1) + 0.09, float(ds.x0) - 0.09], [float(ds.x1) + 0.09, x1]]
+	var spans_n := [[x0, float(dc.x0) - 0.09], [float(dc.x1) + 0.09, float(ds.x0) - 0.09], [float(ds.x1) + 0.09, float(des.x0) - 0.09],
+		[float(des.x1) + 0.09, x1]]
 	for sp in spans_n:
 		_wainscot(tk, float(sp[0]), float(sp[1]), z0, 1.0)
-	for sp in [[x0, float(dk.x0) - 0.09], [float(dk.x1) + 0.09, x1]]:
+	for sp in [[x0, float(dbn.x0) - 0.09], [float(dbn.x1) + 0.09, float(dk.x0) - 0.09], [float(dk.x1) + 0.09, float(dcu.x0) - 0.09], [float(dcu.x1) + 0.09, x1]]:
 		_wainscot(tk, float(sp[0]), float(sp[1]), z1, -1.0)
 	# the basement door, shut for good, and the wall behind both end doors
 	_leaf(tk, float(db.z1) - float(db.z0) - 0.04, float(db.h), Color(0.75, 0.75, 0.75), Transform3D(Basis(Vector3.UP, -PI * 0.5), Vector3(x0 - 0.08, 0.0, float(db.z0) + 0.02)))
@@ -519,7 +531,8 @@ static func _salon(c) -> void:
 				var fx := lerpf(float(side[0]), float(side[1]), (float(f) + 0.5) / 4.0)
 				pk.rbox("fabric", Vector3(fx - 0.055, 0.03, z0 + 0.02), Vector3(fx + 0.055, 2.5, z0 + 0.12 + 0.02 * (f % 2)), 0.04, 2, Color(0.2, 0.05, 0.05))
 		pk.tube("brass", PackedVector3Array([Vector3(float(w[0]) - 0.5, 2.52, z0 + 0.08), Vector3(float(w[1]) + 0.5, 2.52, z0 + 0.08)]), 0.014, 8, Color.WHITE)
-	# chimney breast, firebox, mantel; her portrait above it; the key lies on the mantel (its own region: it is taken)
+	# chimney breast, firebox, mantel; her portrait above it; the key (its own region: it is taken) lies in the box
+	# that stands on the mantel (etage_rooms.gd)
 	var mz: float = L.MANTEL.z
 	k.box("wallpaper_house", Vector3(x1 - 0.36, 0.0, mz - 0.85), Vector3(x1, top, mz + 0.85), Color.WHITE)
 	cl.box(Vector3(x1 - 0.36, 0.0, mz - 0.85), Vector3(x1, top, mz + 0.85))
@@ -603,7 +616,18 @@ static func _chambre(c) -> void:
 		pk.tube("steel_up", PackedVector3Array([Vector3(bx + sx, 0.55, z0 + 0.06), Vector3(bx + sx, 1.12, z0 + 0.06)]), 0.007, 6, Color(0.08, 0.08, 0.08))
 	pk.box("steel_up", Vector3(bx - 0.5, 0.3, z0 + 0.06), Vector3(bx + 0.5, 0.36, z0 + 2.04), Color(0.08, 0.08, 0.08))
 	pk.rbox("fabric", Vector3(bx - 0.48, 0.36, z0 + 0.1), Vector3(bx + 0.48, 0.52, z0 + 2.0), 0.05, 2, Color(0.7, 0.68, 0.6))
-	pk.rbox("fabric", Vector3(bx - 0.36, 0.5, z0 + 0.16), Vector3(bx + 0.36, 0.6, z0 + 0.55), 0.045, 3, Color(0.76, 0.74, 0.68))
+	# the pillow is lifted (own region, around its middle); under it, a slip of paper with one digit on it
+	var plk = c.kit("et_pillow")
+	plk.rbox("fabric", Vector3(-0.36, -0.05, -0.195), Vector3(0.36, 0.05, 0.195), 0.045, 3, Color(0.76, 0.74, 0.68))
+	var pil := Vector3(bx, 0.55, z0 + 0.355)
+	c.room_fx["pillow_pos"] = pil
+	var slip := Vector3(bx - 0.05, 0.522, z0 + 0.36)
+	var sb := Basis(Vector3.UP, 0.2)
+	pk.quad("debris_paper", slip + sb * Vector3(-0.07, 0, 0.09), slip + sb * Vector3(0.07, 0, 0.09), slip + sb * Vector3(0.07, 0, -0.09), slip + sb * Vector3(-0.07, 0, -0.09),
+		Vector3.UP, Vector2(0, 1), Vector2(1, 1), Vector2(1, 0), Vector2(0, 0), Color(0.86, 0.82, 0.7))
+	sb = Basis(Vector3.UP, 0.6)                    # (the digit reads from the side of the bed one comes to)
+	c.kit("et_slip_digit").quad("digit_ink", slip + sb * Vector3(-0.06, 0.002, 0.06), slip + sb * Vector3(0.06, 0.002, 0.06), slip + sb * Vector3(0.06, 0.002, -0.06), slip + sb * Vector3(-0.06, 0.002, -0.06),
+		Vector3.UP, Vector2(0, 1), Vector2(1, 1), Vector2(1, 0), Vector2(0, 0))
 	pk.rbox("fabric", Vector3(bx - 0.5, 0.5, bz + 0.25), Vector3(bx + 0.5, 0.62, z0 + 2.02), 0.05, 3, Color(0.3, 0.12, 0.14))
 	pk.rbox("fabric", Vector3(bx + 0.46, 0.06, bz + 0.3), Vector3(bx + 0.54, 0.58, z0 + 1.9), 0.03, 2, Color(0.3, 0.12, 0.14))
 	cl.box(Vector3(bx - 0.52, 0.0, z0), Vector3(bx + 0.54, 0.62, z0 + 2.06))
